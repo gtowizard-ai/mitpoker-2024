@@ -4,6 +4,14 @@ B.txt
 gamelog.txt
 *.class
 .DS_Store
-.idea/
 .metadata/
 build/
+
+# IDEs
+.vscode/
+.vs/
+.idea/
+cmake-build-debug/
+cmake-build-release/
+cmake-build-debug-event-trace/
+cmake-build-release-event-trace/
