@@ -1,0 +1,17 @@
+__pycache__/
+*.txt
+*.class
+.DS_Store
+.metadata/
+build/
+
+arena_results.json
+
+# IDEs
+.vscode/
+.vs/
+.idea/
+cmake-build-debug/
+cmake-build-release/
+cmake-build-debug-event-trace/
+cmake-build-release-event-trace/

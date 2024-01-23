@@ -1,0 +1,72 @@
+name: Arena
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  arena:
+    runs-on: ubuntu-22.04-4-cores
+    environment: LOCAL
+    env:
+      GIT_LFS_SKIP_SMUDGE: 1
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          filter: 'blob:none'
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
+
+      - name: Install python libraries
+        run: pip install -r requirements.txt
+
+      - name: Install Boost Library
+        run: sudo apt install libboost-all-dev
+
+      - name: Install GCC-12 & Configure
+        run: |
+          sudo bash ./scripts/install_gcc_12.sh
+          make configure
+
+      - name: Cache Benchmark library
+        uses: actions/cache@v3
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+
+      - name: Run the arena
+        run: |
+          python arena.py
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+
+      - name: Store benchmark result in branch
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: Arena Benchmark
+          tool: 'customBiggerIsBetter'
+          output-file-path: arena_results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          alert-threshold: '200%'
+          comment-on-alert: true
+          fail-on-alert: false
+          auto-push: true
+          benchmark-data-dir-path: "benchmarking/arena"
+
+      - name: Store benchmark result in cache
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: Arena Benchmark
+          tool: 'customBiggerIsBetter'
+          output-file-path: arena_results.json
+          external-data-json-path: ./cache/benchmark-data.json
