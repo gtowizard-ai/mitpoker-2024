@@ -26,10 +26,11 @@ def run_benchmark_vs_check_call_bot():
     check_call_bot = Player(name="check_or_call", path="./csrc/check_or_call_bot")
     players = _run_game(main_bot, check_call_bot)
 
+    won_in_bb = players[0].bankroll / BIG_BLIND
     return {
-        "name": "Results vs. Check/Call Player",
+        "name": "Results vs. Check/Call Bot",
         "unit": "Big blinds",
-        "value": players[0].bankroll / BIG_BLIND
+        "value": won_in_bb * (100.0 / NUM_HANDS)
     }
 
 def run_match_vs_bid_everything_bot():
@@ -37,10 +38,11 @@ def run_match_vs_bid_everything_bot():
     bid_everything_bot = Player(name="bid_everything_bot", path="./csrc/bid_everything_bot")
     players = _run_game(main_bot, bid_everything_bot)
 
+    won_in_bb = players[0].bankroll / BIG_BLIND
     return {
         "name": "Results vs. Bid Everything Bot",
-        "unit": "Big blinds",
-        "value": players[0].bankroll / BIG_BLIND
+        "unit": "BB/100",
+        "value": won_in_bb * (100.0 / NUM_HANDS)
     }
 
 
