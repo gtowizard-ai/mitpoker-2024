@@ -4,7 +4,7 @@
 
 using namespace pokerbots::skeleton;
 
-struct CheckOrCallBot {
+struct BidEverythingBot {
   void handle_new_round(const GameInfoPtr& /*game_state*/, const RoundStatePtr& /*round_state*/,
                         int /*active*/) {}
 
@@ -20,8 +20,6 @@ struct CheckOrCallBot {
   Action get_action(const GameInfoPtr& /*game_state*/, const RoundStatePtr& round_state,
                     int active) {
     auto legal_actions = round_state->legal_actions();
-    auto my_cards = round_state->hands[active];
-    auto board_cards = round_state->deck;
     auto min_stack = round_state->min_stack();
 
     // Basic bot that check/call preflop, then bids everything on the flop
@@ -44,6 +42,6 @@ struct CheckOrCallBot {
 */
 int main(int argc, char* argv[]) {
   auto [host, port] = parseArgs(argc, argv);
-  runBot<CheckOrCallBot>(host, port);
+  runBot<BidEverythingBot>(host, port);
   return 0;
 }
