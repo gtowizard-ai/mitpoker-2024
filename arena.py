@@ -22,11 +22,13 @@ def _run_match(player_1: Player, player_2: Player):
 
     game = Game()
     winnings_per_hand = []
-    prev_bankroll = players[0].bankroll
+    prev_bankroll = player_1.bankroll
     for _ in range(NUM_HANDS):
         game.run_round(players)
-        winnings_per_hand.append(players[0].bankroll - prev_bankroll)
-        prev_bankroll = players[0].bankroll
+        winnings_per_hand.append(player_1.bankroll - prev_bankroll)
+        prev_bankroll = player_1.bankroll
+        # Switch players position
+        players = players[::-1]
 
     for player in players:
         player.stop()
@@ -42,13 +44,13 @@ def _run_match(player_1: Player, player_2: Player):
 
     print(f"Results: {results.winrate:.2f} ± {results.stddev:.2f} bb/hand")
 
-    return players, results
+    return results
 
 
 def run_benchmark_vs_check_call_bot():
     main_bot = Player(name="main", path="./csrc/main_bot")
     check_call_bot = Player(name="check_or_call", path="./csrc/check_or_call_bot")
-    players, results = _run_match(main_bot, check_call_bot)
+    results = _run_match(main_bot, check_call_bot)
 
     return {
         "name": "Results vs. Check/Call Bot",
@@ -63,7 +65,7 @@ def run_match_vs_bid_everything_bot():
     bid_everything_bot = Player(
         name="bid_everything_bot", path="./csrc/bid_everything_bot"
     )
-    players, results = _run_match(main_bot, bid_everything_bot)
+    results = _run_match(main_bot, bid_everything_bot)
 
     return {
         "name": "Results vs. Bid Everything Bot",
