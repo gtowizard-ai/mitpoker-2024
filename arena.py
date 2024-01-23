@@ -22,7 +22,7 @@ def _run_match(player_1: Player, player_2: Player):
 
     game = Game()
     winnings_per_hand = []
-    prev_bankroll = 0
+    prev_bankroll = players[0].bankroll
     for _ in range(NUM_HANDS):
         game.run_round(players)
         winnings_per_hand.append(players[0].bankroll - prev_bankroll)
@@ -32,10 +32,9 @@ def _run_match(player_1: Player, player_2: Player):
         player.stop()
 
     assert len(winnings_per_hand) == NUM_HANDS
+
     bb_per_hand = [x / float(BIG_BLIND) for x in winnings_per_hand]
-
     stddev_match = math.sqrt(NUM_HANDS * statistics.variance(bb_per_hand))
-
     results = MatchResults(
         winrate=statistics.mean(bb_per_hand),
         stddev=stddev_match / NUM_HANDS,
