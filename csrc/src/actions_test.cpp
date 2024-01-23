@@ -1,5 +1,5 @@
+#include "../skeleton/actions.h"
 #include <gtest/gtest.h>
-#include "actions.h"
 
 using namespace pokerbots::skeleton;
 

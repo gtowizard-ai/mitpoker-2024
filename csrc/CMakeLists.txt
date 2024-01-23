@@ -30,12 +30,6 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-march=native)
 endif()
 
-
-file(GLOB_RECURSE BOT_SRC ${PROJECT_SOURCE_DIR}/src/*.cpp)
-add_executable(pokerbot ${BOT_SRC})
-target_include_directories(pokerbot PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(pokerbot skeleton)
-
 # Generate position-independent code (-fPIC / -fPIE)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -44,7 +38,6 @@ if(CMAKE_GENERATOR STREQUAL "Ninja")
     set(CMAKE_COLOR_DIAGNOSTICS ON)
     add_link_options($<IF:$<STREQUAL:$<CXX_COMPILER_ID>,GNU>,-fdiagnostics-color=always,-fcolor-diagnostics>)
 endif()
-
 
 # External libraries
 enable_testing()
@@ -55,21 +48,13 @@ target_link_libraries(dependencies INTERFACE third_party)
 # Add compiler warning flags
 add_compile_options(-Wfatal-errors -Wall -Wextra -Wnon-virtual-dtor -pedantic-errors)
 
-# Precompiled headers (in the order at https://en.cppreference.com/w/cpp/header for STL headers)
-set(precompiled_headers
-    <chrono> <functional> <optional> <tuple> <utility> <memory>
-    <cinttypes> <cstdint> <limits> <cassert> <stdexcept> <string> <string_view>
-    <array> <map> <set> <span> <unordered_map> <unordered_set> <vector> <ranges>
-    <algorithm> <cmath> <numeric> <random> <cstdio> <fstream> <iomanip> <sstream>
-    <mutex> <thread> <fmt/core.h> <fmt/ranges.h>)
-
 # Add tests
 add_custom_target(tests)
 file(GLOB_RECURSE tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" CONFIGURE_DEPENDS *_test.cpp)
 foreach(test_file IN LISTS tests)
     get_filename_component(test_name ${test_file} NAME_WLE)
     add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} third_party gmock_main)
+    target_link_libraries(${test_name} third_party gtest_main gmock_main)
     add_test(NAME ${test_name} COMMAND ${test_name})
     set_tests_properties(${test_name} PROPERTIES LABELS tools)
     add_dependencies(tests ${test_name})
@@ -78,3 +63,6 @@ endforeach()
 
 # Subdirectories
 add_subdirectory(skeleton)
+
+add_executable(pokerbot src/main.cpp)
+target_link_libraries(pokerbot skeleton)

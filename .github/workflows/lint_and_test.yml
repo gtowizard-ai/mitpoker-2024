@@ -1,0 +1,65 @@
+name: Lint and Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+
+jobs:
+  clang-formatting:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: clang-format
+        run: |
+            bash ./scripts/clang_format_all.sh
+            git diff --exit-code
+
+  build-and-test:
+    strategy:
+      matrix:
+        compiler: [gcc-12, clang-17]
+    runs-on: ubuntu-22.04-4-cores
+    environment: LOCAL
+    env:
+      GIT_LFS_SKIP_SMUDGE: 1
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          filter: 'blob:none'
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
+
+      - name: Install python libraries
+        run: pip install -r requirements.txt
+
+      - name: Install Boost Library
+        run: sudo apt install libboost-all-dev
+
+      - name: Install GCC-12 & Configure
+        if: matrix.compiler == 'gcc-12'
+        run: |
+          sudo bash ./scripts/install_gcc_12.sh
+          make configure
+
+      - name: Install Clang-17 & Configure
+        if: matrix.compiler == 'clang-17'
+        run: |
+          /home/linuxbrew/.linuxbrew/bin/brew install llvm@17
+          make configure
+        env:
+          CC: /home/linuxbrew/.linuxbrew/bin/clang
+          CXX: /home/linuxbrew/.linuxbrew/bin/clang++
+          CXXFLAGS: --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/12
+
+      - name: C++ tests
+        run: make test
