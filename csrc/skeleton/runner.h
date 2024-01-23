@@ -50,7 +50,7 @@ class Runner {
   ~Runner() { stream.close(); }
 
   void run() {
-    GameInfoPtr game_info = std::make_shared<GameInfo>(0, 0.0, 1);
+    GameInfo game_info(0, 0.0, 1);
     std::array<std::array<std::string, 3>, 2> empty_hand = {{{"", "", ""}, {"", "", ""}}};
     std::array<std::string, 5> empty_deck = {"", "", "", "", ""};
     StatePtr round_state = std::make_shared<RoundState>(
@@ -64,8 +64,7 @@ class Runner {
         auto leftover = clause.substr(1);
         switch (clause[0]) {
           case 'T': {
-            game_info = std::make_shared<GameInfo>(game_info->bankroll, std::stof(leftover),
-                                                   game_info->round_num);
+            game_info = GameInfo(game_info.bankroll, std::stof(leftover), game_info.round_num);
             break;
           }
           case 'P': {
@@ -155,7 +154,7 @@ class Runner {
             std::vector<std::string> cards;
             boost::split(cards, leftover, boost::is_any_of(","));
             std::array<std::string, 5> revisedDeck;
-            for (auto j = 0; j < cards.size(); ++j) {
+            for (unsigned j = 0; j < cards.size(); ++j) {
               revisedDeck[j] = cards[j];
             }
             auto maker = std::static_pointer_cast<const RoundState>(round_state);
@@ -189,12 +188,11 @@ class Runner {
             round_state = std::make_shared<TerminalState>(
                 deltas, std::array<std::optional<int>, 2>{0, 0},
                 std::static_pointer_cast<const TerminalState>(round_state)->previous_state);
-            game_info = std::make_shared<GameInfo>(game_info->bankroll + delta,
-                                                   game_info->game_clock, game_info->round_num);
+            game_info =
+                GameInfo(game_info.bankroll + delta, game_info.game_clock, game_info.round_num);
             pokerbot.handle_round_over(
                 game_info, std::static_pointer_cast<const TerminalState>(round_state), active);
-            game_info = std::make_shared<GameInfo>(game_info->bankroll, game_info->game_clock,
-                                                   game_info->round_num + 1);
+            game_info = GameInfo(game_info.bankroll, game_info.game_clock, game_info.round_num + 1);
             round_flag = true;
             break;
           }

@@ -15,7 +15,7 @@ struct MainBot {
     @param round_state The RoundState object.
     @param active Your player's index.
   */
-  void handle_new_round(const GameInfoPtr& /*game_state*/, const RoundStatePtr& /*round_state*/,
+  void handle_new_round(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,
                         int /*active*/) {
     // int my_bankroll = game_state->bankroll;  // the total number of chips you've gained or lost from the beginning of the game to the start of this round
     // float game_clock = game_state->game_clock;  // the total number of seconds your bot has left to play this game
@@ -31,8 +31,8 @@ struct MainBot {
     @param terminal_state The TerminalState object.
     @param active Your player's index.
   */
-  void handle_round_over(const GameInfoPtr& /*game_state*/,
-                         const TerminalStatePtr& /*terminal_state*/, int /*active*/) {
+  void handle_round_over(const GameInfo& /*game_state*/, const TerminalStatePtr& /*terminal_state*/,
+                         int /*active*/) {
     // int my_delta = terminal_state->deltas[active];  // your bankroll change from this round
     // auto previous_state = std::static_pointer_cast<const RoundState>(terminal_state->previous_state);  // RoundState before payoffs
     // int street = previous_state->street;  // 0, 3, 4, or 5 representing when this round ended
@@ -49,8 +49,7 @@ struct MainBot {
     @param active Your player's index.
     @return Your action.
   */
-  Action get_action(const GameInfoPtr& /*game_state*/, const RoundStatePtr& round_state,
-                    int active) {
+  Action get_action(const GameInfo& /*game_state*/, const RoundStatePtr& round_state, int active) {
 
     // May be useful, but you can choose to not use.
     auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take

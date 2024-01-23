@@ -5,20 +5,19 @@
 using namespace pokerbots::skeleton;
 
 struct BidEverythingBot {
-  void handle_new_round(const GameInfoPtr& /*game_state*/, const RoundStatePtr& /*round_state*/,
+  void handle_new_round(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,
                         int /*active*/) {}
 
-  void handle_round_over(const GameInfoPtr& /*game_state*/,
-                         const TerminalStatePtr& /*terminal_state*/, int /*active*/) {}
+  void handle_round_over(const GameInfo& /*game_state*/, const TerminalStatePtr& /*terminal_state*/,
+                         int /*active*/) {}
 
   /*
-    @param gameState The GameState object.
+    @param game_state The GameState object.
     @param round_state The RoundState object.
     @param active Your player's index.
     @return Your action.
   */
-  Action get_action(const GameInfoPtr& /*game_state*/, const RoundStatePtr& round_state,
-                    int active) {
+  Action get_action(const GameInfo& /*game_state*/, const RoundStatePtr& round_state, int active) {
     auto legal_actions = round_state->legal_actions();
     auto min_stack = round_state->min_stack();
 
