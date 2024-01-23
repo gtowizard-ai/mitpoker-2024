@@ -1,0 +1,9 @@
+__pycache__/
+A.txt
+B.txt
+gamelog.txt
+*.class
+.DS_Store
+.idea/
+.metadata/
+build/
