@@ -1,4 +1,4 @@
-#include "skeleton/states.h"
+#include "states.h"
 
 #include <algorithm>
 #include <numeric>
@@ -8,7 +8,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "skeleton/util.h"
+#include "util.h"
 
 namespace pokerbots::skeleton {
 
@@ -61,7 +61,7 @@ StatePtr RoundState::proceedStreet() const {
 
 StatePtr RoundState::proceed(Action action) const {
   auto active = getActive(button);
-  switch (action.actionType) {
+  switch (action.action_type) {
     case Action::Type::FOLD: {
       auto delta = active == 0 ? stacks[0] - STARTING_STACK : STARTING_STACK - stacks[1];
       return std::make_shared<TerminalState>(std::array<int, 2>{delta, -1 * delta}, bids, getShared());

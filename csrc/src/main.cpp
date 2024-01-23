@@ -1,7 +1,7 @@
-#include <skeleton/actions.h>
-#include <skeleton/constants.h>
-#include <skeleton/runner.h>
-#include <skeleton/states.h>
+#include "../skeleton/actions.h"
+#include "../skeleton/constants.h"
+#include "../skeleton/runner.h"
+#include "../skeleton/states.h"
 
 #include <random>
 

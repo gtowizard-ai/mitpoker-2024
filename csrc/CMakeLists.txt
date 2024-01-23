@@ -63,11 +63,18 @@ set(precompiled_headers
     <algorithm> <cmath> <numeric> <random> <cstdio> <fstream> <iomanip> <sstream>
     <mutex> <thread> <fmt/core.h> <fmt/ranges.h>)
 
-# Tests
-add_executable(googletest_test googletest_test.cpp)
-target_link_libraries(googletest_test dependencies gtest_main)
-target_precompile_headers(googletest_test PRIVATE ${precompiled_headers})
-add_test(NAME googletest_test COMMAND googletest_test)
+# Add tests
+add_custom_target(tests)
+file(GLOB_RECURSE tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" CONFIGURE_DEPENDS *_test.cpp)
+foreach(test_file IN LISTS tests)
+    get_filename_component(test_name ${test_file} NAME_WLE)
+    add_executable(${test_name} ${test_file})
+    target_link_libraries(${test_name} third_party gmock_main)
+    add_test(NAME ${test_name} COMMAND ${test_name})
+    set_tests_properties(${test_name} PROPERTIES LABELS tools)
+    add_dependencies(tests ${test_name})
+endforeach()
+
 
 # Subdirectories
 add_subdirectory(skeleton)
