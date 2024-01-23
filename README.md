@@ -11,5 +11,11 @@ The command to run the engine is `python3 engine.py`. The engine is configured v
  - boost for cpp_skeleton (`sudo apt install libboost-all-dev`)
  - fmt for cpp_skeleton
 
-## Linting
-Use pylint.
+### Pre-Commit Hooks
+
+We format our code with `clang-format` for the C++ code. To avoid having to commit code multiple times
+to pass linting tests, we use pre-commit hooks. To set these up, you should have `pre-commit` installed (this should already be in the python development dependencies), and then you can run
+
+```bash
+pre-commit install
+```

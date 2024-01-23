@@ -10,10 +10,9 @@ struct GameInfo {
   int roundNum;
 
   GameInfo(int bankroll, double gameClock, int roundNum)
-      : bankroll(bankroll), gameClock(gameClock),
-        roundNum(roundNum) {}
+      : bankroll(bankroll), gameClock(gameClock), roundNum(roundNum) {}
 };
 
 using GameInfoPtr = std::shared_ptr<const GameInfo>;
 
-} // namespace pokerbots::skeleton
+}  // namespace pokerbots::skeleton
