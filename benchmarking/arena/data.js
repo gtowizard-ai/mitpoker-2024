@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706035603591,
+  "lastUpdate": 1706036793170,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
@@ -57,6 +57,35 @@ window.BENCHMARK_DATA = {
           {
             "name": "Results vs. Check/Call Player",
             "value": 0,
+            "unit": "Big blinds"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "distinct": true,
+          "id": "cb901207e07ccf5d85aef3f4e26a2785c2fdbe37",
+          "message": "fix",
+          "timestamp": "2024-01-23T14:05:16-05:00",
+          "tree_id": "bf313b845e95f291a91cd987a300d8b9a8bff877",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/cb901207e07ccf5d85aef3f4e26a2785c2fdbe37"
+        },
+        "date": 1706036792321,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Player",
+            "value": -2013,
             "unit": "Big blinds"
           }
         ]
