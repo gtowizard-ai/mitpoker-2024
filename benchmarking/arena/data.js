@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706050265604,
+  "lastUpdate": 1706050266813,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
@@ -252,6 +252,42 @@ window.BENCHMARK_DATA = {
             "value": -2.0334,
             "unit": "bb/hand",
             "range": 1.4719443622177255
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "distinct": true,
+          "id": "9b431675c5ed4e2ad36220807c71db307c7cf6dd",
+          "message": "still get timeout for building",
+          "timestamp": "2024-01-23T17:49:30-05:00",
+          "tree_id": "fa2de3ecf36e7bfb3317c758d5e532f3f7c33362",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/9b431675c5ed4e2ad36220807c71db307c7cf6dd"
+        },
+        "date": 1706050264746,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 0.0659,
+            "unit": "bb/hand",
+            "range": 0.4746501237680228
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -1.08585,
+            "unit": "bb/hand",
+            "range": 1.4758931470590626
           }
         ]
       },
