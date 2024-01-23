@@ -19,3 +19,7 @@ to pass linting tests, we use pre-commit hooks. To set these up, you should have
 ```bash
 pre-commit install
 ```
+
+### Arena Benchmarks
+
+Find our [benchmarks here](https://github.com/ruse-ai/mitpokerbots-2024/tree/gh-pages)

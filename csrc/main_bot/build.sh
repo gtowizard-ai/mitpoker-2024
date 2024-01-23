@@ -1,2 +1,2 @@
 #!/bin/bash
-cd .. && make bot
+cd ../../ && make bot
