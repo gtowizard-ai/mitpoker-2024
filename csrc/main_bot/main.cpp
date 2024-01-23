@@ -15,7 +15,8 @@ struct MainBot {
     @param round_state The RoundState object.
     @param active Your player's index.
   */
-  void handle_new_round(GameInfoPtr /*game_state*/, RoundStatePtr /*round_state*/, int /*active*/) {
+  void handle_new_round(const GameInfoPtr& /*game_state*/, const RoundStatePtr& /*round_state*/,
+                        int /*active*/) {
     // int my_bankroll = game_state->bankroll;  // the total number of chips you've gained or lost from the beginning of the game to the start of this round
     // float game_clock = game_state->game_clock;  // the total number of seconds your bot has left to play this game
     // int round_num = game_state->round_num;  // the round number from 1 to State.NUM_ROUNDS
@@ -30,8 +31,8 @@ struct MainBot {
     @param terminal_state The TerminalState object.
     @param active Your player's index.
   */
-  void handle_round_over(GameInfoPtr /*game_state*/, TerminalStatePtr /*terminal_state*/,
-                         int /*active*/) {
+  void handle_round_over(const GameInfoPtr& /*game_state*/,
+                         const TerminalStatePtr& /*terminal_state*/, int /*active*/) {
     // int my_delta = terminal_state->deltas[active];  // your bankroll change from this round
     // auto previous_state = std::static_pointer_cast<const RoundState>(terminal_state->previous_state);  // RoundState before payoffs
     // int street = previous_state->street;  // 0, 3, 4, or 5 representing when this round ended
@@ -48,7 +49,8 @@ struct MainBot {
     @param active Your player's index.
     @return Your action.
   */
-  Action get_action(GameInfoPtr /*game_state*/, RoundStatePtr round_state, int active) {
+  Action get_action(const GameInfoPtr& /*game_state*/, const RoundStatePtr& round_state,
+                    int active) {
 
     // May be useful, but you can choose to not use.
     auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
@@ -60,10 +62,8 @@ struct MainBot {
     int my_pip =
         round_state->pips
             [active];  // the number of chips you have contributed to the pot this round of betting
-    int opp_pip =
-        round_state->pips
-            [1 -
-             active];  // the number of chips your opponent has contributed to the pot this round of betting
+    int opp_pip = round_state->pips[1 - active];
+    // the number of chips your opponent has contributed to the pot this round of betting
     int my_stack = round_state->stacks[active];  // the number of chips you have remaining
     int opp_stack =
         round_state->stacks[1 - active];  // the number of chips your opponent has remaining
@@ -96,7 +96,8 @@ struct MainBot {
     if (legal_actions.find(Action::Type::BID) != legal_actions.end()) {
       return {Action::Type::BID, bid_distribution(gen)};  // random bid
     }
-    if (legal_actions.find(Action::Type::CHECK) != legal_actions.end()) {  // check-call
+    if (legal_actions.find(Action::Type::CHECK) != legal_actions.end()) {
+      // check-call
       return {Action::Type::CHECK};
     }
     return {Action::Type::CALL};

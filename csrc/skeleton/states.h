@@ -29,7 +29,7 @@ using StatePtr = std::shared_ptr<const State>;
 
 struct RoundState : public State {
   int button;
-  int street;
+  int street;  // 0=pf, 3=flop, 4=turn, 5=river
   bool auction;
   std::array<std::optional<int>, 2> bids;
   std::array<int, 2> pips;
@@ -55,6 +55,8 @@ struct RoundState : public State {
   StatePtr showdown() const;
 
   std::unordered_set<Action::Type> legal_actions() const;
+
+  auto min_stack() const { return std::min(stacks[0], stacks[1]); }
 
   std::array<int, 2> raise_bounds() const;
 

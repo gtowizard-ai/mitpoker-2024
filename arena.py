@@ -21,19 +21,37 @@ def _run_game(player_1: Player, player_2: Player):
     print(f"Final Bankrolls are {players[0].bankroll}/{players[1].bankroll}")
     return players
 
-def main():
-    check_call_bot = Player(name="check_or_call", path="./csrc/check_or_call_bot")
+def run_benchmark_vs_check_call_bot():
     main_bot = Player(name="main", path="./csrc/main_bot")
-
+    check_call_bot = Player(name="check_or_call", path="./csrc/check_or_call_bot")
     players = _run_game(main_bot, check_call_bot)
 
-    results = [{
+    return {
         "name": "Results vs. Check/Call Player",
         "unit": "Big blinds",
         "value": players[0].bankroll / BIG_BLIND
-    }]
+    }
+
+def run_match_vs_bid_everything_bot():
+    main_bot = Player(name="main", path="./csrc/main_bot")
+    bid_everything_bot = Player(name="bid_everything_bot", path="./csrc/bid_everything_bot")
+    players = _run_game(main_bot, bid_everything_bot)
+
+    return {
+        "name": "Results vs. Bid Everything Bot",
+        "unit": "Big blinds",
+        "value": players[0].bankroll / BIG_BLIND
+    }
+
+
+def main():
+    results = [
+        run_benchmark_vs_check_call_bot(),
+        run_match_vs_bid_everything_bot(),
+    ]
+
     with open("arena_results.json", "w") as f:
-        json.dump(results, f)
+        json.dump(results, f, indent=4)
 
 
 
