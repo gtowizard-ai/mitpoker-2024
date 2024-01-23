@@ -1,8 +1,0 @@
-repos:
--   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v14.0.6
-    hooks:
-    - id: clang-format
-      files: ^csrc/
-      types: [file, c++]
-      args: ['-style=file:csrc/.clang-format']
