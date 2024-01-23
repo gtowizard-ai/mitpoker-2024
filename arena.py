@@ -29,7 +29,7 @@ def run_benchmark_vs_check_call_bot():
     won_in_bb = players[0].bankroll / BIG_BLIND
     return {
         "name": "Results vs. Check/Call Bot",
-        "unit": "Big blinds",
+        "unit": "BB/100",
         "value": won_in_bb * (100.0 / NUM_HANDS)
     }
 
