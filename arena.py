@@ -1,19 +1,19 @@
-from engine import Game, Player, BIG_BLIND
 import math
+
+from engine import Game, Player, BIG_BLIND
 import json
 import statistics
 from dataclasses import dataclass
 
-NUM_HANDS = 5000
-
+NUM_HANDS = 10000
 
 @dataclass
 class MatchResults:
-    winrate: float  # in bb/100
-    stddev: float   # per 100 hands
+    winrate: float  # in mbb/game
+    stddev: float   # in mbb/game
 
 
-def _run_game(player_1: Player, player_2: Player):
+def _run_match(player_1: Player, player_2: Player):
     """Based on `run()` in engine.py"""
     players = [player_1, player_2]
     for player in players:
@@ -21,26 +21,27 @@ def _run_game(player_1: Player, player_2: Player):
         player.run()
 
     game = Game()
+    winnings_per_hand = []
     prev_bankroll = 0
-    winnings_bb_per_hand = []
     for _ in range(NUM_HANDS):
         game.run_round(players)
-        winnings_bb_per_hand.append(
-            float(players[0].bankroll - prev_bankroll) / float(BIG_BLIND)
-        )
+        winnings_per_hand.append(players[0].bankroll - prev_bankroll)
         prev_bankroll = players[0].bankroll
 
     for player in players:
         player.stop()
 
-    stddev_per_hand = statistics.stdev(winnings_bb_per_hand)
-    stddev_match = math.sqrt(NUM_HANDS * pow(stddev_per_hand, 2))
+    assert len(winnings_per_hand) == NUM_HANDS
+    bb_per_hand = [x / float(BIG_BLIND) for x in winnings_per_hand]
+
+    stddev_match = math.sqrt(NUM_HANDS * statistics.variance(bb_per_hand))
+
     results = MatchResults(
-        winrate=100 * statistics.mean(winnings_bb_per_hand),
-        stddev=100 * stddev_match / NUM_HANDS,
+        winrate=statistics.mean(bb_per_hand),
+        stddev=stddev_match / NUM_HANDS,
     )
 
-    print(f"Results: {results.winrate:.2f} ± {results.stddev:.2f} BB/100")
+    print(f"Results: {results.winrate:.2f} ± {results.stddev:.2f} bb/hand")
 
     return players, results
 
@@ -48,11 +49,11 @@ def _run_game(player_1: Player, player_2: Player):
 def run_benchmark_vs_check_call_bot():
     main_bot = Player(name="main", path="./csrc/main_bot")
     check_call_bot = Player(name="check_or_call", path="./csrc/check_or_call_bot")
-    players, results = _run_game(main_bot, check_call_bot)
+    players, results = _run_match(main_bot, check_call_bot)
 
     return {
         "name": "Results vs. Check/Call Bot",
-        "unit": "BB/100",
+        "unit": "bb/hand",
         "value": results.winrate,
         "range": results.stddev,
     }
@@ -63,11 +64,11 @@ def run_match_vs_bid_everything_bot():
     bid_everything_bot = Player(
         name="bid_everything_bot", path="./csrc/bid_everything_bot"
     )
-    players, results = _run_game(main_bot, bid_everything_bot)
+    players, results = _run_match(main_bot, bid_everything_bot)
 
     return {
         "name": "Results vs. Bid Everything Bot",
-        "unit": "BB/100",
+        "unit": "bb/hand",
         "value": results.winrate,
         "range": results.stddev,
     }
