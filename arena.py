@@ -27,11 +27,11 @@ def main():
 
     players = _run_game(main_bot, check_call_bot)
 
-    results = {
+    results = [{
         "name": "Results vs. Check/Call Player",
         "unit": "Big blinds",
         "value": players[0].bankroll / BIG_BLIND
-    }
+    }]
     with open("arena_results.json", "w") as f:
         json.dump(results, f)
 
