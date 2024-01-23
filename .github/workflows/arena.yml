@@ -63,5 +63,11 @@ jobs:
           auto-push: true
           summary-always: true
           benchmark-data-dir-path: "benchmarking/arena"
-          external-data-json-path: ./cache/benchmark-data.json
 
+      - name: Store benchmark result in cache
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: Arena Benchmark
+          tool: 'customBiggerIsBetter'
+          output-file-path: arena_results.json
+          external-data-json-path: ./cache/benchmark-data.json
