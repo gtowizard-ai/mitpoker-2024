@@ -64,5 +64,8 @@ endforeach()
 # Subdirectories
 add_subdirectory(skeleton)
 
-add_executable(pokerbot src/main.cpp)
+add_executable(check_or_call_bot check_or_call_bot/check_or_call_bot.cpp)
+target_link_libraries(check_or_call_bot skeleton)
+
+add_executable(pokerbot main_bot/main.cpp)
 target_link_libraries(pokerbot skeleton)

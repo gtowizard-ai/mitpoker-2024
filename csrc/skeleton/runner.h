@@ -50,22 +50,22 @@ class Runner {
   ~Runner() { stream.close(); }
 
   void run() {
-    GameInfoPtr gameInfo = std::make_shared<GameInfo>(0, 0.0, 1);
-    std::array<std::array<std::string, 3>, 2> emptyHand = {{{"", "", ""}, {"", "", ""}}};
-    std::array<std::string, 5> emptyDeck = {"", "", "", "", ""};
-    StatePtr roundState = std::make_shared<RoundState>(
+    GameInfoPtr game_info = std::make_shared<GameInfo>(0, 0.0, 1);
+    std::array<std::array<std::string, 3>, 2> empty_hand = {{{"", "", ""}, {"", "", ""}}};
+    std::array<std::string, 5> empty_deck = {"", "", "", "", ""};
+    StatePtr round_state = std::make_shared<RoundState>(
         0, 0, false, std::array<std::optional<int>, 2>{std::nullopt, std::nullopt},
-        std::array<int, 2>{0, 0}, std::array<int, 2>{0, 0}, emptyHand, emptyDeck, nullptr);
+        std::array<int, 2>{0, 0}, std::array<int, 2>{0, 0}, empty_hand, empty_deck, nullptr);
     int active = 0;
-    bool roundFlag = true;
+    bool round_flag = true;
     while (true) {
       auto packet = receive();
       for (const auto& clause : packet) {
         auto leftover = clause.substr(1);
         switch (clause[0]) {
           case 'T': {
-            gameInfo = std::make_shared<GameInfo>(gameInfo->bankroll, std::stof(leftover),
-                                                  gameInfo->roundNum);
+            game_info = std::make_shared<GameInfo>(game_info->bankroll, std::stof(leftover),
+                                                   game_info->round_num);
             break;
           }
           case 'P': {
@@ -83,39 +83,38 @@ class Runner {
             std::array<std::optional<int>, 2> bids = {std::nullopt, std::nullopt};
             std::array<int, 2> pips = {SMALL_BLIND, BIG_BLIND};
             std::array<int, 2> stacks = {STARTING_STACK - SMALL_BLIND, STARTING_STACK - BIG_BLIND};
-            roundState = std::make_shared<RoundState>(0, 0, false, std::move(bids), std::move(pips),
-                                                      std::move(stacks), std::move(hands),
-                                                      std::move(deck), nullptr);
-            if (roundFlag) {
-              pokerbot.handleNewRound(
-                  gameInfo, std::static_pointer_cast<const RoundState>(roundState), active);
-              roundFlag = false;
+            round_state = std::make_shared<RoundState>(0, 0, false, bids, pips, stacks,
+                                                       std::move(hands), std::move(deck), nullptr);
+            if (round_flag) {
+              pokerbot.handle_new_round(
+                  game_info, std::static_pointer_cast<const RoundState>(round_state), active);
+              round_flag = false;
             }
             break;
           }
           case 'F': {
-            roundState = std::static_pointer_cast<const RoundState>(roundState)
-                             ->proceed({Action::Type::FOLD});
+            round_state = std::static_pointer_cast<const RoundState>(round_state)
+                              ->proceed({Action::Type::FOLD});
             break;
           }
           case 'C': {
-            roundState = std::static_pointer_cast<const RoundState>(roundState)
-                             ->proceed({Action::Type::CALL});
+            round_state = std::static_pointer_cast<const RoundState>(round_state)
+                              ->proceed({Action::Type::CALL});
             break;
           }
           case 'K': {
-            roundState = std::static_pointer_cast<const RoundState>(roundState)
-                             ->proceed({Action::Type::CHECK});
+            round_state = std::static_pointer_cast<const RoundState>(round_state)
+                              ->proceed({Action::Type::CHECK});
             break;
           }
           case 'R': {
-            roundState = std::static_pointer_cast<const RoundState>(roundState)
-                             ->proceed({Action::Type::RAISE, std::stoi(leftover)});
+            round_state = std::static_pointer_cast<const RoundState>(round_state)
+                              ->proceed({Action::Type::RAISE, std::stoi(leftover)});
             break;
           }
           case 'A': {
-            roundState = std::static_pointer_cast<const RoundState>(roundState)
-                             ->proceed({Action::Type::BID, std::stoi(leftover)});
+            round_state = std::static_pointer_cast<const RoundState>(round_state)
+                              ->proceed({Action::Type::BID, std::stoi(leftover)});
             break;
           }
           case 'N': {
@@ -146,10 +145,10 @@ class Runner {
             hands[1 - active] = {"", ""};
 
             // Assuming RoundState constructor and member variables are defined
-            auto maker = std::static_pointer_cast<const RoundState>(roundState);
-            roundState = std::make_shared<RoundState>(maker->button, maker->street, maker->auction,
-                                                      bids_int, maker->pips, stacks_int, hands,
-                                                      maker->deck, maker->previousState);
+            auto maker = std::static_pointer_cast<const RoundState>(round_state);
+            round_state = std::make_shared<RoundState>(maker->button, maker->street, maker->auction,
+                                                       bids_int, maker->pips, stacks_int, hands,
+                                                       maker->deck, maker->previous_state);
             break;
           }
           case 'B': {
@@ -159,43 +158,44 @@ class Runner {
             for (auto j = 0; j < cards.size(); ++j) {
               revisedDeck[j] = cards[j];
             }
-            auto maker = std::static_pointer_cast<const RoundState>(roundState);
-            roundState = std::make_shared<RoundState>(
+            auto maker = std::static_pointer_cast<const RoundState>(round_state);
+            round_state = std::make_shared<RoundState>(
                 maker->button, maker->street, maker->auction, maker->bids, maker->pips,
-                maker->stacks, maker->hands, revisedDeck, maker->previousState);
+                maker->stacks, maker->hands, revisedDeck, maker->previous_state);
             break;
           }
           case 'O': {
             // backtrack
             std::vector<std::string> cards;
             boost::split(cards, leftover, boost::is_any_of(","));
-            roundState = std::static_pointer_cast<const TerminalState>(roundState)->previousState;
-            auto maker = std::static_pointer_cast<const RoundState>(roundState);
+            round_state =
+                std::static_pointer_cast<const TerminalState>(round_state)->previous_state;
+            auto maker = std::static_pointer_cast<const RoundState>(round_state);
             auto revisedHands = maker->hands;
             revisedHands[1 - active] = {cards[0], cards[1]};
             // rebuild history
-            roundState = std::make_shared<RoundState>(
+            round_state = std::make_shared<RoundState>(
                 maker->button, maker->street, maker->auction, maker->bids, maker->pips,
-                maker->stacks, revisedHands, maker->deck, maker->previousState);
-            roundState =
-                std::make_shared<TerminalState>(std::array<int, 2>{0, 0}, maker->bids, roundState);
+                maker->stacks, revisedHands, maker->deck, maker->previous_state);
+            round_state =
+                std::make_shared<TerminalState>(std::array<int, 2>{0, 0}, maker->bids, round_state);
             break;
           }
           case 'D': {
             auto delta = std::stoi(leftover);
-            std::array<int, 2> deltas;
+            std::array<int, 2> deltas{};
             deltas[active] = delta;
             deltas[1 - active] = -1 * delta;
-            roundState = std::make_shared<TerminalState>(
-                std::move(deltas), std::array<std::optional<int>, 2>{0, 0},
-                std::static_pointer_cast<const TerminalState>(roundState)->previousState);
-            gameInfo = std::make_shared<GameInfo>(gameInfo->bankroll + delta, gameInfo->gameClock,
-                                                  gameInfo->roundNum);
-            pokerbot.handleRoundOver(
-                gameInfo, std::static_pointer_cast<const TerminalState>(roundState), active);
-            gameInfo = std::make_shared<GameInfo>(gameInfo->bankroll, gameInfo->gameClock,
-                                                  gameInfo->roundNum + 1);
-            roundFlag = true;
+            round_state = std::make_shared<TerminalState>(
+                deltas, std::array<std::optional<int>, 2>{0, 0},
+                std::static_pointer_cast<const TerminalState>(round_state)->previous_state);
+            game_info = std::make_shared<GameInfo>(game_info->bankroll + delta,
+                                                   game_info->game_clock, game_info->round_num);
+            pokerbot.handle_round_over(
+                game_info, std::static_pointer_cast<const TerminalState>(round_state), active);
+            game_info = std::make_shared<GameInfo>(game_info->bankroll, game_info->game_clock,
+                                                   game_info->round_num + 1);
+            round_flag = true;
             break;
           }
           case 'Q': {
@@ -206,11 +206,11 @@ class Runner {
           }
         }
       }
-      if (roundFlag) {
+      if (round_flag) {
         send(Action{Action::Type::CHECK});
       } else {
-        auto action = pokerbot.getAction(
-            gameInfo, std::static_pointer_cast<const RoundState>(roundState), active);
+        auto action = pokerbot.get_action(
+            game_info, std::static_pointer_cast<const RoundState>(round_state), active);
         send(action);
       }
     }

@@ -5,7 +5,7 @@
 namespace pokerbots::skeleton {
 
 template <typename Container>
-bool isEmpty(Container&& c) {
+bool is_empty(Container&& c) {
   return std::all_of(c.begin(), c.end(), [](auto&& v) { return v.empty(); });
 }
 

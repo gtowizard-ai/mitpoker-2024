@@ -36,29 +36,29 @@ struct RoundState : public State {
   std::array<int, 2> stacks;
   std::array<std::array<std::string, 3>, 2> hands;
   std::array<std::string, 5> deck;
-  StatePtr previousState;
+  StatePtr previous_state;
 
-  RoundState(int button, int street, bool auction, std::array<std::optional<int>, 2> bids,
-             std::array<int, 2> pips, std::array<int, 2> stacks,
-             std::array<std::array<std::string, 3>, 2> hands, std::array<std::string, 5> deck,
-             StatePtr previousState)
+  RoundState(int button, int street, bool auction, const std::array<std::optional<int>, 2>& bids,
+             const std::array<int, 2>& pips, const std::array<int, 2>& stacks,
+             const std::array<std::array<std::string, 3>, 2>& hands,
+             const std::array<std::string, 5>& deck, StatePtr previous_state)
       : button(button),
         street(street),
         auction(auction),
         bids(bids),
         pips(pips),
         stacks(stacks),
-        hands(std::move(hands)),
-        deck(std::move(deck)),
-        previousState(std::move(previousState)) {}
+        hands(hands),
+        deck(deck),
+        previous_state(std::move(previous_state)) {}
 
   StatePtr showdown() const;
 
-  std::unordered_set<Action::Type> legalActions() const;
+  std::unordered_set<Action::Type> legal_actions() const;
 
-  std::array<int, 2> raiseBounds() const;
+  std::array<int, 2> raise_bounds() const;
 
-  StatePtr proceedStreet() const;
+  StatePtr proceed_street() const;
 
   StatePtr proceed(Action action) const;
 
@@ -71,11 +71,11 @@ using RoundStatePtr = std::shared_ptr<const RoundState>;
 struct TerminalState : public State {
   std::array<int, 2> deltas;
   std::array<std::optional<int>, 2> bids;
-  StatePtr previousState;
+  StatePtr previous_state;
 
   TerminalState(std::array<int, 2> deltas, std::array<std::optional<int>, 2> bids,
-                StatePtr previousState)
-      : deltas(deltas), bids(bids), previousState(std::move(previousState)) {}
+                StatePtr previous_state)
+      : deltas(deltas), bids(bids), previous_state(std::move(previous_state)) {}
 
  private:
   std::ostream& doFormat(std::ostream& os) const override;

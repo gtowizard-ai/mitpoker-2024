@@ -1,11 +1,11 @@
 __pycache__/
-A.txt
-B.txt
-gamelog.txt
+*.txt
 *.class
 .DS_Store
 .metadata/
 build/
+
+arena_results.json
 
 # IDEs
 .vscode/

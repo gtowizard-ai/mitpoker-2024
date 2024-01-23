@@ -31,6 +31,12 @@ build/.timestamp: $(PREREQUISITES)
 configure:
 	cmake -S csrc --preset $(CONFIGURE_PRESET) --fresh
 
+bot: build/.timestamp
+	cmake --build build --target pokerbot -j $(j)
+
+check_or_call_bot: build/.timestamp
+	cmake --build build --target check_or_call_bot -j $(j)
+
 compile: build/.timestamp
 	cmake --build build -j $(j)
 
