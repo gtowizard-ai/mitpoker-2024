@@ -15,10 +15,11 @@ struct Action {
   Type action_type;
   int amount;
 
-  Action(Type t = CHECK, int a = 0) : action_type(t), amount(a) {}
+  explicit Action(Type t = CHECK, int a = 0) : action_type(t), amount(a) {}
 
-  friend std::ostream &operator<<(std::ostream &os, const Action &a);
+  friend std::ostream& operator<<(std::ostream& os, const Action& a);
 };
 
-} // namespace pokerbots::skeleton
-template <> struct fmt::formatter<pokerbots::skeleton::Action> : ostream_formatter {};
+}  // namespace pokerbots::skeleton
+template <>
+struct fmt::formatter<pokerbots::skeleton::Action> : ostream_formatter {};
