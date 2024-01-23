@@ -62,6 +62,7 @@ jobs:
           fail-on-alert: false
           auto-push: true
           summary-always: true
+          max-items-in-chart: 3
           benchmark-data-dir-path: "benchmarking/arena"
 
       - name: Store benchmark result in cache
