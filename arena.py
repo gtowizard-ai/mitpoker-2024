@@ -7,10 +7,11 @@ from dataclasses import dataclass
 
 NUM_HANDS = 10000
 
+
 @dataclass
 class MatchResults:
     winrate: float  # in mbb/game
-    stddev: float   # in mbb/game
+    stddev: float  # in mbb/game
 
 
 def _run_match(player_1: Player, player_2: Player):
@@ -55,8 +56,8 @@ def run_benchmark_vs_check_call_bot():
     return {
         "name": "Results vs. Check/Call Bot",
         "unit": "bb/hand",
-        "value": results.winrate,
-        "range": results.stddev,
+        "value": round(results.winrate, 4),
+        "range": round(results.stddev, 4),
     }
 
 
@@ -70,8 +71,8 @@ def run_match_vs_bid_everything_bot():
     return {
         "name": "Results vs. Bid Everything Bot",
         "unit": "bb/hand",
-        "value": results.winrate,
-        "range": results.stddev,
+        "value": round(results.winrate, 4),
+        "range": round(results.stddev, 4),
     }
 
 
