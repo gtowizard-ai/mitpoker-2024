@@ -4,8 +4,9 @@
 
 namespace pokerbots::skeleton {
 
-template <typename Container> bool isEmpty(Container &&c) {
-  return std::all_of(c.begin(), c.end(), [](auto &&v) { return v.empty(); });
+template <typename Container>
+bool isEmpty(Container&& c) {
+  return std::all_of(c.begin(), c.end(), [](auto&& v) { return v.empty(); });
 }
 
-} // namespace pokerbots::skeleton
+}  // namespace pokerbots::skeleton

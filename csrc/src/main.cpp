@@ -37,7 +37,7 @@ struct Bot {
     // auto myCards = previousState->hands[active];  // your cards
     // auto oppCards = previousState->hands[1-active];  // opponent's cards or "" if not revealed
   }
-  
+
   /*
     Where the magic happens - your code should implement this function.
     Called any time the engine needs an action from your bot.
@@ -51,33 +51,49 @@ struct Bot {
 
     // May be useful, but you can choose to not use.
     auto legalActions = roundState->legalActions();  // the actions you are allowed to take
-    int street = roundState->street;  // 0, 3, 4, or 5 representing pre-flop, flop, turn, or river respectively
+    int street =
+        roundState
+            ->street;  // 0, 3, 4, or 5 representing pre-flop, flop, turn, or river respectively
     auto myCards = roundState->hands[active];  // your cards
-    auto boardCards = roundState->deck;  // the board cards
-    int myPip = roundState->pips[active];  // the number of chips you have contributed to the pot this round of betting
-    int oppPip = roundState->pips[1-active];  // the number of chips your opponent has contributed to the pot this round of betting
+    auto boardCards = roundState->deck;        // the board cards
+    int myPip =
+        roundState->pips
+            [active];  // the number of chips you have contributed to the pot this round of betting
+    int oppPip =
+        roundState->pips
+            [1 -
+             active];  // the number of chips your opponent has contributed to the pot this round of betting
     int myStack = roundState->stacks[active];  // the number of chips you have remaining
-    int oppStack = roundState->stacks[1-active];  // the number of chips your opponent has remaining
-    std::optional<int> myBid = roundState->bids[active];       // How much you bid previously (available only after auction)
-    std::optional<int> oppBid = roundState->bids[1 - active];  // How much opponent bid previously (available only after auction)
+    int oppStack =
+        roundState->stacks[1 - active];  // the number of chips your opponent has remaining
+    std::optional<int> myBid =
+        roundState->bids[active];  // How much you bid previously (available only after auction)
+    std::optional<int> oppBid =
+        roundState
+            ->bids[1 - active];  // How much opponent bid previously (available only after auction)
     int continueCost = oppPip - myPip;  // the number of chips needed to stay in the pot
-    int myContribution = STARTING_STACK - myStack;  // the number of chips you have contributed to the pot
-    int oppContribution = STARTING_STACK - oppStack;  // the number of chips your opponent has contributed to the pot
+    int myContribution =
+        STARTING_STACK - myStack;  // the number of chips you have contributed to the pot
+    int oppContribution =
+        STARTING_STACK - oppStack;  // the number of chips your opponent has contributed to the pot
     int minCost = 0;
     int maxCost = 0;
     if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-      auto raiseBounds = roundState->raiseBounds();  // the smallest and largest numbers of chips for a legal bet/raise
+      auto raiseBounds =
+          roundState
+              ->raiseBounds();  // the smallest and largest numbers of chips for a legal bet/raise
       minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
       maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
     }
 
     // Basic bot that randomly bids or just checks/calls.
     std::random_device rd;
-    std::mt19937 gen(rd()); // Mersenne Twister engine
-    std::uniform_int_distribution<int> bid_distribution(0, myStack); // random bid between 0 and my stack
+    std::mt19937 gen(rd());  // Mersenne Twister engine
+    std::uniform_int_distribution<int> bid_distribution(
+        0, myStack);  // random bid between 0 and my stack
 
-    if (legalActions.find(Action::Type::BID) != legalActions.end()) {  
-      return {Action::Type::BID, bid_distribution(gen)}; // random bid
+    if (legalActions.find(Action::Type::BID) != legalActions.end()) {
+      return {Action::Type::BID, bid_distribution(gen)};  // random bid
     }
     if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {  // check-call
       return {Action::Type::CHECK};
@@ -89,7 +105,7 @@ struct Bot {
 /*
   Main program for running a C++ pokerbot.
 */
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   auto [host, port] = parseArgs(argc, argv);
   runBot<Bot>(host, port);
   return 0;
