@@ -19,3 +19,10 @@ TEST(CardTest, TestConstructor) {
   ASSERT_ANY_THROW(Card("Ass"));
   ASSERT_ANY_THROW(Card("sA"));
 }
+
+TEST(CardTest, TestToVector) {
+  ASSERT_EQ(Card::to_vector("Ac").size(), 1);
+  ASSERT_EQ(Card::to_vector("As"), std::vector<card_t>{51});
+  ASSERT_EQ(Card::to_vector("AcKd2h").size(), 3);
+  ASSERT_EQ(Card::to_vector("AcKd2h2sKd").size(), 5);
+}

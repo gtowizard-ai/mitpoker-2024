@@ -26,8 +26,9 @@ std::string Card::to_string(card_t card) {
 std::string Card::to_string(const std::vector<card_t>& cards) {
   std::string str;
   str.reserve(2 * cards.size());
-  for (auto card : cards)
+  for (auto card : cards) {
     str += to_string(card);
+  }
   return str;
 }
 
