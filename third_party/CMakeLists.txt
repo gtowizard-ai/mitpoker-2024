@@ -1,6 +1,7 @@
 # Update submodules
-message(STATUS "Updating git submodules")
-execute_process(COMMAND git submodule update --init --recursive)
+# NB - Stopped using submodules to speedup the build time
+# message(STATUS "Updating git submodules")
+# execute_process(COMMAND git submodule update --init --recursive)
 
 # Options
 set(SPDLOG_FMT_EXTERNAL ON)  # https://github.com/gabime/spdlog/issues/2832

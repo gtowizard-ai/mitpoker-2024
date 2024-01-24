@@ -7,7 +7,7 @@
 #include <optional>
 #include <sstream>
 
-namespace pokerbots::skeleton {
+namespace pokerbot {
 
 StatePtr RoundState::showdown() const {
   return std::make_shared<TerminalState>(std::array<int, 2>{0, 0}, bids, getShared());
@@ -146,4 +146,4 @@ std::ostream& TerminalState::doFormat(std::ostream& os) const {
   return os;
 }
 
-}  // namespace pokerbots::skeleton
+}  // namespace pokerbot

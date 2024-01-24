@@ -3,7 +3,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-namespace pokerbots::skeleton {
+namespace pokerbot {
 
 std::ostream& operator<<(std::ostream& os, const Action& a) {
   switch (a.action_type) {
@@ -22,4 +22,4 @@ std::ostream& operator<<(std::ostream& os, const Action& a) {
   }
 }
 
-}  // namespace pokerbots::skeleton
+}  // namespace pokerbot

@@ -17,7 +17,7 @@
 #include "game.h"
 #include "states.h"
 
-namespace pokerbots::skeleton {
+namespace pokerbot {
 
 template <typename BotType>
 class Runner {
@@ -253,4 +253,4 @@ inline std::array<std::string, 2> parseArgs(int argc, char* argv[]) {
   return {host, std::to_string(port)};
 }
 
-}  // namespace pokerbots::skeleton
+}  // namespace pokerbot

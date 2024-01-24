@@ -1,10 +1,10 @@
 #include <random>
-#include "../skeleton/actions.h"
-#include "../skeleton/runner.h"
-#include "../skeleton/states.h"
+#include "../src/actions.h"
 #include "../src/ranges_utils.h"
+#include "../src/runner.h"
+#include "../src/states.h"
 
-using namespace pokerbots::skeleton;
+using namespace pokerbot;
 
 struct CheckOrCallBot {
   void handle_new_round(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,

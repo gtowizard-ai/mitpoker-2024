@@ -1,11 +1,11 @@
 #include <random>
-#include "../skeleton/actions.h"
-#include "../skeleton/constants.h"
-#include "../skeleton/runner.h"
-#include "../skeleton/states.h"
+#include "../src/actions.h"
+#include "../src/constants.h"
 #include "../src/ranges_utils.h"
+#include "../src/runner.h"
+#include "../src/states.h"
 
-using namespace pokerbots::skeleton;
+using namespace pokerbot;
 
 struct MainBot {
   /*

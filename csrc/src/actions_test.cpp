@@ -1,7 +1,7 @@
-#include "../skeleton/actions.h"
+#include "actions.h"
 #include <gtest/gtest.h>
 
-using namespace pokerbots::skeleton;
+using namespace pokerbot;
 
 TEST(ActionsTest, NonSenseTest) {
   auto action = Action(Action::Type::RAISE, 5);

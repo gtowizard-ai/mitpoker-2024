@@ -6,7 +6,7 @@
 #include "actions.h"
 #include "constants.h"
 
-namespace pokerbots::skeleton {
+namespace pokerbot {
 
 struct State : public std::enable_shared_from_this<State> {
 
@@ -88,4 +88,4 @@ inline int getActive(int a) {
   return active < 0 ? active + 2 : active;
 }
 
-}  // namespace pokerbots::skeleton
+}  // namespace pokerbot

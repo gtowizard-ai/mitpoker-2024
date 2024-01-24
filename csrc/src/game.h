@@ -1,6 +1,6 @@
 #pragma once
 
-namespace pokerbots::skeleton {
+namespace pokerbot {
 
 struct GameInfo {
   int bankroll;
@@ -11,4 +11,4 @@ struct GameInfo {
       : bankroll(bankroll), game_clock(game_clock), round_num(round_num) {}
 };
 
-}  // namespace pokerbots::skeleton
+}  // namespace pokerbot

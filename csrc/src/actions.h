@@ -2,7 +2,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-namespace pokerbots::skeleton {
+namespace pokerbot {
 
 struct Action {
   enum Type { FOLD, CALL, CHECK, RAISE, BID };
@@ -15,6 +15,6 @@ struct Action {
   friend std::ostream& operator<<(std::ostream& os, const Action& a);
 };
 
-}  // namespace pokerbots::skeleton
+}  // namespace pokerbot
 template <>
-struct fmt::formatter<pokerbots::skeleton::Action> : ostream_formatter {};
+struct fmt::formatter<pokerbot::Action> : ostream_formatter {};
