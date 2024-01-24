@@ -34,9 +34,9 @@ jobs:
       - name: Install Boost Library
         run: sudo apt install libboost-all-dev
 
-      - name: Install GCC-12 & Configure
+      - name: Install GCC-11 & Configure
         run: |
-          sudo bash ./scripts/install_gcc_12.sh
+          sudo bash ./scripts/install_gcc_11.sh
           make configure
 
       - name: Cache Benchmark library

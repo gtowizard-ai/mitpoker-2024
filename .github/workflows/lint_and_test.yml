@@ -22,7 +22,7 @@ jobs:
   build-and-test:
     strategy:
       matrix:
-        compiler: [gcc-12, clang-17]
+        compiler: [gcc-11, clang-17]
     runs-on: ubuntu-22.04-4-cores
     environment: LOCAL
     env:
@@ -47,10 +47,10 @@ jobs:
       - name: Install Boost Library
         run: sudo apt install libboost-all-dev
 
-      - name: Install GCC-12 & Configure
-        if: matrix.compiler == 'gcc-12'
+      - name: Install GCC-11 & Configure
+        if: matrix.compiler == 'gcc-11'
         run: |
-          sudo bash ./scripts/install_gcc_12.sh
+          sudo bash ./scripts/install_gcc_11.sh
           make configure
 
       - name: Install Clang-17 & Configure
