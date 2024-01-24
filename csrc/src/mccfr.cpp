@@ -12,6 +12,15 @@ int sample_index(const std::vector<float>& distribution_values, std::mt19937 gen
   return distribution(gen);
 }
 
+int sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values, std::mt19937 gen) {
+  // Create a discrete distribution based on the values in A
+  std::discrete_distribution<int> distribution(distribution_values.begin(),
+                                               distribution_values.end());
+
+  // Sample a value
+  return distribution(gen);
+}
+
 MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const int player_id,
              const std::vector<Range>& ranges)
     : game_(game_state),
@@ -26,11 +35,8 @@ MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const
   const auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
 
   // the number of chips you have contributed to the pot this round of betting
-  const int my_pip = round_state->pips[player_id];
   const int my_stack = round_state->stacks[player_id];  // the number of chips you have remaining
 
-  int min_cost = 0;
-  int max_cost = 0;
   if (ranges::contains(legal_actions, Action::Type::RAISE)) {
     // the smallest and largest numbers of chips for a legal bet/raise
     const auto raise_bounds = round_state->raise_bounds();
@@ -80,7 +86,7 @@ void MCCFR::update_regrets() {
   // Fixme: Add epsilon-greedy selection?
 
   // sample a hand
-  const int hand = sample_index(ranges_[player_], random_generator_);
+  const int hand = sample_index(ranges_[player_].range, random_generator_);
 
   // sample an action
   const int action = sample_index(average_strategies_, random_generator_);

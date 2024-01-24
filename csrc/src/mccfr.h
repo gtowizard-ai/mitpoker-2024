@@ -3,12 +3,12 @@
 #include "states.h"
 #include <vector>
 #include <random>
+#include "range.h"
 
 namespace pokerbot {
 
 using Regrets = std::vector<float>;
 using Strategy = std::vector<float>;
-using Range = std::vector<float>;
 
 class MCCFR {
 public:
