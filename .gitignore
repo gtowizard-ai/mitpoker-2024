@@ -1,10 +1,11 @@
 __pycache__/
-*.txt
 *.class
 .DS_Store
 .metadata/
 build/
 
+*.txt
+!CMakeLists.txt
 arena_results.json
 
 # IDEs
