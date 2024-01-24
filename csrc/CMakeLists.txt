@@ -80,7 +80,7 @@ file(GLOB_RECURSE tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" CONFIGURE_DEPENDS
 foreach(test_file IN LISTS tests)
     get_filename_component(test_name ${test_file} NAME_WLE)
     add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} third_party gtest_main gmock_main)
+    target_link_libraries(${test_name} third_party gtest_main gmock_main gtowizardai)
     add_test(NAME ${test_name} COMMAND ${test_name})
     set_tests_properties(${test_name} PROPERTIES LABELS tools)
     add_dependencies(tests ${test_name})

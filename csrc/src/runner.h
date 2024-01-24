@@ -13,7 +13,7 @@
 #include <fmt/ostream.h>
 
 #include "actions.h"
-#include "constants.h"
+#include "definitions.h"
 #include "game.h"
 #include "states.h"
 

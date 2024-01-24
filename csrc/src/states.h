@@ -3,7 +3,7 @@
 #include <optional>
 #include <vector>
 #include "actions.h"
-#include "constants.h"
+#include "definitions.h"
 #include "round.h"
 
 namespace pokerbot {
