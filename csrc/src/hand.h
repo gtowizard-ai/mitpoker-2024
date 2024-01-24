@@ -12,6 +12,8 @@ namespace pokerbot {
 struct Hand {
   std::array<card_t, 3> cards;
 
+  Hand() = default;
+
   Hand(card_t card1, card_t card2) : Hand(card1, card2, MAX_DECK_SIZE) {}
 
   Hand(card_t card1, card_t card2, card_t card3) : cards{card1, card2, card3} {
