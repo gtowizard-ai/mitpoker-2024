@@ -10,20 +10,21 @@ Regret::Regret(const unsigned num_hands, const unsigned num_actions) : num_hands
 
 // ToDo: Using rgn can be time consuming. Consider using faster/less accurate methods
 unsigned sample_index(const std::vector<float>& distribution_values, const unsigned start_point,
-                 const unsigned length, std::mt19937 gen) {
+                      const unsigned length, std::mt19937 gen) {
   // Create a discrete distribution based on the values in A
-  std::discrete_distribution<unsigned> distribution(distribution_values.begin() + start_point,
-                                               distribution_values.begin() + start_point + length);
+  std::discrete_distribution<unsigned> distribution(
+      distribution_values.begin() + start_point,
+      distribution_values.begin() + start_point + length);
 
   // Sample a value
   return distribution(gen);
 }
 
 unsigned sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values,
-                 std::mt19937 gen) {
+                      std::mt19937 gen) {
   // Create a discrete distribution based on the values in A
   std::discrete_distribution<unsigned> distribution(distribution_values.begin(),
-                                               distribution_values.end());
+                                                    distribution_values.end());
 
   // Sample a value
   return distribution(gen);
@@ -80,7 +81,9 @@ std::vector<float> MCCFR::get_root_value() {
 
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < available_actions_.size(); action++) {
-      values[hand] += (regrets_(hand, action) / sum_buffer_[hand]) * get_child_value(hand, action);
+      values[hand] += (sum_buffer_[hand] > 0 ? regrets_(hand, action) / sum_buffer_[hand]
+                                             : 1.0f / available_actions_.size()) *
+                      get_child_value(hand, action);
     }
   }
 
@@ -97,7 +100,7 @@ void MCCFR::update_regrets() {
 
   // sample an action
   const unsigned action = sample_index(regrets_.data, hand * available_actions_.size(),
-                                  available_actions_.size(), random_generator_);
+                                       available_actions_.size(), random_generator_);
 
   const auto& action_value = get_child_value(action, hand);
 
@@ -115,7 +118,8 @@ Regret MCCFR::get_avg_strategy() {
   Regret strategy(num_hands_, available_actions_.size());
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < available_actions_.size(); action++) {
-      strategy(hand, action) = regrets_(hand, action) / sum_buffer_[hand];
+      strategy(hand, action) = sum_buffer_[hand] > 0 ? regrets_(hand, action) / sum_buffer_[hand]
+                                                     : 1.0f / available_actions_.size();
     }
   }
   return strategy;
