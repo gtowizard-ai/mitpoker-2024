@@ -39,14 +39,40 @@ if(CMAKE_GENERATOR STREQUAL "Ninja")
     add_link_options($<IF:$<STREQUAL:$<CXX_COMPILER_ID>,GNU>,-fdiagnostics-color=always,-fcolor-diagnostics>)
 endif()
 
+# Add compiler warning flags
+add_compile_options(-Wfatal-errors -Wall -Wextra -Wnon-virtual-dtor -pedantic-errors)
+
 # External libraries
 enable_testing()
 add_subdirectory(../third_party third_party EXCLUDE_FROM_ALL SYSTEM)
 add_library(dependencies INTERFACE)
-target_link_libraries(dependencies INTERFACE third_party)
 
-# Add compiler warning flags
-add_compile_options(-Wfatal-errors -Wall -Wextra -Wnon-virtual-dtor -pedantic-errors)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREAD OFF)
+find_package(Boost REQUIRED date_time system)
+include_directories(${Boost_INCLUDE_DIR})
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+target_link_libraries(dependencies INTERFACE third_party Threads::Threads dependencies ${Boost_SYSTEM_LIBRARY})
+
+# Main library
+add_library(gtowizardai OBJECT)
+file(GLOB_RECURSE sources ${PROJECT_SOURCE_DIR}/src/*.cpp)
+list(FILTER sources EXCLUDE REGEX .*_test\.cpp$)
+target_sources(gtowizardai PRIVATE ${sources})
+target_link_libraries(gtowizardai PRIVATE dependencies)
+
+# Executables
+add_executable(check_or_call_bot check_or_call_bot/check_or_call_bot.cpp)
+target_link_libraries(check_or_call_bot dependencies gtowizardai)
+
+add_executable(bid_everything_bot bid_everything_bot/bid_everything_bot.cpp)
+target_link_libraries(bid_everything_bot dependencies gtowizardai)
+
+add_executable(pokerbot main_bot/main.cpp)
+target_link_libraries(pokerbot dependencies gtowizardai)
 
 # Add tests
 add_custom_target(tests)
@@ -59,16 +85,3 @@ foreach(test_file IN LISTS tests)
     set_tests_properties(${test_name} PROPERTIES LABELS tools)
     add_dependencies(tests ${test_name})
 endforeach()
-
-
-# Subdirectories
-add_subdirectory(skeleton)
-
-add_executable(check_or_call_bot check_or_call_bot/check_or_call_bot.cpp)
-target_link_libraries(check_or_call_bot skeleton)
-
-add_executable(bid_everything_bot bid_everything_bot/bid_everything_bot.cpp)
-target_link_libraries(bid_everything_bot skeleton)
-
-add_executable(pokerbot main_bot/main.cpp)
-target_link_libraries(pokerbot skeleton)
