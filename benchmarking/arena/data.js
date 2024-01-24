@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706117989813,
+  "lastUpdate": 1706117991148,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
@@ -16,42 +16,6 @@ window.BENCHMARK_DATA = {
             "username": "philqc"
           },
           "distinct": true,
-          "id": "9feaf6afad85cb3811189afddceb12811cdeb907",
-          "message": "add concept of round",
-          "timestamp": "2024-01-23T21:27:53-05:00",
-          "tree_id": "0ae0041cbb8b84abcadb8d96a20d48c7fa3d3704",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/9feaf6afad85cb3811189afddceb12811cdeb907"
-        },
-        "date": 1706063427030,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.0088,
-            "unit": "bb/hand",
-            "range": 0.4627
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 0.543,
-            "unit": "bb/hand",
-            "range": 1.4769
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "email": "philbeardsell@gmail.com",
-            "name": "Philippe Beardsell",
-            "username": "philqc"
-          },
-          "committer": {
-            "email": "philbeardsell@gmail.com",
-            "name": "Philippe Beardsell",
-            "username": "philqc"
-          },
-          "distinct": true,
           "id": "c265537b4b25c151018b4c5a874c6d26e21b36c4",
           "message": "aesthetic",
           "timestamp": "2024-01-23T21:30:15-05:00",
@@ -324,6 +288,42 @@ window.BENCHMARK_DATA = {
             "value": -1.8745,
             "unit": "bb/hand",
             "range": 1.4813
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "distinct": true,
+          "id": "bc369df06563ddea9ecef20e2b4e5d7b20d46432",
+          "message": "aesthetic",
+          "timestamp": "2024-01-24T12:36:22-05:00",
+          "tree_id": "3b803118c2f94ea96c9541cb8ec26eeafe514307",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/bc369df06563ddea9ecef20e2b4e5d7b20d46432"
+        },
+        "date": 1706117988412,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.4143,
+            "unit": "bb/hand",
+            "range": 0.0066
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -1.2837,
+            "unit": "bb/hand",
+            "range": 1.4705
           }
         ]
       },
