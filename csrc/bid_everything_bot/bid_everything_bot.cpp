@@ -27,7 +27,7 @@ struct BidEverythingBot {
     if (ranges::contains(legal_actions, Action::Type::BID)) {
       return {Action::Type::BID, min_stack};
     }
-    if (round_state->street == 3) {
+    if (round_state->round == round::FLOP) {
       return {Action::Type::RAISE, min_stack};
     }
     if (ranges::contains(legal_actions, Action::Type::CHECK)) {

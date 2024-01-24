@@ -2,14 +2,13 @@
 #include <memory>
 #include <optional>
 #include <vector>
-
 #include "actions.h"
 #include "constants.h"
+#include "round.h"
 
 namespace pokerbot {
 
-struct State : public std::enable_shared_from_this<State> {
-
+struct State : std::enable_shared_from_this<State> {
   virtual ~State() = default;
 
   friend std::ostream& operator<<(std::ostream& os, const State& s) { return s.doFormat(os); }
@@ -27,7 +26,7 @@ using StatePtr = std::shared_ptr<const State>;
 
 struct RoundState : public State {
   int button;
-  int street;  // 0=pf, 3=flop, 4=turn, 5=river
+  round::Round round;
   bool auction;
   std::array<std::optional<int>, 2> bids;
   std::array<int, 2> pips;
@@ -36,12 +35,13 @@ struct RoundState : public State {
   std::array<std::string, 5> deck;
   StatePtr previous_state;
 
-  RoundState(int button, int street, bool auction, const std::array<std::optional<int>, 2>& bids,
-             const std::array<int, 2>& pips, const std::array<int, 2>& stacks,
+  RoundState(int button, round::Round round, bool auction,
+             const std::array<std::optional<int>, 2>& bids, const std::array<int, 2>& pips,
+             const std::array<int, 2>& stacks,
              const std::array<std::array<std::string, 3>, 2>& hands,
              const std::array<std::string, 5>& deck, StatePtr previous_state)
       : button(button),
-        street(street),
+        round(round),
         auction(auction),
         bids(bids),
         pips(pips),
@@ -58,7 +58,7 @@ struct RoundState : public State {
 
   std::array<int, 2> raise_bounds() const;
 
-  StatePtr proceed_street() const;
+  StatePtr proceed_to_next_round() const;
 
   StatePtr proceed(Action action) const;
 
@@ -68,7 +68,7 @@ struct RoundState : public State {
 
 using RoundStatePtr = std::shared_ptr<const RoundState>;
 
-struct TerminalState : public State {
+struct TerminalState : State {
   std::array<int, 2> deltas;
   std::array<std::optional<int>, 2> bids;
   StatePtr previous_state;

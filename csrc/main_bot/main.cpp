@@ -35,7 +35,6 @@ struct MainBot {
                          int /*active*/) {
     // int my_delta = terminal_state->deltas[active];  // your bankroll change from this round
     // auto previous_state = std::static_pointer_cast<const RoundState>(terminal_state->previous_state);  // RoundState before payoffs
-    // int street = previous_state->street;  // 0, 3, 4, or 5 representing when this round ended
     // auto my_cards = previous_state->hands[active];  // your cards
     // auto opp_cards = previous_state->hands[1-active];  // opponent's cards or "" if not revealed
   }
@@ -50,14 +49,10 @@ struct MainBot {
     @return Your action.
   */
   Action get_action(const GameInfo& /*game_state*/, const RoundStatePtr& round_state, int active) {
-
     // May be useful, but you can choose to not use.
     auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
-    int street =
-        round_state
-            ->street;  // 0, 3, 4, or 5 representing pre-flop, flop, turn, or river respectively
-    auto my_cards = round_state->hands[active];  // your cards
-    auto board_cards = round_state->deck;        // the board cards
+    auto my_cards = round_state->hands[active];         // your cards
+    auto board_cards = round_state->deck;               // the board cards
     int my_pip =
         round_state->pips
             [active];  // the number of chips you have contributed to the pot this round of betting

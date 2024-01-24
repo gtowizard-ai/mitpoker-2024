@@ -54,7 +54,7 @@ class Runner {
     std::array<std::array<std::string, 3>, 2> empty_hand = {{{"", "", ""}, {"", "", ""}}};
     std::array<std::string, 5> empty_deck = {"", "", "", "", ""};
     StatePtr round_state = std::make_shared<RoundState>(
-        0, 0, false, std::array<std::optional<int>, 2>{std::nullopt, std::nullopt},
+        0, round::PREFLOP, false, std::array<std::optional<int>, 2>{std::nullopt, std::nullopt},
         std::array<int, 2>{0, 0}, std::array<int, 2>{0, 0}, empty_hand, empty_deck, nullptr);
     int active = 0;
     bool round_flag = true;
@@ -82,7 +82,7 @@ class Runner {
             std::array<std::optional<int>, 2> bids = {std::nullopt, std::nullopt};
             std::array<int, 2> pips = {SMALL_BLIND, BIG_BLIND};
             std::array<int, 2> stacks = {STARTING_STACK - SMALL_BLIND, STARTING_STACK - BIG_BLIND};
-            round_state = std::make_shared<RoundState>(0, 0, false, bids, pips, stacks,
+            round_state = std::make_shared<RoundState>(0, round::PREFLOP, false, bids, pips, stacks,
                                                        std::move(hands), std::move(deck), nullptr);
             if (round_flag) {
               pokerbot.handle_new_round(
@@ -145,7 +145,7 @@ class Runner {
 
             // Assuming RoundState constructor and member variables are defined
             auto maker = std::static_pointer_cast<const RoundState>(round_state);
-            round_state = std::make_shared<RoundState>(maker->button, maker->street, maker->auction,
+            round_state = std::make_shared<RoundState>(maker->button, maker->round, maker->auction,
                                                        bids_int, maker->pips, stacks_int, hands,
                                                        maker->deck, maker->previous_state);
             break;
@@ -159,7 +159,7 @@ class Runner {
             }
             auto maker = std::static_pointer_cast<const RoundState>(round_state);
             round_state = std::make_shared<RoundState>(
-                maker->button, maker->street, maker->auction, maker->bids, maker->pips,
+                maker->button, maker->round, maker->auction, maker->bids, maker->pips,
                 maker->stacks, maker->hands, revisedDeck, maker->previous_state);
             break;
           }
@@ -174,7 +174,7 @@ class Runner {
             revisedHands[1 - active] = {cards[0], cards[1]};
             // rebuild history
             round_state = std::make_shared<RoundState>(
-                maker->button, maker->street, maker->auction, maker->bids, maker->pips,
+                maker->button, maker->round, maker->auction, maker->bids, maker->pips,
                 maker->stacks, revisedHands, maker->deck, maker->previous_state);
             round_state =
                 std::make_shared<TerminalState>(std::array<int, 2>{0, 0}, maker->bids, round_state);
