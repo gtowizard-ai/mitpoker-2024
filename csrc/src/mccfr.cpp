@@ -3,34 +3,43 @@
 
 namespace pokerbot {
 
-int sample_index(const std::vector<float>& distribution_values, std::mt19937 gen) {
+Regret::Regret(const unsigned num_hands, const unsigned num_actions) : num_hands_(num_hands) {
+  data.reserve(num_hands_ * num_actions);
+  std::fill(data.begin(), data.end(), 0);
+}
+
+// ToDo: Using rgn can be time consuming. Consider using faster/less accurate methods
+unsigned sample_index(const std::vector<float>& distribution_values, const unsigned start_point,
+                 const unsigned length, std::mt19937 gen) {
   // Create a discrete distribution based on the values in A
-  std::discrete_distribution<int> distribution(distribution_values.begin(),
+  std::discrete_distribution<unsigned> distribution(distribution_values.begin() + start_point,
+                                               distribution_values.begin() + start_point + length);
+
+  // Sample a value
+  return distribution(gen);
+}
+
+unsigned sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values,
+                 std::mt19937 gen) {
+  // Create a discrete distribution based on the values in A
+  std::discrete_distribution<unsigned> distribution(distribution_values.begin(),
                                                distribution_values.end());
 
   // Sample a value
   return distribution(gen);
 }
 
-int sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values, std::mt19937 gen) {
-  // Create a discrete distribution based on the values in A
-  std::discrete_distribution<int> distribution(distribution_values.begin(),
-                                               distribution_values.end());
-
-  // Sample a value
-  return distribution(gen);
-}
-
-MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const int player_id,
+MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const unsigned player_id,
              const std::vector<Range>& ranges)
     : game_(game_state),
       round_state_(round_state_),
       player_(player_id),
       ranges_(ranges),
-      value_(0),
+      num_hands_(ranges[player_id].range.size()),
+      values_(num_hands_, 0),
       random_generator_(std::random_device()()),
-      sum_buffer_(0),
-      num_steps_(0) {
+      sum_buffer_(num_hands_, 0),
+      num_steps_(num_hands_, 0) {
 
   const auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
 
@@ -40,106 +49,93 @@ MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const
   if (ranges::contains(legal_actions, Action::Type::RAISE)) {
     // the smallest and largest numbers of chips for a legal bet/raise
     const auto raise_bounds = round_state->raise_bounds();
-    if(raise_bounds[0] <= my_stack) {
-      // Question: Other values?
+    if (raise_bounds[0] <= my_stack) {
+      // ToDo: Other bet sizes? Probably another function to add all bet sizes to available actions
       available_actions_.emplace_back(Action::Type::RAISE, raise_bounds[0]);
     }
   }
 
   for (const auto legal_action : legal_actions) {
-    if (legal_action == Action::Type::BID) {
-      // Question: How to handle BID?
-      available_actions_.emplace_back(Action::Type::BID, 100);  // random bid
-    } else if(legal_action != Action::Type::RAISE) {
+    if (legal_action != Action::Type::RAISE) {
       available_actions_.emplace_back(legal_action);
     }
   }
 
   // Initialize the regret and the strategies and value_
-  regrets_.resize(available_actions_.size());
-  sum_strategies_.resize(available_actions_.size());
-  last_strategies_.resize(available_actions_.size());
-  average_strategies_.resize(available_actions_.size());
-
-  std::fill(regrets_.begin(), regrets_.end(), 0);
-  std::fill(sum_strategies_.begin(), sum_strategies_.end(), 0);
-  std::fill(last_strategies_.begin(), last_strategies_.end(), 1.0f/last_strategies_.size());
-  std::fill(average_strategies_.begin(), average_strategies_.end(), 0);
+  regrets_ = Regret(num_hands_, available_actions_.size());
 }
 
-float MCCFR::get_child_value(const int action, const int hand) {
+float MCCFR::get_child_value(const unsigned hand, const unsigned action) {
   // Can be cached
   throw std::logic_error("Not Implemented");
 }
 
-float MCCFR::get_child_value(const int action) {
+float MCCFR::get_child_value(const unsigned action) {
   // Can be cached
   throw std::logic_error("Not Implemented");
+}
+
+std::vector<float> MCCFR::get_root_value() {
+  std::vector<float> values(num_hands_, 0);
+
+  for (unsigned hand = 0; hand < num_hands_; hand++) {
+    for (unsigned action = 0; action < available_actions_.size(); action++) {
+      values[hand] += (regrets_(hand, action) / sum_buffer_[hand]) * get_child_value(hand, action);
+    }
+  }
+
+  return values;
 }
 
 void MCCFR::update_regrets() {
-  value_ = 0;
-  for(int index = 0; index < available_actions_.size(); index++) {
-    value_ += last_strategies_[index] * get_child_value(index);
-  }
-  // Fixme: Add the pos_discount and neg_discount?
-  // Fixme: Add epsilon-greedy selection?
+  // ToDo: Not optimal
+  values_ = get_root_value();
+  // ToDo: Add epsilon-greedy selection?
 
   // sample a hand
-  const int hand = sample_index(ranges_[player_].range, random_generator_);
+  const unsigned hand = sample_index(ranges_[player_].range, random_generator_);
 
   // sample an action
-  const int action = sample_index(average_strategies_, random_generator_);
+  const unsigned action = sample_index(regrets_.data, hand * available_actions_.size(),
+                                  available_actions_.size(), random_generator_);
 
-  // Update regrets for traverser only
-  // Update last strategies with Regret Matching
   const auto& action_value = get_child_value(action, hand);
 
-  // Question: Should it be = or += ?
-  // Question: I do sampling. Should I update regret_[hand, action] or regret_[action] ?
-  regrets_[action] = action_value - value_;
-  if (regrets_[action] > 0) {
-    sum_buffer_ -= last_strategies_[action];
-    last_strategies_[action] = regrets_[action];
-    sum_buffer_ += last_strategies_[action];
-  } else {
-    last_strategies_[action] = 0;
+  // Update last strategies with Regret Matching
+  const float diff = action_value - values_[hand];
+  if (diff > 0) {
+    regrets_(hand, action) += diff * get_discount_factors(hand);
+    sum_buffer_[hand] += diff;
   }
 
-  // Transform to probability distribution
-  for (float& last_strategie : last_strategies_) {
-    last_strategie = sum_buffer_ > 0 ? static_cast<float>(last_strategie / sum_buffer_)
-                                     : 1.0f / last_strategies_.size();
-  }
+  ++num_steps_[hand];
 }
 
-void MCCFR::update_sum_strategies(const float strat_discount) {
-  for (unsigned action = 0; action < sum_strategies_.size(); ++action) {
-    sum_strategies_[action] *= strat_discount;
-    sum_strategies_[action] += last_strategies_[action];
+Regret MCCFR::get_avg_strategy() {
+  Regret strategy(num_hands_, available_actions_.size());
+  for (unsigned hand = 0; hand < num_hands_; hand++) {
+    for (unsigned action = 0; action < available_actions_.size(); action++) {
+      strategy(hand, action) = regrets_(hand, action) / sum_buffer_[hand];
+    }
   }
+  return strategy;
 }
 
-void MCCFR::compute_avg_strategy() {
-  sum_buffer_ = 0;
+float MCCFR::get_discount_factors(const unsigned hand) const {
+  float pos_discount = 1;
 
-  for (const float sum_strategy : sum_strategies_) {
-    sum_buffer_ += sum_strategy;
-  }
+  // We always have uniform strategy, hence +1.
+  const auto num_iterations = static_cast<float>(num_steps_[hand] + 1);
 
-  // Transform to probability distribution
-  for (unsigned action = 0; action < average_strategies_.size(); ++action) {
-    average_strategies_[action] = static_cast<float>(sum_strategies_[action] / sum_buffer_);
-  }
+  // Linear CFR. The updates to the regrets and average strategies
+  // are given weight t, where t = num_iterations.
+  pos_discount = num_iterations / (num_iterations + 1);
+  return pos_discount;
 }
 
 void MCCFR::step() {
   // 1) Set CF values of all terminal and pseudo leaf nodes
   // precompute_all_leaf_values();
-
-  // 2) Get weights for regrets and average strategies
-  // according to our discounting scheme
-  // const auto [pos_discount, neg_discount, strat_discount] = get_discount_factors();
 
   // 3) Compute cumulative regrets and counterfactual values.
   // and generate strategy profile from the regrets
@@ -148,13 +144,6 @@ void MCCFR::step() {
 
   // 4) Compute new `reach_probabilities` according to `last_strategies`
   // precompute_reaches_last_strategy(traverser, allow_skips);
-
-  // Update num_steps before strategy to know on which
-  // iteration average strategy was updated
-  ++num_steps_;
-
-  // 5) Update sum strategies
-  compute_avg_strategy();
 }
 
 }  // namespace pokerbot
