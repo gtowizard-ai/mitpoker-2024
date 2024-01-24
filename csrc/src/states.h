@@ -11,15 +11,15 @@ namespace pokerbot {
 struct State : std::enable_shared_from_this<State> {
   virtual ~State() = default;
 
-  friend std::ostream& operator<<(std::ostream& os, const State& s) { return s.doFormat(os); }
+  friend std::ostream& operator<<(std::ostream& os, const State& s) { return s.do_format(os); }
 
   template <typename Desired = State>
-  std::shared_ptr<const Desired> getShared() const {
+  std::shared_ptr<const Desired> get_shared() const {
     return std::static_pointer_cast<const Desired>(shared_from_this());
   }
 
  private:
-  virtual std::ostream& doFormat(std::ostream& os) const = 0;
+  virtual std::ostream& do_format(std::ostream& os) const = 0;
 };
 
 using StatePtr = std::shared_ptr<const State>;
@@ -63,7 +63,7 @@ struct RoundState : public State {
   StatePtr proceed(Action action) const;
 
  private:
-  std::ostream& doFormat(std::ostream& os) const override;
+  std::ostream& do_format(std::ostream& os) const override;
 };
 
 using RoundStatePtr = std::shared_ptr<const RoundState>;
@@ -78,12 +78,12 @@ struct TerminalState : State {
       : deltas(deltas), bids(bids), previous_state(std::move(previous_state)) {}
 
  private:
-  std::ostream& doFormat(std::ostream& os) const override;
+  std::ostream& do_format(std::ostream& os) const override;
 };
 
 using TerminalStatePtr = std::shared_ptr<const TerminalState>;
 
-inline int getActive(int a) {
+inline int get_active(int a) {
   auto active = a % 2;
   return active < 0 ? active + 2 : active;
 }

@@ -7,11 +7,11 @@
 using namespace pokerbot;
 
 struct CheckOrCallBot {
-  void handle_new_round(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,
-                        int /*active*/) {}
+  void handle_new_hand(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,
+                       int /*active*/) {}
 
-  void handle_round_over(const GameInfo& /*game_state*/, const TerminalStatePtr& /*terminal_state*/,
-                         int /*active*/) {}
+  void handle_hand_over(const GameInfo& /*game_state*/, const TerminalStatePtr& /*terminal_state*/,
+                        int /*active*/) {}
 
   /*
     @param game_state The GameState object.

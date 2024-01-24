@@ -9,30 +9,30 @@ using namespace pokerbot;
 
 struct MainBot {
   /*
-    Called when a new round starts. Called NUM_ROUNDS times.
+    Called when a new hand starts. Called NUM_HANDS times.
 
     @param game_state The GameState object.
     @param round_state The RoundState object.
     @param active Your player's index.
   */
-  void handle_new_round(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,
-                        int /*active*/) {
+  void handle_new_hand(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,
+                       int /*active*/) {
     // int my_bankroll = game_state->bankroll;  // the total number of chips you've gained or lost from the beginning of the game to the start of this round
     // float game_clock = game_state->game_clock;  // the total number of seconds your bot has left to play this game
-    // int round_num = game_state->round_num;  // the round number from 1 to State.NUM_ROUNDS
+    // int hand_num = game_state->hand_num;  // the hand from 1 to State.NUM_HANDS
     // auto my_cards = round_state->hands[active];  // your cards
     // bool big_blind = (active == 1);  // true if you are the big blind
   }
 
   /*
-    Called when a round ends. Called NUM_ROUNDS times.
+    Called when a hand ends. Called NUM_HANDS times.
 
     @param game_state The GameState object.
     @param terminal_state The TerminalState object.
     @param active Your player's index.
   */
-  void handle_round_over(const GameInfo& /*game_state*/, const TerminalStatePtr& /*terminal_state*/,
-                         int /*active*/) {
+  void handle_hand_over(const GameInfo& /*game_state*/, const TerminalStatePtr& /*terminal_state*/,
+                        int /*active*/) {
     // int my_delta = terminal_state->deltas[active];  // your bankroll change from this round
     // auto previous_state = std::static_pointer_cast<const RoundState>(terminal_state->previous_state);  // RoundState before payoffs
     // auto my_cards = previous_state->hands[active];  // your cards

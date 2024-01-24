@@ -64,7 +64,7 @@ class Runner {
         auto leftover = clause.substr(1);
         switch (clause[0]) {
           case 'T': {
-            game_info = GameInfo(game_info.bankroll, std::stof(leftover), game_info.round_num);
+            game_info = GameInfo(game_info.bankroll, std::stof(leftover), game_info.hand_num);
             break;
           }
           case 'P': {
@@ -85,7 +85,7 @@ class Runner {
             round_state = std::make_shared<RoundState>(0, round::PREFLOP, false, bids, pips, stacks,
                                                        std::move(hands), std::move(deck), nullptr);
             if (round_flag) {
-              pokerbot.handle_new_round(
+              pokerbot.handle_new_hand(
                   game_info, std::static_pointer_cast<const RoundState>(round_state), active);
               round_flag = false;
             }
@@ -189,10 +189,10 @@ class Runner {
                 deltas, std::array<std::optional<int>, 2>{0, 0},
                 std::static_pointer_cast<const TerminalState>(round_state)->previous_state);
             game_info =
-                GameInfo(game_info.bankroll + delta, game_info.game_clock, game_info.round_num);
-            pokerbot.handle_round_over(
+                GameInfo(game_info.bankroll + delta, game_info.game_clock, game_info.hand_num);
+            pokerbot.handle_hand_over(
                 game_info, std::static_pointer_cast<const TerminalState>(round_state), active);
-            game_info = GameInfo(game_info.bankroll, game_info.game_clock, game_info.round_num + 1);
+            game_info = GameInfo(game_info.bankroll, game_info.game_clock, game_info.hand_num + 1);
             round_flag = true;
             break;
           }
