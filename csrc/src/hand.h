@@ -10,12 +10,9 @@ namespace pokerbot {
 /// A hand can hold either 2 or 3 cards.
 /// If only 2 cards, the last card will be set to `MAX_DECK_SIZE`
 struct Hand {
-
   std::array<card_t, 3> cards;
 
-  Hand(card_t card1, card_t card2) : cards{card1, card2, MAX_DECK_SIZE} {
-    std::sort(cards.begin(), cards.end());
-  }
+  Hand(card_t card1, card_t card2) : Hand(card1, card2, MAX_DECK_SIZE) {}
 
   Hand(card_t card1, card_t card2, card_t card3) : cards{card1, card2, card3} {
     std::sort(cards.begin(), cards.end());
