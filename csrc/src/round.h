@@ -37,6 +37,6 @@ const Round& from_id(unsigned id);
 const Round& from_name(const std::string& name);
 const Round& from_num_cards(unsigned num_board_cards);
 // Infer round from board string like "AcAdKh"
-const Round& from_board_str(const std::string& board_str);
+const Round& from_board(const std::string& board_str);
 
 }  // namespace pokerbot::round

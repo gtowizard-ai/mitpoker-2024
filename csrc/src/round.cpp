@@ -62,7 +62,7 @@ const Round& from_num_cards(unsigned num_board_cards) {
       fmt::format("round_from_num_cards: Invalid num_board_cards provided: {}", num_board_cards));
 }
 
-const Round& from_board_str(const std::string& board_str) {
+const Round& from_board(const std::string& board_str) {
   for (const auto& r : ROUNDS) {
     if (2 * r.num_board_cards == board_str.size()) {
       return r;
