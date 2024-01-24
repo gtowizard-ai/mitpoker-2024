@@ -12,9 +12,7 @@ struct Range {
   /// Initialize uniform random range
   Range();
 
-  auto num_hands() const {
-    return num_cards == NumCards::Two ? NUM_HANDS_POSTFLOP_2CARDS : NUM_HANDS_POSTFLOP_3CARDS;
-  }
+  auto num_hands() const { return Game::num_hands(num_cards); }
 
   /// Set probs to zero for hands that are now blocked by board cards
   void update_on_new_board_cards(const Game& game, const std::vector<card_t>& board_cards);

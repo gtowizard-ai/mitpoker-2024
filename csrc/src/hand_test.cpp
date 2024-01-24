@@ -53,7 +53,6 @@ TEST(HandTest, Test2CardsIndexing) {
   indices.reserve(NUM_HANDS_POSTFLOP_2CARDS);
   for (card_t card1 = 0; card1 < MAX_DECK_SIZE; ++card1) {
     for (card_t card2 = card1 + 1; card2 < MAX_DECK_SIZE; ++card2) {
-      fmt::print("idx = {} \n", Hand(card1, card2).index());
       indices.insert(Hand(card1, card2).index());
     }
   }

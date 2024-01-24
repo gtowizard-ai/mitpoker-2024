@@ -40,6 +40,10 @@ class Game {
     }
   }
 
+  static auto num_hands(NumCards num_cards) {
+    return num_cards == NumCards::Two ? NUM_HANDS_POSTFLOP_2CARDS : NUM_HANDS_POSTFLOP_3CARDS;
+  }
+
   const auto& hands(NumCards num_cards) const {
     return num_cards == NumCards::Two ? two_cards_hands_ : three_cards_hands_;
   }
