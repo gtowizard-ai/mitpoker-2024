@@ -1,9 +1,7 @@
 #pragma once
-
-#include <iostream>
 #include <memory>
 #include <optional>
-#include <unordered_set>
+#include <vector>
 
 #include "actions.h"
 #include "constants.h"
@@ -54,7 +52,7 @@ struct RoundState : public State {
 
   StatePtr showdown() const;
 
-  std::unordered_set<Action::Type> legal_actions() const;
+  std::vector<Action::Type> legal_actions() const;
 
   auto min_stack() const { return std::min(stacks[0], stacks[1]); }
 

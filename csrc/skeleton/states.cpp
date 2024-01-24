@@ -1,14 +1,11 @@
 #include "states.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <algorithm>
 #include <numeric>
 #include <optional>
 #include <sstream>
-
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
-#include "util.h"
 
 namespace pokerbots::skeleton {
 
@@ -16,9 +13,9 @@ StatePtr RoundState::showdown() const {
   return std::make_shared<TerminalState>(std::array<int, 2>{0, 0}, bids, getShared());
 }
 
-std::unordered_set<Action::Type> RoundState::legal_actions() const {
+std::vector<Action::Type> RoundState::legal_actions() const {
   if (auction) {
-    return std::unordered_set<Action::Type>{Action::Type::BID};
+    return std::vector{Action::Type::BID};
   }
 
   auto active = getActive(button);
@@ -26,16 +23,15 @@ std::unordered_set<Action::Type> RoundState::legal_actions() const {
   if (continue_cost == 0) {
     // we can only raise the stakes if both players can afford it
     auto bets_forbidden = stacks[0] == 0 || stacks[1] == 0;
-    return bets_forbidden
-               ? std::unordered_set<Action::Type>{Action::Type::CHECK}
-               : std::unordered_set<Action::Type>{Action::Type::CHECK, Action::Type::RAISE};
+    return bets_forbidden ? std::vector{Action::Type::CHECK}
+                          : std::vector{Action::Type::CHECK, Action::Type::RAISE};
   }
   // continueCost > 0
   // similarly, re-raising is only allowed if both players can afford it
   auto raises_forbidden = continue_cost >= stacks[active] || stacks[1 - active] == 0;
-  return raises_forbidden ? std::unordered_set<Action::Type>{Action::Type::FOLD, Action::Type::CALL}
-                          : std::unordered_set<Action::Type>{Action::Type::FOLD, Action::Type::CALL,
-                                                             Action::Type::RAISE};
+  return raises_forbidden
+             ? std::vector{Action::Type::FOLD, Action::Type::CALL}
+             : std::vector{Action::Type::FOLD, Action::Type::CALL, Action::Type::RAISE};
 }
 
 std::array<int, 2> RoundState::raise_bounds() const {

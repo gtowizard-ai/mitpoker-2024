@@ -1,9 +1,9 @@
+#include <random>
 #include "../skeleton/actions.h"
 #include "../skeleton/constants.h"
 #include "../skeleton/runner.h"
 #include "../skeleton/states.h"
-
-#include <random>
+#include "../src/ranges_utils.h"
 
 using namespace pokerbots::skeleton;
 
@@ -78,7 +78,7 @@ struct MainBot {
         STARTING_STACK - opp_stack;  // the number of chips your opponent has contributed to the pot
     int min_cost = 0;
     int max_cost = 0;
-    if (legal_actions.find(Action::Type::RAISE) != legal_actions.end()) {
+    if (ranges::contains(legal_actions, Action::Type::RAISE)) {
       auto raise_bounds =
           round_state
               ->raise_bounds();  // the smallest and largest numbers of chips for a legal bet/raise
@@ -92,10 +92,10 @@ struct MainBot {
     std::uniform_int_distribution<int> bid_distribution(
         0, my_stack);  // random bid between 0 and my stack
 
-    if (legal_actions.find(Action::Type::BID) != legal_actions.end()) {
+    if (ranges::contains(legal_actions, Action::Type::BID)) {
       return {Action::Type::BID, bid_distribution(gen)};  // random bid
     }
-    if (legal_actions.find(Action::Type::CHECK) != legal_actions.end()) {
+    if (ranges::contains(legal_actions, Action::Type::CHECK)) {
       // check-call
       return {Action::Type::CHECK};
     }

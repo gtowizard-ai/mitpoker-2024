@@ -1,8 +1,8 @@
+#include <random>
 #include "../skeleton/actions.h"
 #include "../skeleton/runner.h"
 #include "../skeleton/states.h"
-
-#include <random>
+#include "../src/ranges_utils.h"
 
 using namespace pokerbots::skeleton;
 
@@ -29,10 +29,10 @@ struct CheckOrCallBot {
     // random bid between 0 and my stack
     std::uniform_int_distribution<int> bid_distribution(0, my_stack);
 
-    if (legal_actions.find(Action::Type::BID) != legal_actions.end()) {
+    if (ranges::contains(legal_actions, Action::Type::BID)) {
       return {Action::Type::BID, bid_distribution(gen)};  // random bid
     }
-    if (legal_actions.find(Action::Type::CHECK) != legal_actions.end()) {
+    if (ranges::contains(legal_actions, Action::Type::CHECK)) {
       // check-call
       return {Action::Type::CHECK};
     }

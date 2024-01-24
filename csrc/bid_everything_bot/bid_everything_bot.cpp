@@ -1,6 +1,7 @@
 #include "../skeleton/actions.h"
 #include "../skeleton/runner.h"
 #include "../skeleton/states.h"
+#include "../src/ranges_utils.h"
 
 using namespace pokerbots::skeleton;
 
@@ -23,13 +24,13 @@ struct BidEverythingBot {
 
     // Basic bot that check/call preflop, then bids everything on the flop
     // to win the auction and then goes all-in
-    if (legal_actions.find(Action::Type::BID) != legal_actions.end()) {
+    if (ranges::contains(legal_actions, Action::Type::BID)) {
       return {Action::Type::BID, min_stack};
     }
     if (round_state->street == 3) {
       return {Action::Type::RAISE, min_stack};
     }
-    if (legal_actions.find(Action::Type::CHECK) != legal_actions.end()) {
+    if (ranges::contains(legal_actions, Action::Type::CHECK)) {
       return {Action::Type::CHECK};
     }
     return {Action::Type::CALL};
