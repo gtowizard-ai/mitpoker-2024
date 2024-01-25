@@ -38,15 +38,15 @@ class PokerHand {
 
   /// @brief Constructs a hand from a set of cards. Throws an exception if `cards` contains
   /// duplicate cards or values outside of the range [0, 51].
-  PokerHand(std::initializer_list<card_t> cards);
+  inline PokerHand(std::initializer_list<card_t> cards);
 
   /// @brief Constructs a hand from a set of cards. Throws an exception if `cards` contains
   /// duplicate cards or values outside of the range [0, 51].
-  explicit PokerHand(const std::vector<card_t>& cards);
+  explicit inline PokerHand(const std::vector<card_t>& cards);
 
   /// @brief Constructs a hand from a given string. Throws an exception if the string contains
   /// duplicate cards or invalid characters.
-  explicit PokerHand(std::string_view card_string);
+  explicit inline PokerHand(std::string_view card_string);
 
   /// Returns the number of cards in the hand.
   constexpr uint8_t size() const noexcept { return static_cast<uint8_t>(misc_data_ >> 32); }
@@ -170,17 +170,17 @@ inline constexpr std::array<PokerHand, MAX_DECK_SIZE> EVAL_HAND_ARRAY = init_eva
 
 }  // namespace detail
 
-PokerHand::PokerHand(std::initializer_list<card_t> cards) : PokerHand() {
+inline PokerHand::PokerHand(std::initializer_list<card_t> cards) : PokerHand() {
   std::for_each(cards.begin(), cards.end(),
                 [&](auto card) { *this += detail::EVAL_HAND_ARRAY.at(card); });
 }
 
-PokerHand::PokerHand(const std::vector<card_t>& cards) : PokerHand() {
+inline PokerHand::PokerHand(const std::vector<card_t>& cards) : PokerHand() {
   std::for_each(cards.begin(), cards.end(),
                 [&](auto card) { *this += detail::EVAL_HAND_ARRAY.at(card); });
 }
 
-PokerHand::PokerHand(std::string_view card_string) : PokerHand() {
+inline PokerHand::PokerHand(std::string_view card_string) : PokerHand() {
   if (card_string.size() % 2 != 0) {
     throw std::invalid_argument("The card string must have an even number of characters.");
   }
