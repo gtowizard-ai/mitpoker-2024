@@ -82,19 +82,19 @@ class EquityTest : public ::testing::Test {
     const auto eval_board = PokerHand(board_cards);
 
     auto hero_hand = eval_board + to_poker_hand(hand);
-    for (int j = 0; j < opponent_range.num_hands(); ++j) {
-      if (hand.collides_with(opponent_hands[j]) || opponent_hands[j].collides_with(board_cards)) {
+    for (int i = 0; i < opponent_range.num_hands(); ++i) {
+      if (hand.collides_with(opponent_hands[i]) || opponent_hands[i].collides_with(board_cards)) {
         continue;
       }
-      auto opponent_hand = eval_board + to_poker_hand(opponent_hands[j]);
+      auto opponent_hand = eval_board + to_poker_hand(opponent_hands[i]);
       auto hero_strength = hero_hand.evaluate();
       auto opponent_strength = opponent_hand.evaluate();
       if (hero_strength > opponent_strength) {
-        results.wins += opponent_range.range[j];
+        results.wins += opponent_range.range[i];
       } else if (hero_strength == opponent_strength) {
-        results.ties += opponent_range.range[j];
+        results.ties += opponent_range.range[i];
       }
-      results.count += opponent_range.range[j];
+      results.count += opponent_range.range[i];
     }
   }
 };
@@ -157,7 +157,7 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsTwoCards) {
   // Can only split with QJ -- 2 Q left * 2 J left in the deck
   auto tie_prob = 2 * (2.0 / 44.0 * 3.0 / 43.0);
   ASSERT_NEAR(naive_compute_equity(Hand("QcQhJc"), opponent_range, board_cards),
-              1.0 - 0.5 * tie_prob, 1e-4);
+              1.0 - 0.5 * tie_prob, 1e-6);
 }
 
 TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsThreeCards) {
@@ -172,9 +172,9 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsThreeCards) {
 
   ASSERT_EQ(naive_compute_equity(Hand("2c2s"), opponent_range, board_cards), 0);
   ASSERT_EQ(naive_compute_equity(Hand("8d8s"), opponent_range, board_cards), 0.0);
-  // We lose to exactly {3s, 5s, 7s} and {As, 3s, 5s}
+  // We lose to exactly {3s, 5s, 6s} and {As, 3s, 5s}
   ASSERT_NEAR(naive_compute_equity(Hand("8h8s"), opponent_range, board_cards),
-              1.0 - (3.0 / n_choose_k(45, 3)), 1e-4);
+              1.0 - (2.0 / n_choose_k(45, 3)), 1e-6);
 }
 
 TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsThreeCards) {
@@ -189,9 +189,9 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsThreeCards) {
   opponent_range.to_3_cards_range(game_, board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("3s5s6s"), opponent_range, board_cards), 1.0);
-  // We lose to exactly {3s, 5s, 7s} and {As, 3s, 5s}
+  // We lose to exactly {3s, 5s, 6s} and {As, 3s, 5s}
   ASSERT_NEAR(naive_compute_equity(Hand("8h8s"), opponent_range, board_cards),
-              1.0 - (3.0 / n_choose_k(45, 3)), 1e-4);
+              1.0 - (2.0 / n_choose_k(45, 3)), 1e-6);
 }
 
 TEST_F(EquityTest, TestEquityComputationRiverThreeVsTwoCards) {
