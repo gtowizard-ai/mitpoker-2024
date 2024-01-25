@@ -1,34 +1,11 @@
 #pragma once
 #include <algorithm>
 #include <array>
-#include <cstdint>
 #include "card.h"
 #include "definitions.h"
 #include "n_choose_k.h"
 
 namespace pokerbot {
-
-namespace detail {
-
-inline void sort_2_cards(card_t& card1, card_t& card2) {
-  if (card1 > card2) {
-    std::swap(card1, card2);
-  }
-}
-
-constexpr uint64_t VALID_CARD_BITSET = (1ULL << MAX_DECK_SIZE) - 1;
-
-// This function does not check if `card < MAX_DECK_SIZE`
-template <typename T>
-inline uint64_t card_bitset(const T& cards) {
-  uint64_t bitset = 0;
-  for (auto card : cards) {
-    bitset |= 1ULL << card;
-  }
-  return bitset;
-}
-
-}  // namespace detail
 
 /// A hand can hold either 2 or 3 cards.
 /// If only 2 cards, the last card will be set to `MAX_DECK_SIZE`
@@ -37,14 +14,10 @@ struct Hand {
 
   Hand() = default;
 
-  Hand(card_t card1, card_t card2) : cards{card1, card2, MAX_DECK_SIZE} {
-    detail::sort_2_cards(cards[0], cards[1]);
-  }
+  Hand(card_t card1, card_t card2) : Hand(card1, card2, MAX_DECK_SIZE) {}
 
   Hand(card_t card1, card_t card2, card_t card3) : cards{card1, card2, card3} {
-    detail::sort_2_cards(cards[0], cards[1]);
-    detail::sort_2_cards(cards[0], cards[2]);
-    detail::sort_2_cards(cards[1], cards[2]);
+    std::sort(cards.begin(), cards.end());
   }
 
   explicit Hand(std::string_view card_string) {
@@ -77,20 +50,23 @@ struct Hand {
     }
   }
 
-  // Assume that `card < MAX_DECK_SIZE`
   bool collides_with(card_t card) const {
-    return std::find(cards.cbegin(), cards.cend(), card) != cards.cend();
+    return std::any_of(cards.begin(), cards.begin() + num_cards(),
+                       [card](auto my_card) { return my_card == card; });
   }
 
-  // `board_cards` can have `MAX_DECK_SIZE` to represent the unknown cards
   bool collides_with(const std::vector<card_t>& board_cards) const {
-    return (detail::card_bitset(cards) & detail::card_bitset(board_cards) &
-            detail::VALID_CARD_BITSET) != 0;
+    return std::any_of(board_cards.begin(), board_cards.end(),
+                       [&](auto card) { return collides_with(card); });
   }
 
   bool collides_with(const Hand& hand) const {
-    return (detail::card_bitset(cards) & detail::card_bitset(hand.cards) &
-            detail::VALID_CARD_BITSET) != 0;
+    for (uint_fast8_t i = 0; i < std::min(this->num_cards(), hand.num_cards()); ++i) {
+      if (cards[i] == hand.cards[i]) {
+        return true;
+      }
+    }
+    return false;
   }
 
   std::string to_string() const {

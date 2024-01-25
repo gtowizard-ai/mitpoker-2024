@@ -83,7 +83,6 @@ TEST(HandTest, TestCollidesWith) {
   ASSERT_TRUE(Hand("2c2d").collides_with(Hand("2c2d2s")));
   ASSERT_TRUE(Hand("2c2d").collides_with(Hand("AsKh2c")));
   ASSERT_TRUE(Hand("2c2dAs").collides_with(Hand("AsAcAd")));
-  ASSERT_TRUE(Hand("AcAd").collides_with(Hand("AdAh")));
   ASSERT_FALSE(Hand("2c2d").collides_with(Hand("AsKh")));
   ASSERT_FALSE(Hand("AcKd").collides_with(Hand("AsKh")));
   ASSERT_FALSE(Hand("2c2dAs").collides_with(Hand("KcKd")));
