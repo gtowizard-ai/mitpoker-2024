@@ -127,8 +127,7 @@ static std::vector<double> compute_weights(const Game& game, const Range& hero_r
   }
 }
 
-static std::vector<uint32_t> sorted_hands_2_cards(const Game& game, const Range& range,
-                                                  const PokerHand& board) {
+static std::vector<uint32_t> sorted_hands_2_cards(const Game& game, const PokerHand& board) {
   std::vector<uint32_t> hands_sorted;
   hands_sorted.reserve(n_choose_k(MAX_DECK_SIZE - MAX_BOARD_CARDS, 2) + 2);
 
@@ -153,8 +152,7 @@ static std::vector<uint32_t> sorted_hands_2_cards(const Game& game, const Range&
   return hands_sorted;
 }
 
-static std::vector<uint32_t> sorted_hands_3_cards(const Game& game, const Range& range,
-                                                  const PokerHand& board) {
+static std::vector<uint32_t> sorted_hands_3_cards(const Game& game, const PokerHand& board) {
   std::vector<uint32_t> hands_sorted;
   hands_sorted.reserve(n_choose_k(MAX_DECK_SIZE - MAX_BOARD_CARDS, 3) + 2);
 
@@ -179,11 +177,11 @@ static std::vector<uint32_t> sorted_hands_3_cards(const Game& game, const Range&
   return hands_sorted;
 }
 
-static void compute_cfvs_river_2_vs_3(const Game& game, const Range& hero_range,
-                                      const Range& opponent_range, const PokerHand& board,
-                                      std::vector<double>& cfvs, double factor) {
-  const auto hero_hands_sorted = sorted_hands_2_cards(game, hero_range, board);
-  const auto opponent_hands_sorted = sorted_hands_3_cards(game, opponent_range, board);
+static void compute_cfvs_river_2_vs_3(const Game& game, const Range& opponent_range,
+                                      const PokerHand& board, std::vector<double>& cfvs,
+                                      double factor) {
+  const auto hero_hands_sorted = sorted_hands_2_cards(game, board);
+  const auto opponent_hands_sorted = sorted_hands_3_cards(game, board);
 
   const auto& hero_hands = game.hands(NumCards::Two);
   const auto& opponent_hands = game.hands(NumCards::Three);
@@ -267,11 +265,11 @@ static void compute_cfvs_river_2_vs_3(const Game& game, const Range& hero_range,
   }
 }
 
-static void compute_cfvs_river_3_vs_2(const Game& game, const Range& hero_range,
-                                      const Range& opponent_range, const PokerHand& board,
-                                      std::vector<double>& cfvs, double factor) {
-  const auto hero_hands_sorted = sorted_hands_3_cards(game, hero_range, board);
-  const auto opponent_hands_sorted = sorted_hands_2_cards(game, opponent_range, board);
+static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_range,
+                                      const PokerHand& board, std::vector<double>& cfvs,
+                                      double factor) {
+  const auto hero_hands_sorted = sorted_hands_3_cards(game, board);
+  const auto opponent_hands_sorted = sorted_hands_2_cards(game, board);
 
   const auto& hero_hands = game.hands(NumCards::Three);
   const auto& opponent_hands = game.hands(NumCards::Two);
@@ -354,11 +352,11 @@ static void compute_cfvs_river_3_vs_2(const Game& game, const Range& hero_range,
   }
 }
 
-static void compute_cfvs_river_3_vs_3(const Game& game, const Range& hero_range,
-                                      const Range& opponent_range, const PokerHand& board,
-                                      std::vector<double>& cfvs, double factor) {
-  const auto hero_hands_sorted = sorted_hands_3_cards(game, hero_range, board);
-  const auto opponent_hands_sorted = sorted_hands_3_cards(game, opponent_range, board);
+static void compute_cfvs_river_3_vs_3(const Game& game, const Range& opponent_range,
+                                      const PokerHand& board, std::vector<double>& cfvs,
+                                      double factor) {
+  const auto hero_hands_sorted = sorted_hands_3_cards(game, board);
+  const auto opponent_hands_sorted = sorted_hands_3_cards(game, board);
 
   const auto& hands = game.hands(NumCards::Three);
   const auto& subhand_indices = game.subhand_indices();
@@ -454,11 +452,11 @@ static void compute_cfvs_river(const Game& game, const Range& hero_range,
                                const Range& opponent_range, const PokerHand& board,
                                std::vector<double>& cfvs, double factor) {
   if (hero_range.num_cards == NumCards::Two) {
-    compute_cfvs_river_2_vs_3(game, hero_range, opponent_range, board, cfvs, factor);
+    compute_cfvs_river_2_vs_3(game, opponent_range, board, cfvs, factor);
   } else if (opponent_range.num_cards == NumCards::Two) {
-    compute_cfvs_river_3_vs_2(game, hero_range, opponent_range, board, cfvs, factor);
+    compute_cfvs_river_3_vs_2(game, opponent_range, board, cfvs, factor);
   } else {
-    compute_cfvs_river_3_vs_3(game, hero_range, opponent_range, board, cfvs, factor);
+    compute_cfvs_river_3_vs_3(game, opponent_range, board, cfvs, factor);
   }
 }
 
@@ -511,7 +509,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
   std::vector<float> equities;
   equities.reserve(hero_range.num_hands());
 
-  for (unsigned i = 0; i < hero_range.num_hands(); ++i) {
+  for (int i = 0; i < hero_range.num_hands(); ++i) {
     if (weights[i] > 0) {
       equities.push_back(cfvs[i] * hero_range.range[i] / weights[i] + 0.5);
     } else {
