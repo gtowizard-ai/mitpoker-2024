@@ -32,39 +32,41 @@ class HandActionsValues {
 // Reuse it over for each Round
 class MCCFR {
  public:
-  MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, unsigned player_id,
-        const std::vector<Range>& ranges, unsigned warm_up_iterations);
-  std::vector<float> get_root_value();
-  void update_regrets();
+  MCCFR(const GameInfo& game_state, const unsigned warm_up_iterations);
+  void build_tree();
   float get_child_value(unsigned hand, unsigned action);
   float get_child_value(unsigned action);
+  void update_root_value();
+  void update_regrets();
   HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
+  void initial_regrets();
   void step();
+  void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
+             unsigned player_id /*, time_budget*/);
 
  private:
+  static constexpr unsigned max_available_actions_ = 10;
+
   const GameInfo& game_;
-  const RoundStatePtr& round_state_;
-  const unsigned player_;
-  const std::vector<Range> ranges_;
-  const unsigned num_hands_;
-
-  // The value of the node
-  std::vector<float> values_;
-
   std::mt19937 random_generator_;  // Mersenne Twister engine
+  unsigned warm_up_iterations_;
+
+  std::vector<Range>& ranges_;
+  unsigned num_hands_;
+  unsigned player_id_;
+  RoundStatePtr& round_state_;
+
+  // The value of the root node - size = num_hands_
+  std::vector<float> values_;
+  // Temporary buffer to store sum of regrets
+  std::vector<double> sum_buffer_;
+  std::vector<unsigned> num_steps_;
 
   std::vector<Action> available_actions_;
 
   // Regrets for root node. Indexed by [action].
   HandActionsValues regrets_;
-
-  // Temporary buffer to store sum of strategies
-  std::vector<double> sum_buffer_;
-
-  std::vector<unsigned> num_steps_;
-
-  unsigned warm_up_iterations_;
 };
 
 }  // namespace pokerbot
