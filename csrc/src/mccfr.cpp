@@ -1,5 +1,4 @@
 #include "mccfr.h"
-#include "ranges_utils.h"
 
 namespace pokerbot {
 
@@ -74,7 +73,7 @@ void MCCFR::update_root_value() {
     double root_value = 0;
     for (unsigned action = 0; action < available_actions_.size(); action++) {
       root_value += (sum_buffer_[hand] > 0 ? regrets_(hand, action) / sum_buffer_[hand]
-                                           : 1.0f / available_actions_.size()) *
+                                           : 1.0f / static_cast<float>(available_actions_.size())) *
                     get_child_value(hand, action);
     }
     values_[hand] = static_cast<float>(root_value);
@@ -113,8 +112,9 @@ HandActionsValues MCCFR::get_last_strategy() {
   HandActionsValues strategy(num_hands_, available_actions_.size());
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < available_actions_.size(); action++) {
-      strategy(hand, action) = sum_buffer_[hand] > 0 ? regrets_(hand, action) / sum_buffer_[hand]
-                                                     : 1.0f / available_actions_.size();
+      strategy(hand, action) = sum_buffer_[hand] > 0
+                                   ? regrets_(hand, action) / static_cast<float>(sum_buffer_[hand])
+                                   : 1.0f / static_cast<float>(available_actions_.size());
     }
   }
   return strategy;
@@ -154,7 +154,9 @@ void MCCFR::initial_regrets() {
 }
 
 void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-                  const unsigned player_id /*, time_budget*/) {
+                  const unsigned player_id, const std::chrono::microseconds time_budget) {
+  const auto solve_timer_start = std::chrono::high_resolution_clock::now();
+
   // Initialize variable for this solve
   num_hands_ = ranges[player_id].range.size();
   player_id_ = player_id;
@@ -165,10 +167,20 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
 
   build_tree(round_state);
 
+  // estimate how much it would take to go through all hands and actions
+  const auto estimate_mccfr_time_start = std::chrono::high_resolution_clock::now();
   initial_regrets();
+  const auto estimate_mccfr_time_stop = std::chrono::high_resolution_clock::now();
+  const auto duration_mccfr = duration_cast<std::chrono::microseconds>(estimate_mccfr_time_stop -
+                                                                       estimate_mccfr_time_start);
+  const auto duration_solve_function =
+      duration_cast<std::chrono::microseconds>(estimate_mccfr_time_stop - solve_timer_start);
 
-  // FIXME: compute the number of iteration based on time budget
-  int max_iterations = 10000;
+  constexpr float error_bound = 0.8;
+
+  unsigned max_iterations =
+      static_cast<unsigned>((time_budget - duration_solve_function) * num_hands_ *
+                            available_actions_.size() * error_bound / duration_mccfr);
   while (max_iterations-- > 0) {
     step(ranges);
   }

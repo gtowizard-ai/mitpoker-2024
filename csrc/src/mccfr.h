@@ -32,7 +32,7 @@ class HandActionsValues {
 // Reuse it over for each Round
 class MCCFR {
  public:
-  MCCFR(const GameInfo& game_state, const unsigned warm_up_iterations);
+  MCCFR(const GameInfo& game_state, unsigned warm_up_iterations);
   void build_tree(const RoundStatePtr& round_state);
   float get_child_value(unsigned hand, unsigned action);
   float get_child_value(unsigned action);
@@ -42,8 +42,8 @@ class MCCFR {
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
   void step(const std::vector<Range>& ranges);
-  void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-             unsigned player_id /*, time_budget*/);
+  void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state, unsigned player_id,
+             std::chrono::microseconds time_budget);
 
  private:
   static constexpr unsigned max_available_actions_ = 10;
