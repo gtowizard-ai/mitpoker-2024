@@ -18,15 +18,15 @@ unsigned sample_index(const std::vector<float>& distribution_values, const unsig
   return distribution(gen);
 }
 
-unsigned sample_index(const unsigned length, std::mt19937& gen) {
-  std::uniform_int_distribution<unsigned> distribution(0, length);
+unsigned sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values,
+                      const unsigned start_point, const unsigned length, std::mt19937& gen) {
+  std::discrete_distribution<unsigned> distribution(
+      distribution_values.begin() + start_point, distribution_values.end() + start_point + length);
   return distribution(gen);
 }
 
-unsigned sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values,
-                      std::mt19937& gen) {
-  std::discrete_distribution<unsigned> distribution(distribution_values.begin(),
-                                                    distribution_values.end());
+unsigned sample_index(const unsigned length, std::mt19937& gen) {
+  std::uniform_int_distribution<unsigned> distribution(0, length);
   return distribution(gen);
 }
 
@@ -34,9 +34,6 @@ MCCFR::MCCFR(const GameInfo& game_state, const unsigned warm_up_iterations)
     : game_(game_state),
       random_generator_(std::random_device()()),
       warm_up_iterations_(warm_up_iterations),
-      values_(NUM_HANDS_POSTFLOP_3CARDS, 0),
-      sum_buffer_(NUM_HANDS_POSTFLOP_3CARDS, 0),
-      num_steps_(NUM_HANDS_POSTFLOP_3CARDS, 0),
       regrets_(NUM_HANDS_POSTFLOP_3CARDS, max_available_actions_) {}
 
 void MCCFR::build_tree(const RoundStatePtr& round_state) {
@@ -85,7 +82,8 @@ void MCCFR::update_regrets(const std::vector<Range>& ranges) {
   update_root_value();
 
   // sample a hand
-  const unsigned hand = sample_index(ranges[player_id_].range, random_generator_);
+  const unsigned hand =
+      sample_index(ranges[player_id_].range, 0, ranges[player_id_].num_hands(), random_generator_);
 
   // sample an action - if there is warm-up state sample uniformely
   const unsigned action = [&] {
@@ -158,7 +156,7 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
   const auto solve_timer_start = std::chrono::high_resolution_clock::now();
 
   // Initialize variable for this solve
-  num_hands_ = ranges[player_id].range.size();
+  num_hands_ = ranges[player_id].num_hands();
   player_id_ = player_id;
 
   std::fill_n(values_.begin(), num_hands_, 0);

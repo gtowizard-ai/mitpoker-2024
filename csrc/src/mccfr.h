@@ -56,10 +56,10 @@ class MCCFR {
   unsigned player_id_;
 
   // The value of the root node - size = num_hands_
-  std::vector<float> values_;
+  std::array<float, NUM_HANDS_POSTFLOP_3CARDS> values_;
   // Temporary buffer to store sum of regrets
-  std::vector<double> sum_buffer_;
-  std::vector<unsigned> num_steps_;
+  std::array<double, NUM_HANDS_POSTFLOP_3CARDS> sum_buffer_;
+  std::array<unsigned, NUM_HANDS_POSTFLOP_3CARDS> num_steps_;
 
   std::vector<Action> available_actions_;
 
