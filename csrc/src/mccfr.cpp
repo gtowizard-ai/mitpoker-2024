@@ -20,8 +20,7 @@ unsigned sample_index(const std::vector<float>& distribution_values, const unsig
 }
 
 unsigned sample_index(const unsigned length, std::mt19937 gen) {
-  std::uniform_int_distribution<unsigned> distribution(
-        0, length);
+  std::uniform_int_distribution<unsigned> distribution(0, length);
 
   return distribution(gen);
 }
@@ -96,19 +95,18 @@ std::vector<float> MCCFR::get_root_value() {
 }
 
 void MCCFR::update_regrets() {
-  // ToDo: Not optimal
-  values_ = get_root_value();
   // ToDo: Add epsilon-greedy selection?
+  values_ = get_root_value();
 
   // sample a hand
   const unsigned hand = sample_index(ranges_[player_].range, random_generator_);
 
   // sample an action
-  const unsigned action = [&]{
-    if(num_steps_[hand] < warm_up_iterations_) {
+  const unsigned action = [&] {
+    if (num_steps_[hand] < warm_up_iterations_) {
       return sample_index(regrets_.data, hand * available_actions_.size(),
-                                        available_actions_.size(), random_generator_);
-    }else {
+                          available_actions_.size(), random_generator_);
+    } else {
       return sample_index(available_actions_.size(), random_generator_);
     }
   }();

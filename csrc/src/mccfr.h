@@ -1,14 +1,14 @@
 #pragma once
-#include "game.h"
-#include "states.h"
-#include <vector>
 #include <random>
+#include <vector>
+#include "game.h"
 #include "range.h"
+#include "states.h"
 
 namespace pokerbot {
 
 class HandActionsValues {
-public:
+ public:
   explicit HandActionsValues(unsigned num_hands, unsigned num_actions);
 
   HandActionsValues() = default;
@@ -28,12 +28,12 @@ public:
   unsigned num_hands_{};
 };
 
-
 // Fixme: We won't create one MCCFR object for each Decision. Better to create one object and
 // Reuse it over for each Round
 class MCCFR {
-public:
-  MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, unsigned player_id, const std::vector<Range>& ranges, unsigned warm_up_iteration);
+ public:
+  MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, unsigned player_id,
+        const std::vector<Range>& ranges, unsigned warm_up_iterations);
   std::vector<float> get_root_value();
   void update_regrets();
   float get_child_value(unsigned hand, unsigned action);
@@ -42,7 +42,7 @@ public:
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void step();
 
-private:
+ private:
   const GameInfo& game_;
   const RoundStatePtr& round_state_;
   const unsigned player_;
@@ -67,4 +67,4 @@ private:
   unsigned warm_up_iterations_;
 };
 
-} // namespace pokerbot
+}  // namespace pokerbot
