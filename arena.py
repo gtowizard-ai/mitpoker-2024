@@ -1,10 +1,11 @@
 import math
-
-from engine import Game, Player, BIG_BLIND
+import time
 import json
 import statistics
 from dataclasses import dataclass
 import config as config
+from engine import Game, Player, BIG_BLIND
+
 
 NUM_HANDS = 10000
 
@@ -22,7 +23,13 @@ def _run_match(player_1: Player, player_2: Player):
     print(f"Setting game clock to {game_clock} seconds based on {NUM_HANDS} hands")
     for player in players:
         player.game_clock = game_clock
+
+        start_time = time.perf_counter()
         player.build()
+        end_time = time.perf_counter()
+
+        print(f"Spent {end_time - start_time:.2f} seconds building bot {player.name}")
+
 
         full_output = "".join([str(output) for output in player_1.bytes_queue.queue])
         if "Timed out waiting" in full_output:
