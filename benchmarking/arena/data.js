@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706210959384,
+  "lastUpdate": 1706211175294,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "f18314ebc02f237b105e42a7c297605210665431",
-          "message": "addressing Phil's comments",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/14/commits/f18314ebc02f237b105e42a7c297605210665431"
-        },
-        "date": 1706202957129,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": -0.4181,
-            "unit": "bb/hand",
-            "range": 0.0066
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -1.6537,
-            "unit": "bb/hand",
-            "range": 1.4647
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -328,6 +296,42 @@ window.BENCHMARK_DATA = {
             "value": -2.4466,
             "unit": "bb/hand",
             "range": 1.4731
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "52984c4f1fef6e00e2b4df959f125eb0555366cf",
+          "message": "Enforce timeouts in CI/CD (#16)\n\n* test throw on timeouts\r\n\r\n* fix\r\n\r\n* aesthetic change\r\n\r\n* remove fmt/ostream for smaller compile time\r\n\r\n* attempting speedup bot",
+          "timestamp": "2024-01-25T14:31:26-05:00",
+          "tree_id": "a3077ae5f17000bac55f03605a4514629821c3ff",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/52984c4f1fef6e00e2b4df959f125eb0555366cf"
+        },
+        "date": 1706211174452,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.4057,
+            "unit": "bb/hand",
+            "range": 0.4662
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -2.3325,
+            "unit": "bb/hand",
+            "range": 1.4715
           }
         ]
       }
