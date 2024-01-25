@@ -19,8 +19,8 @@ std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
   return std::make_tuple(range, 0);
 }
 
-Range* Auctioneer::receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
-                               const int pot, float time_budget) {
+void Auctioneer::receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
+                             const int pot, float time_budget) {
   /*TODO: In re exploits I think I like keeping track of the following:
 		- keep track of max absolute bid
 		- keep track of min absolute bid
@@ -29,10 +29,10 @@ Range* Auctioneer::receive_bid(Range& villain_range, const int villain_bid, cons
 		If there is sufficiently low spread in either value, we make the floor of our minimum bid that value - 1.
 		Otherwise we do EV or equity based bidding*/
   if (hero_bid > villain_bid) {
-    return &villain_range;
+    return;
   }
   //TODO: Change villain's range to reflect they received a card after the auction
-  return &villain_range;
+  return;
 }
 
 }  // namespace pokerbot

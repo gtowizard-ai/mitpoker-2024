@@ -22,6 +22,5 @@ TEST_F(AuctionTest, TestReceiveBid) {
   int villain_bid = 2;
   int hero_bid = 1;
   int pot = 100;
-  Range* new_range = auctioneer.receive_bid(v_range, villain_bid, hero_bid, pot, 2.0);
-  ASSERT_EQ(new_range, &v_range);
+  auctioneer.receive_bid(v_range, villain_bid, hero_bid, pot, 2.0);
 }
