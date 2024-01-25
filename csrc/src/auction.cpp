@@ -15,11 +15,11 @@ std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
   	
   	We may want to pass this function what hand we're on (e.g. being on hand 750 with 10s to go isn't a big deal but being on hand 100 with 10s is)
   */
-  //TODO: Implement exploitative bidding based on previous recieved values
+  //TODO: Implement exploitative bidding based on previous received values
   return std::make_tuple(range, 0);
 }
 
-Range* Auctioneer::recieve_bid(Range& villain_range, const int villain_bid, const int hero_bid,
+Range* Auctioneer::receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
                                const int pot, float time_budget) {
   /*TODO: In re exploits I think I like keeping track of the following:
 		- keep track of max absolute bid
@@ -31,7 +31,7 @@ Range* Auctioneer::recieve_bid(Range& villain_range, const int villain_bid, cons
   if (hero_bid > villain_bid) {
     return &villain_range;
   }
-  //TODO: Change villain's range to reflect they recieved a card after the auction
+  //TODO: Change villain's range to reflect they received a card after the auction
   return &villain_range;
 }
 
