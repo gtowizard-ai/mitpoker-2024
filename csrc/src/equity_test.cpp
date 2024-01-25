@@ -208,9 +208,9 @@ TEST_F(EquityTest, TestEquityComputationRiverThreeVsTwoCards) {
   ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_3CARDS);
   assert_equities_values(equities);
 
-  for (std::string hand_str : {"3s5s6s", "7h8sAc", "AcAdAh", "8d8hAs", "QcJdTh"}) {
+  for (std::string hand_str : {"3s5s6s", "7h8sAc", "AcAdAh", "8s8hAs", "QcJdTh"}) {
     Hand hand(hand_str);
-    EXPECT_NEAR(naive_compute_equity(hand, opponent_range, board_cards), equities[hand.index()],
+    EXPECT_NEAR(equities[hand.index()], naive_compute_equity(hand, opponent_range, board_cards),
                 1e-4)
         << hand_str;
   }
@@ -230,9 +230,9 @@ TEST_F(EquityTest, TestEquityComputationRiverTwoVsThreeCards) {
   ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_2CARDS);
   assert_equities_values(equities);
 
-  for (std::string hand_str : {"3s5s", "7h8s", "AcAd", "8d8h", "QcJd"}) {
+  for (std::string hand_str : {"3s5s", "7h8s", "AcAd", "8s8h", "QcJd"}) {
     Hand hand(hand_str);
-    EXPECT_NEAR(naive_compute_equity(hand, opponent_range, board_cards), equities[hand.index()],
+    EXPECT_NEAR(equities[hand.index()], naive_compute_equity(hand, opponent_range, board_cards),
                 1e-4)
         << hand_str;
   }
