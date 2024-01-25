@@ -33,15 +33,15 @@ class HandActionsValues {
 class MCCFR {
  public:
   MCCFR(const GameInfo& game_state, const unsigned warm_up_iterations);
-  void build_tree();
+  void build_tree(const RoundStatePtr& round_state);
   float get_child_value(unsigned hand, unsigned action);
   float get_child_value(unsigned action);
   void update_root_value();
-  void update_regrets();
+  void update_regrets(const std::vector<Range>& ranges);
   HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
-  void step();
+  void step(const std::vector<Range>& ranges);
   void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
              unsigned player_id /*, time_budget*/);
 
@@ -52,10 +52,8 @@ class MCCFR {
   std::mt19937 random_generator_;  // Mersenne Twister engine
   unsigned warm_up_iterations_;
 
-  std::vector<Range>& ranges_;
   unsigned num_hands_;
   unsigned player_id_;
-  RoundStatePtr& round_state_;
 
   // The value of the root node - size = num_hands_
   std::vector<float> values_;

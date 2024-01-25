@@ -40,18 +40,18 @@ MCCFR::MCCFR(const GameInfo& game_state, const unsigned warm_up_iterations)
       num_steps_(NUM_HANDS_POSTFLOP_3CARDS, 0),
       regrets_(NUM_HANDS_POSTFLOP_3CARDS, max_available_actions_) {}
 
-void MCCFR::build_tree() {
-  const auto legal_actions = round_state_->legal_actions();  // the actions you are allowed to take
+void MCCFR::build_tree(const RoundStatePtr& round_state) {
+  const auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
 
   // the number of chips you have contributed to the pot this round of betting
-  const int my_stack = round_state_->stacks[player_id_];  // the number of chips you have remaining
+  const int my_stack = round_state->stacks[player_id_];  // the number of chips you have remaining
 
   for (const auto legal_action : legal_actions) {
     if (legal_action != Action::Type::RAISE) {
       available_actions_.emplace_back(legal_action);
     } else {
       // the smallest and largest numbers of chips for a legal bet/raise
-      if (const auto raise_bounds = round_state_->raise_bounds(); raise_bounds[0] <= my_stack) {
+      if (const auto raise_bounds = round_state->raise_bounds(); raise_bounds[0] <= my_stack) {
         // ToDo: Other bet sizes? Probably another function to add all bet sizes to available actions
         available_actions_.emplace_back(Action::Type::RAISE, raise_bounds[0]);
       }
@@ -81,12 +81,12 @@ void MCCFR::update_root_value() {
   }
 }
 
-void MCCFR::update_regrets() {
+void MCCFR::update_regrets(const std::vector<Range>& ranges) {
   // ToDo: Add epsilon-greedy selection?
   update_root_value();
 
   // sample a hand
-  const unsigned hand = sample_index(ranges_[player_id_].range, random_generator_);
+  const unsigned hand = sample_index(ranges[player_id_].range, random_generator_);
 
   // sample an action - if there is warm-up state sample uniformely
   const unsigned action = [&] {
@@ -127,13 +127,13 @@ float MCCFR::get_linear_cfr_discount_factor(const unsigned hand) const {
   return num_iterations / (num_iterations + 1);
 }
 
-void MCCFR::step() {
+void MCCFR::step(const std::vector<Range>& ranges) {
   // 1) Set CF values of all terminal and pseudo leaf nodes
   // precompute_all_leaf_values();
 
   // 2) Compute cumulative regrets and counterfactual values.
   // and generate strategy profile from the regrets
-  update_regrets();
+  update_regrets(ranges);
 
   // 3) Question: Should I update the reach/range probs?
 }
@@ -156,23 +156,21 @@ void MCCFR::initial_regrets() {
 void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
                   const unsigned player_id /*, time_budget*/) {
   // Initialize variable for this solve
-  ranges_ = ranges;
   num_hands_ = ranges[player_id].range.size();
   player_id_ = player_id;
-  round_state_ = round_state;
 
   std::fill_n(values_.begin(), num_hands_, 0);
   std::fill_n(sum_buffer_.begin(), num_hands_, 0);
   std::fill_n(num_steps_.begin(), num_hands_, 0);
 
-  build_tree();
+  build_tree(round_state);
 
   initial_regrets();
 
   // FIXME: compute the number of iteration based on time budget
   int max_iterations = 10000;
   while (max_iterations-- > 0) {
-    step();
+    step(ranges);
   }
 }
 
