@@ -171,10 +171,10 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
   const auto estimate_mccfr_time_start = std::chrono::high_resolution_clock::now();
   initial_regrets();
   const auto estimate_mccfr_time_stop = std::chrono::high_resolution_clock::now();
-  const auto duration_mccfr = duration_cast<std::chrono::microseconds>(estimate_mccfr_time_stop -
-                                                                       estimate_mccfr_time_start);
-  const auto duration_solve_function =
-      duration_cast<std::chrono::microseconds>(estimate_mccfr_time_stop - solve_timer_start);
+  const auto duration_mccfr = std::chrono::duration_cast<std::chrono::microseconds>(
+      estimate_mccfr_time_stop - estimate_mccfr_time_start);
+  const auto duration_solve_function = std::chrono::duration_cast<std::chrono::microseconds>(
+      estimate_mccfr_time_stop - solve_timer_start);
 
   constexpr float error_bound = 0.8;
 
