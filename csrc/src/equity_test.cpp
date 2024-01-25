@@ -172,7 +172,7 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsThreeCards) {
 
   ASSERT_EQ(naive_compute_equity(Hand("2c2s"), opponent_range, board_cards), 0);
   ASSERT_EQ(naive_compute_equity(Hand("8d8s"), opponent_range, board_cards), 0.0);
-  // We loose to exactly {3s, 5s, 7s} and {As, 3s, 5s}
+  // We lose to exactly {3s, 5s, 7s} and {As, 3s, 5s}
   ASSERT_NEAR(naive_compute_equity(Hand("8h8s"), opponent_range, board_cards),
               1.0 - (3.0 / n_choose_k(45, 3)), 1e-4);
 }
@@ -189,7 +189,7 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsThreeCards) {
   opponent_range.to_3_cards_range(game_, board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("3s5s6s"), opponent_range, board_cards), 1.0);
-  // We loose to exactly {3s, 5s, 7s} and {As, 3s, 5s}
+  // We lose to exactly {3s, 5s, 7s} and {As, 3s, 5s}
   ASSERT_NEAR(naive_compute_equity(Hand("8h8s"), opponent_range, board_cards),
               1.0 - (3.0 / n_choose_k(45, 3)), 1e-4);
 }
