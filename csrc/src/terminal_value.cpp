@@ -1,4 +1,4 @@
-#include "node_evaluation.h"
+#include "terminal_value.h"
 #include "poker_hand.h"
 
 namespace pokerbot {
