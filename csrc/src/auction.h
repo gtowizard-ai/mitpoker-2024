@@ -1,4 +1,5 @@
 #pragma once
+#include <tuple>
 #include "card.h"
 #include "hand.h"
 #include "range.h"
@@ -9,8 +10,11 @@ struct Auctioneer {
 
   Auctioneer();
 
-  int get_bid(const std::vector<Range>& ranges, const std::vector<Card>& board, const Hand& hand,
-              float time_budget);
+  std::tuple<Range, int> get_bid(const std::vector<Range>& ranges, const std::vector<Card>& board,
+                                 const Hand& hand, const int pot, float time_budget);
+
+  void receive_bid(Range& villain_range, const int villain_bid, const int hero_bid, const int pot,
+                   float time_budget);
 };
 
 }  // namespace pokerbot
