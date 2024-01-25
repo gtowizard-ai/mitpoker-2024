@@ -23,6 +23,7 @@ int main() {
 
   for (unsigned i = 0; i < num_hands; ++i) {
     std::sample(deck.cbegin(), deck.cend(), std::back_inserter(cards), 7, rng);
+    std::shuffle(cards.begin() + i * 7, cards.begin() + (i + 1) * 7, rng);
   }
 
   strength_t strength_sum = 0;
