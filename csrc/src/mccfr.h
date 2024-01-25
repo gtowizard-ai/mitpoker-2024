@@ -7,12 +7,11 @@
 
 namespace pokerbot {
 
-// Indexed by [hand * num_actions + action]
-class Regret {
+class HandActionsValues {
 public:
-  explicit Regret(unsigned num_hands, unsigned num_actions);
+  explicit HandActionsValues(unsigned num_hands, unsigned num_actions);
 
-  Regret() = default;
+  HandActionsValues() = default;
 
   float& operator()(const hand_t hand, const unsigned action) {
     return data[action * num_hands_ + hand];
@@ -22,7 +21,7 @@ public:
     return data[action * num_hands_ + hand];
   }
 
-  // Indexed by [action * num_hands + hand]
+  // Store a 2D data of [hand, action] in 1D vector of size num_hands * num_actions
   std::vector<float> data;
 
   // Number of hands
@@ -39,8 +38,8 @@ public:
   void update_regrets();
   float get_child_value(unsigned hand, unsigned action);
   float get_child_value(unsigned action);
-  Regret get_avg_strategy();
-  [[nodiscard]] float get_discount_factors(unsigned hand) const;
+  HandActionsValues get_avg_strategy();
+  [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void step();
 
 private:
@@ -58,7 +57,7 @@ private:
   std::vector<Action> available_actions_;
 
   // Regrets for root node. Indexed by [action].
-  Regret regrets_;
+  HandActionsValues regrets_;
 
   // Temporary buffer to store sum of strategies
   std::vector<double> sum_buffer_;

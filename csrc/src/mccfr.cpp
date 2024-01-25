@@ -3,7 +3,7 @@
 
 namespace pokerbot {
 
-Regret::Regret(const unsigned num_hands, const unsigned num_actions) : num_hands_(num_hands) {
+HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned num_actions) : num_hands_(num_hands) {
   data.reserve(num_hands_ * num_actions);
   std::fill(data.begin(), data.end(), 0);
 }
@@ -63,7 +63,7 @@ MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const
   }
 
   // Initialize the regret and the strategies and value_
-  regrets_ = Regret(num_hands_, available_actions_.size());
+  regrets_ = HandActionsValues(num_hands_, available_actions_.size());
 }
 
 float MCCFR::get_child_value(const unsigned hand, const unsigned action) {
@@ -104,18 +104,18 @@ void MCCFR::update_regrets() {
 
   const auto& action_value = get_child_value(action, hand);
 
-  // Update last strategies with Regret Matching
+  // Update regrets
   const float diff = action_value - values_[hand];
   if (diff > 0) {
-    regrets_(hand, action) += diff * get_discount_factors(hand);
-    sum_buffer_[hand] += diff;
+    regrets_(hand, action) += diff * get_linear_cfr_discount_factor(hand);
+    sum_buffer_[hand] += diff * get_linear_cfr_discount_factor(hand);
   }
 
   ++num_steps_[hand];
 }
 
-Regret MCCFR::get_avg_strategy() {
-  Regret strategy(num_hands_, available_actions_.size());
+HandActionsValues MCCFR::get_avg_strategy() {
+  HandActionsValues strategy(num_hands_, available_actions_.size());
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < available_actions_.size(); action++) {
       strategy(hand, action) = sum_buffer_[hand] > 0 ? regrets_(hand, action) / sum_buffer_[hand]
@@ -125,16 +125,11 @@ Regret MCCFR::get_avg_strategy() {
   return strategy;
 }
 
-float MCCFR::get_discount_factors(const unsigned hand) const {
-  float pos_discount = 1;
-
+float MCCFR::get_linear_cfr_discount_factor(const unsigned hand) const {
   // We always have uniform strategy, hence +1.
   const auto num_iterations = static_cast<float>(num_steps_[hand] + 1);
 
-  // Linear CFR. The updates to the regrets and average strategies
-  // are given weight t, where t = num_iterations.
-  pos_discount = num_iterations / (num_iterations + 1);
-  return pos_discount;
+  return num_iterations / (num_iterations + 1);
 }
 
 void MCCFR::step() {
