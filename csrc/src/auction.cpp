@@ -1,5 +1,4 @@
 #include "auction.h"
-#include <iostream>
 
 namespace pokerbot {
 
