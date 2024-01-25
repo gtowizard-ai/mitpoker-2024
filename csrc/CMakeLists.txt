@@ -85,3 +85,6 @@ foreach(test_file IN LISTS tests)
     set_tests_properties(${test_name} PROPERTIES LABELS tools)
     add_dependencies(tests ${test_name})
 endforeach()
+
+# Add scripts
+add_subdirectory(scripts)
