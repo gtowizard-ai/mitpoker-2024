@@ -49,13 +49,10 @@ add_library(dependencies INTERFACE)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREAD OFF)
-find_package(Boost REQUIRED date_time system)
+find_package(Boost REQUIRED system)
 include_directories(${Boost_INCLUDE_DIR})
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
-target_link_libraries(dependencies INTERFACE third_party Threads::Threads dependencies ${Boost_SYSTEM_LIBRARY})
+target_link_libraries(dependencies INTERFACE third_party dependencies ${Boost_SYSTEM_LIBRARY})
 
 # Main library
 add_library(gtowizardai OBJECT)
