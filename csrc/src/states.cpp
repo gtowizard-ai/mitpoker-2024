@@ -1,7 +1,6 @@
 #include "states.h"
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
 #include <algorithm>
 #include <numeric>
 #include <optional>
@@ -128,21 +127,18 @@ std::string join(const Container& elements, const std::string& separator) {
   return ss.str();
 }
 
-std::ostream& RoundState::do_format(std::ostream& os) const {
+std::string RoundState::to_string() const {
   std::array<std::string, 2> formatted_hands = {fmt::format(FMT_STRING("{}"), join(hands[0], "")),
                                                 fmt::format(FMT_STRING("{}"), join(hands[1], ""))};
 
-  fmt::print(os,
-             FMT_STRING("round(button={}, round={}, pips=[{}], stacks=[{}], hands=[{}], "
-                        "deck=[{}])"),
-             button, round.to_string(), join(pips, ", "), join(stacks, ", "),
-             join(formatted_hands, ","), join(deck, ", "));
-  return os;
+  return fmt::format(FMT_STRING("round(button={}, round={}, pips=[{}], stacks=[{}], hands=[{}], "
+                                "deck=[{}])"),
+                     button, round.to_string(), join(pips, ", "), join(stacks, ", "),
+                     join(formatted_hands, ","), join(deck, ", "));
 }
 
-std::ostream& TerminalState::do_format(std::ostream& os) const {
-  fmt::print(os, FMT_STRING("terminal(deltas=[{}])"), join(deltas, ", "));
-  return os;
+std::string TerminalState::to_string() const {
+  return fmt::format(FMT_STRING("terminal(deltas=[{}])"), join(deltas, ", "));
 }
 
 }  // namespace pokerbot

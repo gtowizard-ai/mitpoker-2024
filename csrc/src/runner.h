@@ -10,7 +10,6 @@
 #include <boost/asio/ip/tcp.hpp>
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
 
 #include "actions.h"
 #include "definitions.h"
@@ -28,11 +27,11 @@ class Runner {
   template <typename Action>
   void send(Action const& action) {
     std::string code;
-    code = fmt::format(FMT_STRING("{}"), action);
+    code = fmt::format(FMT_STRING("{}"), action.to_string());
     stream << fmt::format(FMT_STRING("{}"), code) << '\n';
   }
 
-  std::vector<std::string> receive() {
+  std::vector<std::string> receive() const {
     std::string line;
     std::getline(stream, line);
     boost::algorithm::trim(line);
@@ -223,7 +222,7 @@ void runBot(std::string& host, std::string& port, Args... args) {
   boost::asio::ip::tcp::no_delay option(true);
   stream.rdbuf()->set_option(option);
   if (!stream) {
-    fmt::print(std::cerr, FMT_STRING("Unable to connect to {}:{}"), host, port);
+    fmt::print(FMT_STRING("Unable to connect to {}:{}"), host, port);
     return;
   }
 
