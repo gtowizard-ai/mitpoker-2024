@@ -1,2 +1,6 @@
-add_executable(generate_evaluator_tables generate_evaluator_tables.cpp)
-add_executable(generate_rank_bases generate_rank_bases.cpp)
+file(GLOB_RECURSE sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+foreach(source IN LISTS sources)
+    get_filename_component(name ${source} NAME_WLE)
+    add_executable(${name} ${source})
+    target_link_libraries(${name} PRIVATE dependencies)
+endforeach()
