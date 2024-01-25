@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706203952332,
+  "lastUpdate": 1706204207369,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "72105867c9c91ebf8eba7352f247631beef66ac3",
-          "message": "Add hand evaluator that supports 8 cards",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/12/commits/72105867c9c91ebf8eba7352f247631beef66ac3"
-        },
-        "date": 1706200350070,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.6677,
-            "unit": "bb/hand",
-            "range": 0.4781
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 0.19,
-            "unit": "bb/hand",
-            "range": 1.4769
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -328,6 +296,42 @@ window.BENCHMARK_DATA = {
             "value": 1.8371,
             "unit": "bb/hand",
             "range": 1.4771
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "oinari17@gmail.com",
+            "name": "Wataru Inariba",
+            "username": "b-inary"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "407d56a75b82016ef33074786ed72d03702a69a5",
+          "message": "Add hand evaluator that supports 8 cards (#12)\n\n* Add hand evaluator that supports 8 cards\r\n\r\n* Add benchmark script / Remove `constexpr` that requires C++20\r\n\r\n* shuffle\r\n\r\n* rename source file",
+          "timestamp": "2024-01-26T02:34:48+09:00",
+          "tree_id": "3c0aa3f0f065deddf08861f08cc1fa4b16d37785",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/407d56a75b82016ef33074786ed72d03702a69a5"
+        },
+        "date": 1706204206358,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 0,
+            "unit": "bb/hand",
+            "range": 0.005
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -0.2323,
+            "unit": "bb/hand",
+            "range": 1.4677
           }
         ]
       }
