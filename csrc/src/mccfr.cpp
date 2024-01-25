@@ -138,8 +138,8 @@ void MCCFR::step(const std::vector<Range>& ranges) {
   // 3) Question: Should I update the reach/range probs?
 }
 
-// Iterate over all hands and actions once to prevent biased selection of actions in sampling
 void MCCFR::initial_regrets() {
+  // Iterate over all hands and actions once to prevent biased selection of actions in sampling
   update_root_value();
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < available_actions_.size(); action++) {
