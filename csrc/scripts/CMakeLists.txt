@@ -1,0 +1,2 @@
+add_executable(generate_evaluator_tables generate_evaluator_tables.cpp)
+add_executable(generate_rank_bases generate_rank_bases.cpp)
