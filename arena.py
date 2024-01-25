@@ -30,7 +30,6 @@ def _run_match(player_1: Player, player_2: Player):
 
         print(f"Spent {end_time - start_time:.2f} seconds building bot {player.name}")
 
-
         full_output = "".join([str(output) for output in player_1.bytes_queue.queue])
         if "Timed out waiting" in full_output:
             raise TimeoutError("Timed out waiting for bot to build/connect")
