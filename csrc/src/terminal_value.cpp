@@ -15,17 +15,27 @@ TerminalValue::TerminalValue(const Game& game, const std::vector<card_t>& board,
   for (int player = 0; player < num_players_; player++) {
     player_strengthses_[player].reserve(ranges_[player].num_hands());
 
-    for (unsigned index = 0; index < ranges_[player].num_hands(); index++) {
-      std::vector<card_t> hand(board_);
-      for (const auto card : game_.hands(ranges_[player].num_cards)[index].cards) {
-        hand.push_back(card);
+    for (int index = 0; index < ranges_[player].num_hands(); index++) {
+      std::vector<card_t> board_hand(board_);
+      auto& hand = game_.hands(ranges_[player].num_cards)[index];
+
+      // blockers
+      if (hand.collides_with(board_hand)) {
+        player_strengthses_[player].push_back(HandStrength{-1, 0});
+        continue;
       }
-      player_strengthses_[player].push_back(HandStrength{index, PokerHand(hand).evaluate()});
+
+      for (unsigned i = 0; i < hand.num_cards(); i++) {
+        board_hand.push_back(hand.cards[i]);
+      }
+
+      player_strengthses_[player].push_back(HandStrength{index, PokerHand(board_hand).evaluate()});
     }
     std::sort(player_strengthses_[player].begin(), player_strengthses_[player].end());
   }
 
   for (int index = 0; index < ranges[1 - player_id].num_hands(); index++) {
+    // ToDo: remove ranges with blocker with board, if needed
     sum_ += ranges[1 - player_id].range[index];
   }
 }
@@ -36,6 +46,11 @@ void TerminalValue::compute_terminal_values(const Payoff& payoff) {
 
   unsigned j = 0;
   for (unsigned index = 0; index < player_strengthses_[player_id_].size(); index++) {
+    // Hero blocker
+    if (player_strengthses_[player_id_][index].index == -1) {
+      continue;
+    }
+
     if (index > 0 && player_strengthses_[player_id_][index].strength ==
                          player_strengthses_[player_id_][index - 1].strength) {
       terminal_values_[index] = terminal_values_[index - 1];
@@ -47,6 +62,7 @@ void TerminalValue::compute_terminal_values(const Payoff& payoff) {
 
     double tie = 0, win = 0;
     for (; j < player_strengthses_[1 - player_id_].size(); j++) {
+      // ToDo: If the range for the opp blocker hand is not 0, handle it here
       if (player_strengthses_[1 - player_id_][j].strength >
           player_strengthses_[player_id_][index].strength) {
         break;

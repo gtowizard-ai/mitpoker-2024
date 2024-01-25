@@ -7,7 +7,7 @@
 namespace pokerbot {
 
 struct HandStrength {
-  unsigned index;
+  int index;
   strength_t strength;
 
   bool operator<(const HandStrength& a) const { return strength < a.strength; }
