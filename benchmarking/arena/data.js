@@ -1,44 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706203443289,
+  "lastUpdate": 1706203549385,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "grahamzug1@gmail.com",
-            "name": "GrahamZugPitt",
-            "username": "GTOGoddess"
-          },
-          "committer": {
-            "email": "grahamzug1@gmail.com",
-            "name": "GrahamZugPitt",
-            "username": "GTOGoddess"
-          },
-          "distinct": true,
-          "id": "dd48d5ae922494cad4f67920902fda043e564e07",
-          "message": "Revert \"Fix hand collision detection / Minor optimizations (#11)\"\n\nThis reverts commit 4e3d8f34492f1eaf88dc4ab267043a0c682c8b75.",
-          "timestamp": "2024-01-25T10:56:01-05:00",
-          "tree_id": "74a10de601811f29b2465e9c11423e1593b72016",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/dd48d5ae922494cad4f67920902fda043e564e07"
-        },
-        "date": 1706198370986,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": -0.4173,
-            "unit": "bb/hand",
-            "range": 0.0066
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 0.3253,
-            "unit": "bb/hand",
-            "range": 1.4663
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -336,6 +300,38 @@ window.BENCHMARK_DATA = {
             "value": -0.6159,
             "unit": "bb/hand",
             "range": 1.4734
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "committer": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "id": "da28fc43fbf74df06a8c5a48df4313418b9622cd",
+          "message": "Add hand evaluator that supports 8 cards",
+          "timestamp": "2024-01-24T02:28:03Z",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/12/commits/da28fc43fbf74df06a8c5a48df4313418b9622cd"
+        },
+        "date": 1706203548106,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.4224,
+            "unit": "bb/hand",
+            "range": 0.0066
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 0.0977,
+            "unit": "bb/hand",
+            "range": 1.4749
           }
         ]
       }
