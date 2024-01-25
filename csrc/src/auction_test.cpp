@@ -13,7 +13,8 @@ TEST_F(AuctionTest, TestGetBid) {
   Hand hand = Hand("AsAd");
   float time = 2.0;
   int pot = 100;
-  ASSERT_EQ(std::get<1>(auctioneer.get_bid(ranges, board, hand, pot, 2.0)), 0);
+  const auto [range, bid] = auctioneer.get_bid(ranges, board, hand, pot, 2.0);
+  ASSERT_EQ(bid, 0);
 }
 
 TEST_F(AuctionTest, TestReceiveBid) {
