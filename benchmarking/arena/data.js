@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706199036441,
+  "lastUpdate": 1706199649831,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "26620d59ff20a2a3e180d401ee36d00494a098df",
-          "message": "Ranges object",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/10/commits/26620d59ff20a2a3e180d401ee36d00494a098df"
-        },
-        "date": 1706125270739,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.0454,
-            "unit": "bb/hand",
-            "range": 0.471
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -1.2708,
-            "unit": "bb/hand",
-            "range": 1.4696
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -348,6 +316,42 @@ window.BENCHMARK_DATA = {
             "value": -0.75,
             "unit": "bb/hand",
             "range": 0.0025
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "oinari17@gmail.com",
+            "name": "Wataru Inariba",
+            "username": "b-inary"
+          },
+          "committer": {
+            "email": "oinari17@gmail.com",
+            "name": "Wataru Inariba",
+            "username": "b-inary"
+          },
+          "distinct": true,
+          "id": "53d526eea825424e97ba11a5a2114cdad913f9f1",
+          "message": "Revert \"Revert \"Fix hand collision detection / Minor optimizations (#11)\"\"\n\nThis reverts commit dd48d5ae922494cad4f67920902fda043e564e07.",
+          "timestamp": "2024-01-26T01:16:25+09:00",
+          "tree_id": "37673c12cfddb62b26435b1ed4d962421678e895",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/53d526eea825424e97ba11a5a2114cdad913f9f1"
+        },
+        "date": 1706199648682,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.4259,
+            "unit": "bb/hand",
+            "range": 0.0066
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -2.0135,
+            "unit": "bb/hand",
+            "range": 1.4681
           }
         ]
       }
