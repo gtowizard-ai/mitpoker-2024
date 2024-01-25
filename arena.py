@@ -19,6 +19,11 @@ def _run_match(player_1: Player, player_2: Player):
     players = [player_1, player_2]
     for player in players:
         player.build()
+
+        full_output = "".join([str(output) for output in player_1.bytes_queue.queue])
+        if "Timed out waiting" in full_output:
+            raise TimeoutError("Timed out waiting for bot to build/connect")
+
         player.run()
 
     game = Game()
@@ -33,6 +38,10 @@ def _run_match(player_1: Player, player_2: Player):
 
     for player in players:
         player.stop()
+
+        if player.game_clock <= 1e-4:
+            raise TimeoutError(f"Bot {player.name} ran out of time when playing")
+
 
     assert len(winnings_per_hand) == NUM_HANDS
 
@@ -78,7 +87,7 @@ def run_match_vs_bid_everything_bot():
 
 def main():
     results = [
-        run_benchmark_vs_check_call_bot(),
+        # run_benchmark_vs_check_call_bot(),
         run_match_vs_bid_everything_bot(),
     ]
 

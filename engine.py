@@ -199,9 +199,10 @@ class Player():
     Handles subprocess and socket interactions with one player's pokerbot.
     '''
 
-    def __init__(self, name, path):
+    def __init__(self, name, path, throw_on_timeout: bool = False):
         self.name = name
         self.path = path
+        self.throw_on_timeout = throw_on_timeout
         self.game_clock = STARTING_GAME_CLOCK
         self.bankroll = 0
         self.commands = None
@@ -388,9 +389,10 @@ class Game():
     Manages logging and the high-level game procedure.
     '''
 
-    def __init__(self):
+    def __init__(self, throw_on_timeout: bool = False):
         self.log = ['6.9630 MIT Pokerbots - ' + PLAYER_1_NAME + ' vs ' + PLAYER_2_NAME]
         self.player_messages = [[], []]
+        self.throw_on_timeout = throw_on_timeout
 
     def log_round_state(self, players, round_state):
         '''
