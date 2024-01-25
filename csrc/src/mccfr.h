@@ -33,12 +33,12 @@ public:
 // Reuse it over for each Round
 class MCCFR {
 public:
-  MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, unsigned player_id, const std::vector<Range>& ranges);
+  MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, unsigned player_id, const std::vector<Range>& ranges, unsigned warm_up_iteration);
   std::vector<float> get_root_value();
   void update_regrets();
   float get_child_value(unsigned hand, unsigned action);
   float get_child_value(unsigned action);
-  HandActionsValues get_avg_strategy();
+  HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void step();
 
@@ -63,6 +63,8 @@ private:
   std::vector<double> sum_buffer_;
 
   std::vector<unsigned> num_steps_;
+
+  unsigned warm_up_iterations_;
 };
 
 } // namespace pokerbot

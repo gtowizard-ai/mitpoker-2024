@@ -3,7 +3,8 @@
 
 namespace pokerbot {
 
-HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned num_actions) : num_hands_(num_hands) {
+HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned num_actions)
+    : num_hands_(num_hands) {
   data.reserve(num_hands_ * num_actions);
   std::fill(data.begin(), data.end(), 0);
 }
@@ -11,27 +12,30 @@ HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned nu
 // ToDo: Using rgn can be time consuming. Consider using faster/less accurate methods
 unsigned sample_index(const std::vector<float>& distribution_values, const unsigned start_point,
                       const unsigned length, std::mt19937 gen) {
-  // Create a discrete distribution based on the values in A
   std::discrete_distribution<unsigned> distribution(
       distribution_values.begin() + start_point,
       distribution_values.begin() + start_point + length);
 
-  // Sample a value
+  return distribution(gen);
+}
+
+unsigned sample_index(const unsigned length, std::mt19937 gen) {
+  std::uniform_int_distribution<unsigned> distribution(
+        0, length);
+
   return distribution(gen);
 }
 
 unsigned sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values,
                       std::mt19937 gen) {
-  // Create a discrete distribution based on the values in A
   std::discrete_distribution<unsigned> distribution(distribution_values.begin(),
                                                     distribution_values.end());
 
-  // Sample a value
   return distribution(gen);
 }
 
 MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const unsigned player_id,
-             const std::vector<Range>& ranges)
+             const std::vector<Range>& ranges, const unsigned warm_up_iterations)
     : game_(game_state),
       round_state_(round_state_),
       player_(player_id),
@@ -40,7 +44,8 @@ MCCFR::MCCFR(const GameInfo& game_state, const RoundStatePtr& round_state, const
       values_(num_hands_, 0),
       random_generator_(std::random_device()()),
       sum_buffer_(num_hands_, 0),
-      num_steps_(num_hands_, 0) {
+      num_steps_(num_hands_, 0),
+      warm_up_iterations_(warm_up_iterations) {
 
   const auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
 
@@ -99,8 +104,14 @@ void MCCFR::update_regrets() {
   const unsigned hand = sample_index(ranges_[player_].range, random_generator_);
 
   // sample an action
-  const unsigned action = sample_index(regrets_.data, hand * available_actions_.size(),
-                                       available_actions_.size(), random_generator_);
+  const unsigned action = [&]{
+    if(num_steps_[hand] < warm_up_iterations_) {
+      return sample_index(regrets_.data, hand * available_actions_.size(),
+                                        available_actions_.size(), random_generator_);
+    }else {
+      return sample_index(available_actions_.size(), random_generator_);
+    }
+  }();
 
   const auto& action_value = get_child_value(action, hand);
 
@@ -114,7 +125,7 @@ void MCCFR::update_regrets() {
   ++num_steps_[hand];
 }
 
-HandActionsValues MCCFR::get_avg_strategy() {
+HandActionsValues MCCFR::get_last_strategy() {
   HandActionsValues strategy(num_hands_, available_actions_.size());
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < available_actions_.size(); action++) {
