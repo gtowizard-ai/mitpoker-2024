@@ -466,6 +466,9 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
   if (board_cards.size() < 3) {
     throw std::invalid_argument("Board must have at least 3 cards");
   }
+  if (hero_range.num_cards == NumCards::Two && opponent_range.num_cards == NumCards::Two) {
+    throw std::invalid_argument("2 vs. 2 cards computations are not supported");
+  }
 
   unsigned total_num_hole_cards = 5;
   if (hero_range.num_cards == NumCards::Three && opponent_range.num_cards == NumCards::Three) {

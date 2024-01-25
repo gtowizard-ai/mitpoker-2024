@@ -3,7 +3,7 @@
 namespace pokerbot {
 
 Range::Range() : num_cards(NumCards::Two) {
-  std::fill_n(range.begin(), NUM_HANDS_POSTFLOP_2CARDS, 1.0 / NUM_HANDS_POSTFLOP_2CARDS);
+  std::fill_n(range.begin(), NUM_HANDS_POSTFLOP_2CARDS, 1.0);
   std::fill(range.begin() + NUM_HANDS_POSTFLOP_2CARDS, range.end(), 0);
 }
 
