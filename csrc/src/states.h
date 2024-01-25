@@ -11,15 +11,12 @@ namespace pokerbot {
 struct State : std::enable_shared_from_this<State> {
   virtual ~State() = default;
 
-  friend std::ostream& operator<<(std::ostream& os, const State& s) { return s.do_format(os); }
-
   template <typename Desired = State>
   std::shared_ptr<const Desired> get_shared() const {
     return std::static_pointer_cast<const Desired>(shared_from_this());
   }
 
- private:
-  virtual std::ostream& do_format(std::ostream& os) const = 0;
+  virtual std::string to_string() const = 0;
 };
 
 using StatePtr = std::shared_ptr<const State>;
@@ -62,8 +59,7 @@ struct RoundState : public State {
 
   StatePtr proceed(Action action) const;
 
- private:
-  std::ostream& do_format(std::ostream& os) const override;
+  std::string to_string() const;
 };
 
 using RoundStatePtr = std::shared_ptr<const RoundState>;
@@ -77,8 +73,7 @@ struct TerminalState : State {
                 StatePtr previous_state)
       : deltas(deltas), bids(bids), previous_state(std::move(previous_state)) {}
 
- private:
-  std::ostream& do_format(std::ostream& os) const override;
+  std::string to_string() const;
 };
 
 using TerminalStatePtr = std::shared_ptr<const TerminalState>;
