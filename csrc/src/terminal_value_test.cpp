@@ -16,3 +16,12 @@ TEST_F(TerminalValueTest, TestNoError) {
   const Payoff payoff = {100, 10, -100};
   EXPECT_NO_THROW(terminal.compute_terminal_values(payoff));
 }
+
+TEST_F(TerminalValueTest, TestValue) {
+  const std::vector<Range> ranges = {Range(), Range()};
+  const std::string board = "KcTd7h3s2c";
+  TerminalValue terminal(game_, Card::to_vector(board), ranges, 0);
+  const Payoff payoff = {1, 0, -1};
+  auto x = terminal.compute_terminal_values(payoff);
+  auto y = 0;
+}

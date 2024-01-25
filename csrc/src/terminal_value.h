@@ -31,7 +31,7 @@ class TerminalValue {
                 const std::vector<Range>& ranges, unsigned player_id);
 
   /// Computes the expected payoff of the river nodes
-  void compute_terminal_values(const Payoff& payoff);
+  std::vector<float> compute_terminal_values(const Payoff& payoff);
 
  private:
   static constexpr int num_players_ = 2;

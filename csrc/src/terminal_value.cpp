@@ -40,7 +40,8 @@ TerminalValue::TerminalValue(const Game& game, const std::vector<card_t>& board,
   }
 }
 
-void TerminalValue::compute_terminal_values(const Payoff& payoff) {
+std::vector<float> TerminalValue::compute_terminal_values(const Payoff& payoff) {
+  // ToDo: Blockers of the Opp and Hero
   OutcomeProb sum_probs = {sum_, 0, 0};
   std::fill(terminal_values_.begin(), terminal_values_.end(), 0);
 
@@ -51,9 +52,12 @@ void TerminalValue::compute_terminal_values(const Payoff& payoff) {
       continue;
     }
 
+    const auto terminal_values_index = player_strengthses_[player_id_][index].index;
+
     if (index > 0 && player_strengthses_[player_id_][index].strength ==
                          player_strengthses_[player_id_][index - 1].strength) {
-      terminal_values_[index] = terminal_values_[index - 1];
+      terminal_values_[terminal_values_index] =
+          terminal_values_[player_strengthses_[player_id_][index - 1].index];
       continue;
     }
 
@@ -63,6 +67,8 @@ void TerminalValue::compute_terminal_values(const Payoff& payoff) {
     double tie = 0, win = 0;
     for (; j < player_strengthses_[1 - player_id_].size(); j++) {
       // ToDo: If the range for the opp blocker hand is not 0, handle it here
+      const auto opp_index = player_strengthses_[1 - player_id_][j].index;
+
       if (player_strengthses_[1 - player_id_][j].strength >
           player_strengthses_[player_id_][index].strength) {
         break;
@@ -70,9 +76,9 @@ void TerminalValue::compute_terminal_values(const Payoff& payoff) {
 
       if (player_strengthses_[1 - player_id_][j].strength ==
           player_strengthses_[player_id_][index].strength) {
-        tie += ranges_[1 - player_id_].range[j];
+        tie += ranges_[1 - player_id_].range[opp_index];
       } else {
-        win += ranges_[1 - player_id_].range[j];
+        win += ranges_[1 - player_id_].range[opp_index];
       }
     }
 
@@ -81,9 +87,11 @@ void TerminalValue::compute_terminal_values(const Payoff& payoff) {
     sum_probs.lose -= tie + win;
 
     // compute the value
-    terminal_values_[index] = static_cast<float>(
+    terminal_values_[terminal_values_index] = static_cast<float>(
         payoff.lose * sum_probs.lose + payoff.tie * sum_probs.tie + payoff.win * sum_probs.win);
   }
+
+  return terminal_values_;
 }
 
 }  // namespace pokerbot
