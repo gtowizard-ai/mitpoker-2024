@@ -25,9 +25,24 @@ struct OutcomeProb {
   double win;
 };
 
-// FIXME: Move to corresponding class
-void compute_terminal_values(const Game& game, const std::vector<card_t>& board,
-                             const Payoff& payoff, const std::vector<Range>& ranges,
-                             unsigned player_id);
+class TerminalValue {
+ public:
+  TerminalValue(const Game& game, const std::vector<card_t>& board,
+                const std::vector<Range>& ranges, unsigned player_id);
+
+  /// Computes the expected payoff of the river nodes
+  void compute_terminal_values(const Payoff& payoff);
+
+ private:
+  static constexpr int num_players_ = 2;
+  const Game& game_;
+  const std::vector<card_t>& board_;
+  const std::vector<Range>& ranges_;
+  const unsigned player_id_;
+  double sum_;
+  std::vector<float> terminal_values_;
+
+  std::array<std::vector<HandStrength>, num_players_> player_strengthses_;
+};
 
 }  // namespace pokerbot
