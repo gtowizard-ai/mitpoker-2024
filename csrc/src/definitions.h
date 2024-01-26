@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <cstdint>
 #include <string_view>
 
@@ -23,5 +24,8 @@ constexpr int NUM_HANDS_POSTFLOP_3CARDS = 22100;
 inline constexpr int STARTING_STACK = 400;
 inline constexpr int BIG_BLIND = 2;
 inline constexpr int SMALL_BLIND = 1;
+
+inline std::array<int, 2> STARTING_STACKS = {STARTING_STACK, STARTING_STACK};
+inline std::array<int, 2> STARTING_BLINDS = {SMALL_BLIND, BIG_BLIND};
 
 }  // namespace pokerbot

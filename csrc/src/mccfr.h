@@ -39,6 +39,8 @@ class MCCFR {
   // Actions considered at the state
   const auto& legal_actions() const { return available_actions_; }
 
+  auto num_actions() const { return available_actions_.size(); }
+
  private:
   void build_tree(const RoundStatePtr& round_state);
   [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
@@ -60,7 +62,6 @@ class MCCFR {
   std::array<std::vector<float>, max_available_actions_> children_values_{};
 
   unsigned num_hands_;
-  unsigned num_available_actions_;
   unsigned player_id_;
 
   unsigned my_contribution_;

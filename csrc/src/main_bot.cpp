@@ -51,8 +51,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
                             round_state->pot(), time_budget_ms);
   }
 
-  // FIXME cant afford to do CFR on preflop/flop/turn for now
-  if (round_state->round() != round::RIVER) {
+  // FIXME cant afford to do CFR on flop for now
+  if (round_state->round() == round::FLOP) {
     if (ranges::contains(legal_actions, Action::Type::CHECK)) {
       // check-call
       return {Action::Type::CHECK};

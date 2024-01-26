@@ -42,20 +42,23 @@ MCCFR::MCCFR(const unsigned warm_up_iterations)
 }
 
 void MCCFR::build_tree(const RoundStatePtr& round_state) {
-  const auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
+  available_actions_.clear();
+  available_actions_.reserve(legal_actions().size() + 1);
 
-  // the number of chips you have contributed to the pot this round of betting
-  const int my_stack = round_state->stacks[player_id_];  // the number of chips you have remaining
+  const auto legal_actions = round_state->legal_actions();
+  const auto raise_bounds = round_state->raise_bounds();
 
   for (const auto legal_action : legal_actions) {
     if (legal_action != Action::Type::RAISE) {
       available_actions_.emplace_back(legal_action);
     } else {
-      // the smallest and largest numbers of chips for a legal bet/raise
-      if (const auto raise_bounds = round_state->raise_bounds(); raise_bounds[0] <= my_stack) {
-        // ToDo: Other bet sizes? Probably another function to add all bet sizes to available actions
-        available_actions_.emplace_back(Action::Type::RAISE, raise_bounds[0]);
+      // Add pot-sized bet if it's less than going all-in by `pot`
+      auto pot_sized_bet = std::max(raise_bounds[0], round_state->pot());
+      if (raise_bounds[1] - pot_sized_bet < round_state->pot()) {
+        available_actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
       }
+      // All-in
+      available_actions_.emplace_back(Action::Type::RAISE, raise_bounds[1]);
     }
   }
 }
@@ -70,7 +73,7 @@ void MCCFR::precompute_child_values(const std::array<Range, 2>& ranges,
     std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
   }
 
-  for (unsigned action = 0; action < num_available_actions_; action++) {
+  for (unsigned action = 0; action < num_actions(); action++) {
     if (available_actions_[action].action_type != Action::Type::FOLD) {
       const float next_round_check = available_actions_[action].action_type == Action::Type::RAISE
                                          ? available_actions_[action].amount
@@ -98,13 +101,13 @@ void MCCFR::update_root_value(const unsigned hand) {
   double root_value = 0;
 
   double normalization = 0;
-  for (unsigned action = 0; action < num_available_actions_; action++) {
+  for (unsigned action = 0; action < num_actions(); action++) {
     normalization += regrets_(hand, action);
   }
 
-  for (unsigned action = 0; action < num_available_actions_; action++) {
+  for (unsigned action = 0; action < num_actions(); action++) {
     root_value += (normalization > 0 ? regrets_(hand, action) / normalization
-                                     : 1.0f / static_cast<float>(num_available_actions_)) *
+                                     : 1.0f / static_cast<float>(num_actions())) *
                   get_child_value(hand, action);
   }
   values_[hand] = static_cast<float>(root_value);
@@ -129,7 +132,7 @@ void MCCFR::update_regrets(const std::array<Range, 2>& ranges) {
       return sample_index(regrets_.data, hand * max_available_actions_, available_actions_.size(),
                           random_generator_);
     } else {
-      return sample_index(num_available_actions_, random_generator_);
+      return sample_index(num_actions(), random_generator_);
     }
   }();
 
@@ -147,18 +150,18 @@ void MCCFR::update_regrets(const std::array<Range, 2>& ranges) {
 }
 
 HandActionsValues MCCFR::get_last_strategy() {
-  HandActionsValues strategy(num_hands_, num_available_actions_);
+  HandActionsValues strategy(num_hands_, num_actions());
   for (unsigned hand = 0; hand < num_hands_; hand++) {
 
     double normalization = 0;
-    for (unsigned action = 0; action < num_available_actions_; action++) {
+    for (unsigned action = 0; action < num_actions(); action++) {
       normalization += regrets_(hand, action);
     }
 
-    for (unsigned action = 0; action < num_available_actions_; action++) {
+    for (unsigned action = 0; action < num_actions(); action++) {
       strategy(hand, action) = normalization > 0
                                    ? regrets_(hand, action) / static_cast<float>(normalization)
-                                   : 1.0f / static_cast<float>(num_available_actions_);
+                                   : 1.0f / static_cast<float>(num_actions());
     }
   }
   return strategy;
@@ -175,7 +178,7 @@ void MCCFR::initial_regrets() {
   // Iterate over all hands and actions once to prevent biased selection of actions in sampling
   update_root_value();
   for (unsigned hand = 0; hand < num_hands_; hand++) {
-    for (unsigned action = 0; action < num_available_actions_; action++) {
+    for (unsigned action = 0; action < num_actions(); action++) {
       const auto action_value = get_child_value(hand, action);
       // Update regrets
       const float diff = action_value - values_[hand];
@@ -200,9 +203,8 @@ HandActionsValues MCCFR::solve(const std::array<Range, 2>& ranges, const RoundSt
   std::fill(regrets_.data.begin(), regrets_.data.end(), 0);
   std::fill_n(num_steps_.begin(), num_hands_, 0);
 
-  available_actions_.resize(0);
   build_tree(round_state);
-  num_available_actions_ = available_actions_.size();
+
   precompute_child_values(ranges, round_state);
 
   // estimate how much it would take to go through all hands and actions
