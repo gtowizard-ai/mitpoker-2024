@@ -1,7 +1,4 @@
 #include "mccfr.h"
-
-#include <iostream>
-
 #include "equity.h"
 #include "poker_hand.h"
 #include "states.h"
@@ -79,6 +76,7 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
   for (unsigned action = 0; action < num_available_actions_; action++) {
     // ToDo: Not only river, but other streets
     if (available_actions_[action].action_type != Action::Type::FOLD) {
+      // ToDo: if the action is Raise, assume the opp to do Check and updat pot_
       compute_cfvs_river(Game(), ranges[player_id_], ranges[1 - player_id_], PokerHand(board),
                          children_values_[action], pot_);
     }
@@ -226,7 +224,6 @@ HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStat
   auto max_iterations = static_cast<long long>((time_budget - initialization_passed_time) *
                                                timer_error_bound_ * time_checkpoints_ / mccfr_time);
 
-  std::cout << max_iterations << "\n";
   while (max_iterations-- > 0) {
     // Compute cumulative regrets and counterfactual values.
     // and generate strategy profile from the regrets

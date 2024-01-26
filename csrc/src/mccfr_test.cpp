@@ -36,3 +36,59 @@ TEST_F(MCCFRTest, TestNoError) {
       << std::chrono::duration_cast<std::chrono::milliseconds>(timer_end - timer_start).count()
       << " ms.\n";
 }
+
+TEST_F(MCCFRTest, TestNutAirToyGame) {
+  // Test Classic Nuts+Air vs. Bluff catcher toy game.
+  auto mccfr = MCCFR(100);
+  std::vector<Range> ranges = {Range(), Range()};
+  for (int i = 0; i < 2; i++) {
+    for (unsigned index = 0; index < ranges[i].num_hands(); index++) {
+      ranges[i].range[index] = 0;
+    }
+  }
+  ranges[1].range[Hand("ThTs").index()] = 1;
+  ranges[1].range[Hand("ThTc").index()] = 1;
+  ranges[1].range[Hand("ThTd").index()] = 1;
+  ranges[1].range[Hand("TsTc").index()] = 1;
+  ranges[1].range[Hand("TsTd").index()] = 1;
+  ranges[1].range[Hand("TcTd").index()] = 1;
+
+  ranges[0].range[Hand("4h4s").index()] = 1;
+  ranges[0].range[Hand("4h4c").index()] = 1;
+  ranges[0].range[Hand("4h4d").index()] = 1;
+  ranges[0].range[Hand("4s4c").index()] = 1;
+  ranges[0].range[Hand("4s4d").index()] = 1;
+  ranges[0].range[Hand("4c4d").index()] = 1;
+
+  ranges[0].range[Hand("AhAs").index()] = 1;
+  ranges[0].range[Hand("AhAc").index()] = 1;
+  ranges[0].range[Hand("AhAd").index()] = 1;
+  ranges[0].range[Hand("AsAc").index()] = 1;
+  ranges[0].range[Hand("AsAd").index()] = 1;
+  ranges[0].range[Hand("AcAd").index()] = 1;
+
+  int active = 0;
+  std::array<std::string, 5> deck = {"2c", "2d", "2h", "3s", "3c"};
+  std::array<std::optional<int>, 2> bids = {0, 0};
+  std::array<int, 2> pips = {SMALL_BLIND, BIG_BLIND};
+  std::array<int, 2> stacks = {200, 50};
+  std::array<std::array<std::string, 3>, 2> hands;
+
+  std::vector<std::string> cards = {"4h", "4d"};
+  hands[active][0] = cards[0];
+  hands[active][1] = cards[1];
+  auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks,
+                                                  std::move(hands), std::move(deck), nullptr);
+
+  auto x1 = Hand("AcAd").index();
+  auto x2 = Hand("4c4d").index();
+
+  const auto timer_start = std::chrono::high_resolution_clock::now();
+  auto strategy =
+      mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), 0, 100);
+  const auto timer_end = std::chrono::high_resolution_clock::now();
+  std::cout
+      << "Time Taken: "
+      << std::chrono::duration_cast<std::chrono::milliseconds>(timer_end - timer_start).count()
+      << " ms.\n";
+}
