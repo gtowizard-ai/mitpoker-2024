@@ -82,9 +82,9 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
       const float next_round_check = available_actions_[action].action_type == Action::Type::RAISE
                                          ? available_actions_[action].amount
                                          : 0.0f;
-      Payoff payoff = {.win = opp_contribution + next_round_check,
-                       .tie = my_contribution - ((opp_contribution + my_contribution) / 2),
-                       .lose = -my_contribution - next_round_check};
+      Payoff payoff = {opp_contribution + next_round_check,
+                       my_contribution - ((opp_contribution + my_contribution) / 2),
+                       -my_contribution - next_round_check};
       compute_cfvs_river(Game(), ranges[player_id_], ranges[1 - player_id_], PokerHand(board),
                          children_values_[action], payoff, board.size() == MAX_BOARD_CARDS);
     }
