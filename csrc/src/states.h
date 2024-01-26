@@ -53,6 +53,8 @@ struct RoundState : public State {
 
   auto min_stack() const { return std::min(stacks[0], stacks[1]); }
 
+  auto pot() const { return 2 * STARTING_STACK - stacks[0] - stacks[1]; }
+
   std::array<int, 2> raise_bounds() const;
 
   StatePtr proceed_to_next_round() const;

@@ -1,11 +1,18 @@
 #include "mccfr.h"
 
+#include "poker_hand.h"
+
 namespace pokerbot {
 
 HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned num_actions)
     : num_hands_(num_hands) {
   data.reserve(num_hands_ * num_actions);
   std::fill(data.begin(), data.end(), 0);
+}
+
+void compute_cfvs_river(const Game& game, const Range& hero_range, const Range& opponent_range,
+                        const PokerHand& board, std::vector<double>& cfvs, double factor) {
+  throw std::logic_error("");
 }
 
 // ToDo: Using rgn can be time consuming. Consider using faster/less accurate methods
@@ -34,7 +41,11 @@ MCCFR::MCCFR(const GameInfo& game_state, const unsigned warm_up_iterations)
     : game_(game_state),
       random_generator_(std::random_device()()),
       warm_up_iterations_(warm_up_iterations),
-      regrets_(NUM_HANDS_POSTFLOP_3CARDS, max_available_actions_) {}
+      regrets_(NUM_HANDS_POSTFLOP_3CARDS, max_available_actions_) {
+  for (auto& child_values : children_values_) {
+    child_values.resize(NUM_HANDS_POSTFLOP_3CARDS);
+  }
+}
 
 void MCCFR::build_tree(const RoundStatePtr& round_state) {
   const auto legal_actions = round_state->legal_actions();  // the actions you are allowed to take
@@ -55,14 +66,34 @@ void MCCFR::build_tree(const RoundStatePtr& round_state) {
   }
 }
 
-float MCCFR::get_child_value(const unsigned hand, const unsigned action) {
-  // Can be cached
-  throw std::logic_error("Not Implemented");
+bool MCCFR::is_child_terminal(const unsigned action) {
+  // ToDo: implement
+  throw std::logic_error("Not implemented");
 }
 
-float MCCFR::get_child_value(const unsigned action) {
-  // Can be cached
-  throw std::logic_error("Not Implemented");
+void MCCFR::precompute_child_values(const std::vector<Range>& ranges) {
+  for (auto& child_values : children_values_) {
+    std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
+  }
+
+  // ToDo: get board from the state
+  std::vector<card_t> board;
+
+  for (unsigned action = 0; action < available_actions_.size(); action++) {
+    // ToDo: Not only river, but other streets
+    if (available_actions_[action].action_type != Action::Type::FOLD && is_child_terminal(action)) {
+      compute_cfvs_river(Game(), ranges[player_id_], ranges[1 - player_id_], PokerHand(board),
+                         children_values_[action], pot_);
+    }
+  }
+}
+
+float MCCFR::get_child_value(const unsigned hand, const unsigned action) const {
+  if (available_actions_[action].action_type == Action::Type::FOLD) {
+    return static_cast<float>(-pot_);
+  } else {
+    return static_cast<float>(children_values_[action][hand]);
+  }
 }
 
 void MCCFR::update_root_value() {
@@ -159,11 +190,15 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
   num_hands_ = ranges[player_id].num_hands();
   player_id_ = player_id;
 
+  pot_ = round_state->pot();
+
   std::fill_n(values_.begin(), num_hands_, 0);
   std::fill_n(sum_buffer_.begin(), num_hands_, 0);
   std::fill_n(num_steps_.begin(), num_hands_, 0);
 
   build_tree(round_state);
+
+  precompute_child_values(ranges);
 
   // estimate how much it would take to go through all hands and actions
   const auto estimate_mccfr_time_start = std::chrono::high_resolution_clock::now();

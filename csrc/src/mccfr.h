@@ -21,7 +21,7 @@ class HandActionsValues {
     return data[action * num_hands_ + hand];
   }
 
-  // Store a 2D data of [hand, action] in 1D vector of size num_hands * num_actions
+  // Store a 2D data of [action, hand] in 1D vector of size num_hands * num_actions
   std::vector<float> data;
 
   // Number of hands
@@ -34,13 +34,14 @@ class MCCFR {
  public:
   MCCFR(const GameInfo& game_state, unsigned warm_up_iterations);
   void build_tree(const RoundStatePtr& round_state);
-  float get_child_value(unsigned hand, unsigned action);
-  float get_child_value(unsigned action);
+  bool is_child_terminal(unsigned action);
+  float get_child_value(unsigned hand, unsigned action) const;
   void update_root_value();
   void update_regrets(const std::vector<Range>& ranges);
   HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
+  void MCCFR::precompute_child_values(const std::vector<Range>& ranges);
   void step(const std::vector<Range>& ranges);
   void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state, unsigned player_id,
              std::chrono::microseconds time_budget);
@@ -51,9 +52,12 @@ class MCCFR {
   const GameInfo& game_;
   std::mt19937 random_generator_;  // Mersenne Twister engine
   unsigned warm_up_iterations_;
+  std::array<std::vector<double>, max_available_actions_> children_values_{};
 
   unsigned num_hands_;
   unsigned player_id_;
+
+  unsigned pot_;
 
   // The value of the root node - size = num_hands_
   std::array<float, NUM_HANDS_POSTFLOP_3CARDS> values_;
