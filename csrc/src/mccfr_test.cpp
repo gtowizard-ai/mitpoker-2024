@@ -22,12 +22,12 @@ TEST_F(MCCFRTest, TestNoError) {
   std::array<int, 2> stacks = {STARTING_STACK - SMALL_BLIND, STARTING_STACK - BIG_BLIND};
   std::array<std::array<std::string, 3>, 2> hands;
   int active = 0;
-  std::array<std::string, 5> deck = {"Kc", "Td", "7h", "3s", "2c"};
+  const auto board_cards = Card::to_vector("KcTd7h3s2c");
   std::vector<std::string> cards = {"2h", "2d"};
   hands[active][0] = cards[0];
   hands[active][1] = cards[1];
-  auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks,
-                                                  std::move(hands), std::move(deck), nullptr);
+  auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks, hands,
+                                                  board_cards, nullptr);
   const auto timer_start = std::chrono::high_resolution_clock::now();
   mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), 0, 100);
   const auto timer_end = std::chrono::high_resolution_clock::now();
@@ -68,7 +68,7 @@ TEST_F(MCCFRTest, TestNutAirToyGame) {
   ranges[0].range[Hand("AcAd").index()] = 1;
 
   int active = 0;
-  std::array<std::string, 5> deck = {"2c", "2d", "2h", "3s", "3c"};
+  const auto board_cards = Card::to_vector("2c2d2h3s3c");
   std::array<std::optional<int>, 2> bids = {0, 0};
   std::array<int, 2> pips = {SMALL_BLIND, BIG_BLIND};
   std::array<int, 2> stacks = {200, 50};
@@ -77,10 +77,8 @@ TEST_F(MCCFRTest, TestNutAirToyGame) {
   std::vector<std::string> cards = {"4h", "4d"};
   hands[active][0] = cards[0];
   hands[active][1] = cards[1];
-  auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks,
-                                                  std::move(hands), std::move(deck), nullptr);
-
-  const std::vector<card_t> board_cards = round_state->board_cards();
+  auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks, hands,
+                                                  board_cards, nullptr);
 
   ranges[1].to_3_cards_range(Game(), board_cards);
 

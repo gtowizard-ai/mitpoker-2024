@@ -70,8 +70,6 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
     std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
   }
 
-  const std::vector<card_t> board = round_state->board_cards();
-
   for (unsigned action = 0; action < num_available_actions_; action++) {
     if (available_actions_[action].action_type != Action::Type::FOLD) {
       const float next_round_check = available_actions_[action].action_type == Action::Type::RAISE
@@ -81,8 +79,9 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
                        my_contribution - ((opp_contribution + my_contribution) / 2),
                        -my_contribution - next_round_check};
       compute_cfvs_river<float>(Game(), ranges[player_id_], ranges[1 - player_id_],
-                                PokerHand(board), children_values_[action], payoff,
-                                board.size() == MAX_BOARD_CARDS);
+                                PokerHand(round_state->board_cards), children_values_[action],
+                                payoff,
+                                round_state->board_cards.size() == round::RIVER.num_board_cards);
     }
   }
 }

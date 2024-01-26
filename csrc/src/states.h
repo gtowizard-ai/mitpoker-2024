@@ -21,7 +21,7 @@ struct State : std::enable_shared_from_this<State> {
 
 using StatePtr = std::shared_ptr<const State>;
 
-struct RoundState : public State {
+struct RoundState final : State {
   int button;
   round::Round round;
   bool auction;
@@ -29,14 +29,14 @@ struct RoundState : public State {
   std::array<int, 2> pips;
   std::array<int, 2> stacks;
   std::array<std::array<std::string, 3>, 2> hands;
-  std::array<std::string, 5> deck;
+  std::vector<card_t> board_cards;
   StatePtr previous_state;
 
   RoundState(int button, round::Round round, bool auction,
              const std::array<std::optional<int>, 2>& bids, const std::array<int, 2>& pips,
              const std::array<int, 2>& stacks,
              const std::array<std::array<std::string, 3>, 2>& hands,
-             const std::array<std::string, 5>& deck, StatePtr previous_state)
+             const std::vector<card_t>& board_cards, StatePtr previous_state)
       : button(button),
         round(round),
         auction(auction),
@@ -44,7 +44,7 @@ struct RoundState : public State {
         pips(pips),
         stacks(stacks),
         hands(hands),
-        deck(deck),
+        board_cards(board_cards),
         previous_state(std::move(previous_state)) {}
 
   StatePtr showdown() const;
@@ -54,8 +54,6 @@ struct RoundState : public State {
   auto min_stack() const { return std::min(stacks[0], stacks[1]); }
 
   auto pot() const { return 2 * STARTING_STACK - stacks[0] - stacks[1]; }
-
-  std::vector<card_t> board_cards() const;
 
   std::array<int, 2> raise_bounds() const;
 
@@ -68,7 +66,7 @@ struct RoundState : public State {
 
 using RoundStatePtr = std::shared_ptr<const RoundState>;
 
-struct TerminalState : State {
+struct TerminalState final : State {
   std::array<int, 2> deltas;
   std::array<std::optional<int>, 2> bids;
   StatePtr previous_state;
