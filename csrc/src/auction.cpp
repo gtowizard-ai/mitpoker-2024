@@ -1,5 +1,4 @@
 #include "auction.h"
-#include <iostream>
 #include "definitions.h"
 
 namespace pokerbot {
@@ -28,7 +27,6 @@ std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
-  //TODO: Write tests for this
   int stack = STARTING_STACK - (pot / 2);
   if ((stack - bid) > REASONABLE_DIST_FROM_MAX) {
     this->vIsExcessiveBidder = false;
