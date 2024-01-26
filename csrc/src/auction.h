@@ -10,6 +10,8 @@ namespace pokerbot {
 inline constexpr int ABS_BIDDING_EPSILON = 2;
 inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
 inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+inline constexpr float BID_MULTIPLIER_OOP = 1;
+inline constexpr float BID_MULTIPLIER_IP = 1;
 
 struct Auctioneer {
 

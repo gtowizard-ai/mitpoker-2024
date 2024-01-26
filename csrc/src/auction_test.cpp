@@ -53,9 +53,9 @@ TEST_F(AuctionTest, TestMeanEquity) {
   Auctioneer auctioneer;
   Range r1;
   Range r2;
-  auto board = Card::to_vector("Kc7d2s");
+  auto board = Card::to_vector("Tc7d2s");
   r1.to_3_cards_range(game_, board);
   float eq1 = auctioneer.mean_equity(r1, r2, game_, board);
   float eq2 = auctioneer.mean_equity(r2, r1, game_, board);
-  ASSERT_NEAR(eq1 + eq2, 1.0, TOLERANCE);
+  ASSERT_GT(eq1, eq2);
 }

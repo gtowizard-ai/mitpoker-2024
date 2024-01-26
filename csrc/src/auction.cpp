@@ -15,6 +15,7 @@ Auctioneer::Auctioneer() {
 
 float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, const Game& game,
                               const std::vector<card_t>& board) {
+
   std::vector<float> eq = compute_equities(game, range_one, range_two, board);
   float sum = std::accumulate(eq.begin(), eq.end(), 0.0);
   return eq.empty() ? 0.0 : sum / eq.size();
@@ -38,8 +39,12 @@ int Auctioneer::get_bid(const std::vector<Range>& ranges, const Game& game,
   villainThreeCard.to_3_cards_range(game, board);
 
   float heroThreeEq = mean_equity(heroThreeCard, ranges[1], game, board);
+  float villainThreeEq = mean_equity(villainThreeCard, ranges[0], game, board);
+  float equityDifference = heroThreeEq - villainThreeEq;
 
-  return std::ceil(heroThreeEq);
+  float equity_bid = ((1 / (1 - equityDifference)) - 1) * pot;
+
+  return equity_bid;
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
