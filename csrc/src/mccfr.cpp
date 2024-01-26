@@ -62,12 +62,6 @@ void MCCFR::build_tree(const RoundStatePtr& round_state) {
   }
 }
 
-bool MCCFR::is_child_terminal(const unsigned action) {
-  // ToDo: implement
-  // throw std::logic_error("Not implemented");
-  return true;
-}
-
 void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
                                     const RoundStatePtr& round_state) {
   for (auto& child_values : children_values_) {
@@ -84,7 +78,7 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
 
   for (unsigned action = 0; action < num_available_actions_; action++) {
     // ToDo: Not only river, but other streets
-    if (available_actions_[action].action_type != Action::Type::FOLD && is_child_terminal(action)) {
+    if (available_actions_[action].action_type != Action::Type::FOLD) {
       compute_cfvs_river(Game(), ranges[player_id_], ranges[1 - player_id_], PokerHand(board),
                          children_values_[action], pot_);
     }

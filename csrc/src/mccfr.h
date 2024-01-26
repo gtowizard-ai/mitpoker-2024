@@ -38,7 +38,6 @@ class MCCFR {
 
  private:
   void build_tree(const RoundStatePtr& round_state);
-  bool is_child_terminal(unsigned action);
   [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
   void update_root_value(unsigned hand);
   void update_root_value();
