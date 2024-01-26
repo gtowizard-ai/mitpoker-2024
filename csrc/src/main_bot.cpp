@@ -49,6 +49,15 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
                             round_state->pot(), time_budget_ms);
   }
 
+  // FIXME cant afford to do CFR on preflop/flop/turn for now
+  if (round_state->round != round::RIVER) {
+    if (ranges::contains(legal_actions, Action::Type::CHECK)) {
+      // check-call
+      return {Action::Type::CHECK};
+    }
+    return {Action::Type::CALL};
+  }
+
   const float time_budget_ms = 5;  // FIXME
   auto strategy = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
 
