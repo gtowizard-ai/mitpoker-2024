@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706280118481,
+  "lastUpdate": 1706280319987,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "7b49aacf63a5674866f0a5f41a6da42e1be7ae13",
-          "message": "Enforce timeouts in CI/CD",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/16/commits/7b49aacf63a5674866f0a5f41a6da42e1be7ae13"
-        },
-        "date": 1706210958462,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.6092,
-            "unit": "bb/hand",
-            "range": 0.4763
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -2.4466,
-            "unit": "bb/hand",
-            "range": 1.4731
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -332,6 +300,42 @@ window.BENCHMARK_DATA = {
             "value": -0.8928,
             "unit": "bb/hand",
             "range": 1.468
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a8dad227397c02c5c5953cd2c31d7d038d170e52",
+          "message": "Equity optimization no highway (#25)\n\n* Use `VQSort` instead of `std::sort`\r\n\r\n* Remove validations in `PokerHand` (30%~ faster)\r\n\r\n* Fix `PokerHand` test\r\n\r\n* Optimize river equity\r\n\r\n* Tentative fix for Clang\r\n\r\n* Fix\r\n\r\n* no highway\r\n\r\n---------\r\n\r\nCo-authored-by: Wataru Inariba <oinari17@gmail.com>",
+          "timestamp": "2024-01-26T09:42:15-05:00",
+          "tree_id": "d2cc0eb8fd6de9dc3efb60f137cce0fdacc1e5e3",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/a8dad227397c02c5c5953cd2c31d7d038d170e52"
+        },
+        "date": 1706280318638,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 0.2488,
+            "unit": "bb/hand",
+            "range": 0.4735
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -1.6768,
+            "unit": "bb/hand",
+            "range": 1.4781
           }
         ]
       }
