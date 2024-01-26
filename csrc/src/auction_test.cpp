@@ -12,12 +12,12 @@ class AuctionTest : public ::testing::Test {
 
 TEST_F(AuctionTest, TestGetBid) {
   Auctioneer auctioneer;
-  std::vector<Range> ranges;
-  std::vector<Card> board;
-  Hand hand = Hand("AsAd");
-  float time = 2.0;
+  Range hero_range;
+  Range villain_range;
+  std::vector<card_t> board;
+  Hand hand("AsAd");
   int pot = 100;
-  const auto [range, bid] = auctioneer.get_bid(ranges, board, hand, pot, 2.0);
+  const auto bid = auctioneer.get_bid(hero_range, villain_range, board, hand, pot, 2.0);
   ASSERT_EQ(bid, 0);
 }
 

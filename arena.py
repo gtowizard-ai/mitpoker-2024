@@ -7,7 +7,7 @@ import config as config
 from engine import Game, Player, BIG_BLIND
 
 
-NUM_HANDS = 10000
+NUM_HANDS = 5000
 
 
 @dataclass
@@ -48,7 +48,9 @@ def _run_match(player_1: Player, player_2: Player):
 
     for player in players:
         player.stop()
-
+        print(
+            f"Player {player.name} spent {game_clock - player.game_clock:.2f}s playing (used {100.0 * (game_clock - player.game_clock) / game_clock:.2f}% of his time)"
+        )
         if player.game_clock <= 1e-4:
             raise TimeoutError(f"Bot {player.name} ran out of time when playing")
 
