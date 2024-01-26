@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706292669185,
+  "lastUpdate": 1706293160454,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "43b5b1dd1a5a84f286e600ab4a08d5feca6991b7",
-          "message": "Equity optimization no highway",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/25/commits/43b5b1dd1a5a84f286e600ab4a08d5feca6991b7"
-        },
-        "date": 1706280117646,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.0853,
-            "unit": "bb/hand",
-            "range": 0.4646
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -0.8928,
-            "unit": "bb/hand",
-            "range": 1.468
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -315,6 +283,38 @@ window.BENCHMARK_DATA = {
           "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/27/commits/b4b682b3a682db23062c6a430de973fa967ae455"
         },
         "date": 1706292668339,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 0,
+            "unit": "bb/hand",
+            "range": 0.005
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 0,
+            "unit": "bb/hand",
+            "range": 0.005
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "committer": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "id": "badc9b71382a9b5deece841c0942240a8b07ffe2",
+          "message": "Mccfr",
+          "timestamp": "2024-01-24T02:28:03Z",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/27/commits/badc9b71382a9b5deece841c0942240a8b07ffe2"
+        },
+        "date": 1706293159607,
         "tool": "customBiggerIsBetter",
         "benches": [
           {
