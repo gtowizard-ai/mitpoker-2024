@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "hand.h"
+#include "ranges_utils.h"
 
 using namespace pokerbot;
 
@@ -17,6 +18,11 @@ TEST(PreflopEquityTest, TestIntegrityValues) {
     return std::isfinite(equity) && equity >= 0 && equity <= 1.0;
   }));
 
+  ASSERT_EQ(PREFLOP_PAYOFFS.size(), NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP);
+  ASSERT_TRUE(std::all_of(PREFLOP_PAYOFFS.begin(), PREFLOP_PAYOFFS.end(), [](auto payoff) {
+    return std::isfinite(payoff) && payoff >= -1.0 && payoff <= 1.0;
+  }));
+
   auto idx_22 = PREFLOP_HAND_IDX[Hand("2c2d").index()];
   auto idx_32 = PREFLOP_HAND_IDX[Hand("3c2d").index()];
   auto idx_aa = PREFLOP_HAND_IDX[Hand("AcAd").index()];
@@ -28,4 +34,25 @@ TEST(PreflopEquityTest, TestIntegrityValues) {
   ASSERT_NEAR(PREFLOP_EQUITIES[idx_32 * NUM_HANDS_PREFLOP + idx_22], 0.3342, 1e-4);
   ASSERT_NEAR(PREFLOP_EQUITIES[idx_32 * NUM_HANDS_PREFLOP + idx_aa], 0.1279, 1e-4);
   ASSERT_NEAR(PREFLOP_EQUITIES[idx_aa * NUM_HANDS_PREFLOP + idx_32], 0.8721, 1e-4);
+}
+
+TEST(PreflopEquityTest, TestComputeCFVs) {
+  Range opponent_range;
+
+  auto& range = opponent_range.range;
+  auto sum = ranges::sum(range);
+  for (auto& v : range) {
+    v /= sum;
+  }
+
+  auto cfvs = compute_preflop_cfvs(opponent_range, 1.0, 0.5, -1.0);
+
+  ASSERT_EQ(cfvs.size(), NUM_HANDS_POSTFLOP_2CARDS);
+  ASSERT_NEAR(cfvs[Hand("2c2d").index()], cfvs[Hand("2c2h").index()], 1e-6);
+  ASSERT_NEAR(cfvs[Hand("2c2d").index()], cfvs[Hand("2c2s").index()], 1e-6);
+  ASSERT_NEAR(cfvs[Hand("2d2h").index()], cfvs[Hand("2d2s").index()], 1e-6);
+  ASSERT_NEAR(cfvs[Hand("2d2h").index()], cfvs[Hand("2h2s").index()], 1e-6);
+  ASSERT_NEAR(cfvs[Hand("2d2s").index()], cfvs[Hand("2h2s").index()], 1e-6);
+
+  // FIXME NEED MORE TESTS HERE
 }
