@@ -1,44 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706293160454,
+  "lastUpdate": 1706293296826,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "philbeardsell@gmail.com",
-            "name": "Philippe Beardsell",
-            "username": "philqc"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "a8dad227397c02c5c5953cd2c31d7d038d170e52",
-          "message": "Equity optimization no highway (#25)\n\n* Use `VQSort` instead of `std::sort`\r\n\r\n* Remove validations in `PokerHand` (30%~ faster)\r\n\r\n* Fix `PokerHand` test\r\n\r\n* Optimize river equity\r\n\r\n* Tentative fix for Clang\r\n\r\n* Fix\r\n\r\n* no highway\r\n\r\n---------\r\n\r\nCo-authored-by: Wataru Inariba <oinari17@gmail.com>",
-          "timestamp": "2024-01-26T09:42:15-05:00",
-          "tree_id": "d2cc0eb8fd6de9dc3efb60f137cce0fdacc1e5e3",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/a8dad227397c02c5c5953cd2c31d7d038d170e52"
-        },
-        "date": 1706280318638,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.2488,
-            "unit": "bb/hand",
-            "range": 0.4735
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -1.6768,
-            "unit": "bb/hand",
-            "range": 1.4781
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -328,6 +292,38 @@ window.BENCHMARK_DATA = {
             "value": 0,
             "unit": "bb/hand",
             "range": 0.005
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "committer": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "id": "cbb2babd5fd888d082c35d901a3b17bf38982c52",
+          "message": "Add Preflop EQ Table",
+          "timestamp": "2024-01-24T02:28:03Z",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/26/commits/cbb2babd5fd888d082c35d901a3b17bf38982c52"
+        },
+        "date": 1706293295867,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 0.527,
+            "unit": "bb/hand",
+            "range": 0.4766
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 1.2268,
+            "unit": "bb/hand",
+            "range": 1.4777
           }
         ]
       }
