@@ -610,4 +610,13 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
   return equities;
 }
 
+template void compute_cfvs_river<float>(const Game& game, const Range& hero_range,
+                                        const Range& opponent_range, const PokerHand& board,
+                                        std::vector<float>& cfvs, const Payoff& payoff,
+                                        bool is_river_equity);
+template void compute_cfvs_river<double>(const Game& game, const Range& hero_range,
+                                         const Range& opponent_range, const PokerHand& board,
+                                         std::vector<double>& cfvs, const Payoff& payoff,
+                                         bool is_river_equity);
+
 }  // namespace pokerbot
