@@ -35,13 +35,13 @@ class MCCFR {
   MCCFR(const GameInfo& game_state, unsigned warm_up_iterations);
   void build_tree(const RoundStatePtr& round_state);
   bool is_child_terminal(unsigned action);
-  float get_child_value(unsigned hand, unsigned action) const;
+  [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
   void update_root_value();
   void update_regrets(const std::vector<Range>& ranges);
   HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
-  void MCCFR::precompute_child_values(const std::vector<Range>& ranges);
+  void precompute_child_values(const std::vector<Range>& ranges, const RoundStatePtr& round_state);
   void step(const std::vector<Range>& ranges);
   void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state, unsigned player_id,
              std::chrono::microseconds time_budget);
