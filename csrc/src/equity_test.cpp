@@ -23,6 +23,12 @@ class EquityTest : public ::testing::Test {
     }));
   }
 
+  Range get_uniform_random_range(const std::vector<card_t>& board_cards) const {
+    Range range;
+    range.update_on_board_cards(game_, board_cards);
+    return range;
+  }
+
   double naive_compute_equity(const Hand& hero_hand, const Range& opponent_range,
                               const std::vector<card_t>& board_cards) const {
     const auto num_cards_left = MAX_BOARD_CARDS - board_cards.size();
@@ -101,11 +107,7 @@ class EquityTest : public ::testing::Test {
 
 TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsTwoCards) {
   const auto board_cards = Card::to_vector("AcKdTh2s8s");
-  Range hero_range;
-  Range opponent_range;
-
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
+  const auto opponent_range = get_uniform_random_range(board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("2c2s"), opponent_range, board_cards), 0);
   ASSERT_EQ(naive_compute_equity(Hand("As2s"), opponent_range, board_cards), 0);
@@ -116,11 +118,7 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsTwoCards) {
 
 TEST_F(EquityTest, TestNaiveEquityComputationTurnTwoVsTwoCards) {
   const auto board_cards = Card::to_vector("AcKc6h2s");
-  Range hero_range;
-  Range opponent_range;
-
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
+  const auto opponent_range = get_uniform_random_range(board_cards);
 
   ASSERT_NEAR(naive_compute_equity(Hand("QcJc"), opponent_range, board_cards), 0.6095, 1e-4);
   ASSERT_NEAR(naive_compute_equity(Hand("6s2d"), opponent_range, board_cards), 0.8855, 1e-4);
@@ -133,8 +131,8 @@ TEST_F(EquityTest, TestNaiveEquityComputationFlopTwoVsTwoCards) {
   Range hero_range;
   Range opponent_range;
 
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
+  hero_range.update_on_board_cards(game_, board_cards);
+  opponent_range.update_on_board_cards(game_, board_cards);
 
   ASSERT_NEAR(naive_compute_equity(Hand("QcJc"), opponent_range, board_cards), 0.7319, 1e-4);
   ASSERT_NEAR(naive_compute_equity(Hand("6s2d"), opponent_range, board_cards), 0.5843, 1e-4);
@@ -144,13 +142,7 @@ TEST_F(EquityTest, TestNaiveEquityComputationFlopTwoVsTwoCards) {
 
 TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsTwoCards) {
   const auto board_cards = Card::to_vector("AcKdTh2s8s");
-  Range hero_range;
-  Range opponent_range;
-
-  hero_range.to_3_cards_range(game_, board_cards);
-
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
+  const auto opponent_range = get_uniform_random_range(board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("2c2s2h"), opponent_range, board_cards), 0);
   ASSERT_EQ(naive_compute_equity(Hand("AcKs8h"), opponent_range, board_cards), 0);
@@ -162,13 +154,8 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsTwoCards) {
 
 TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsThreeCards) {
   const auto board_cards = Card::to_vector("8c8d6h4s2s");
-  Range hero_range;
-  Range opponent_range;
-
+  auto opponent_range = get_uniform_random_range(board_cards);
   opponent_range.to_3_cards_range(game_, board_cards);
-
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("2c2s"), opponent_range, board_cards), 0);
   ASSERT_EQ(naive_compute_equity(Hand("8d8s"), opponent_range, board_cards), 0.0);
@@ -179,14 +166,8 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsThreeCards) {
 
 TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsThreeCards) {
   const auto board_cards = Card::to_vector("8c8d6h4s2s");
-  Range hero_range;
-  Range opponent_range;
-
-  hero_range.to_3_cards_range(game_, board_cards);
+  auto opponent_range = get_uniform_random_range(board_cards);
   opponent_range.to_3_cards_range(game_, board_cards);
-
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("3s5s6s"), opponent_range, board_cards), 1.0);
   // We lose to exactly {3s, 5s, 6s} and {As, 3s, 5s}
@@ -196,13 +177,9 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsThreeCards) {
 
 TEST_F(EquityTest, TestEquityComputationRiverThreeVsTwoCards) {
   const auto board_cards = Card::to_vector("8c8d6h4s2s");
-  Range hero_range;
-  Range opponent_range;
-
+  const auto opponent_range = get_uniform_random_range(board_cards);
+  auto hero_range = get_uniform_random_range(board_cards);
   hero_range.to_3_cards_range(game_, board_cards);
-
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
 
   const auto equities = compute_equities(game_, hero_range, opponent_range, board_cards);
   ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_3CARDS);
@@ -218,18 +195,71 @@ TEST_F(EquityTest, TestEquityComputationRiverThreeVsTwoCards) {
 
 TEST_F(EquityTest, TestEquityComputationRiverTwoVsThreeCards) {
   const auto board_cards = Card::to_vector("8c8d6h4s2s");
-  Range hero_range;
-  Range opponent_range;
-
+  const auto hero_range = get_uniform_random_range(board_cards);
+  auto opponent_range = get_uniform_random_range(board_cards);
   opponent_range.to_3_cards_range(game_, board_cards);
 
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
   const auto equities = compute_equities(game_, hero_range, opponent_range, board_cards);
   ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_2CARDS);
   assert_equities_values(equities);
 
   for (std::string hand_str : {"3s5s", "7h8s", "AcAd", "8s8h", "QcJd"}) {
+    Hand hand(hand_str);
+    EXPECT_NEAR(equities[hand.index()], naive_compute_equity(hand, opponent_range, board_cards),
+                1e-4)
+        << hand_str;
+  }
+}
+
+TEST_F(EquityTest, TestEquityComputationRiverThreeVsThreeCards) {
+  const auto board_cards = Card::to_vector("8c8d6h4s2s");
+  auto hero_range = get_uniform_random_range(board_cards);
+  auto opponent_range = get_uniform_random_range(board_cards);
+  hero_range.to_3_cards_range(game_, board_cards);
+  opponent_range.to_3_cards_range(game_, board_cards);
+
+  const auto equities = compute_equities(game_, hero_range, opponent_range, board_cards);
+  ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_3CARDS);
+  assert_equities_values(equities);
+
+  for (std::string hand_str : {"3s5s6s", "7h8sAc", "AcAdAh", "8s8h6c", "QcJdTh"}) {
+    Hand hand(hand_str);
+    EXPECT_NEAR(equities[hand.index()], naive_compute_equity(hand, opponent_range, board_cards),
+                1e-4)
+        << hand_str;
+  }
+}
+
+TEST_F(EquityTest, TestEquityComputationTurnTwoVsThreeCards) {
+  const auto board_cards = Card::to_vector("8c8d6h4s");
+  const auto hero_range = get_uniform_random_range(board_cards);
+  auto opponent_range = get_uniform_random_range(board_cards);
+  opponent_range.to_3_cards_range(game_, board_cards);
+
+  const auto equities = compute_equities(game_, hero_range, opponent_range, board_cards);
+  ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_2CARDS);
+  assert_equities_values(equities);
+
+  for (std::string hand_str : {"3s5s", "7h8s", "AcAd", "8s8h", "QcJd"}) {
+    Hand hand(hand_str);
+    EXPECT_NEAR(equities[hand.index()], naive_compute_equity(hand, opponent_range, board_cards),
+                1e-4)
+        << hand_str;
+  }
+}
+
+TEST_F(EquityTest, TestEquityComputationTurnThreeVsThreeCards) {
+  const auto board_cards = Card::to_vector("8c8d6h4s");
+  auto hero_range = get_uniform_random_range(board_cards);
+  auto opponent_range = get_uniform_random_range(board_cards);
+  hero_range.to_3_cards_range(game_, board_cards);
+  opponent_range.to_3_cards_range(game_, board_cards);
+
+  const auto equities = compute_equities(game_, hero_range, opponent_range, board_cards);
+  ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_3CARDS);
+  assert_equities_values(equities);
+
+  for (std::string hand_str : {"3s5s6s", "7h8sAd", "AcAdKc", "8s8h2c", "AcQcJd"}) {
     Hand hand(hand_str);
     EXPECT_NEAR(equities[hand.index()], naive_compute_equity(hand, opponent_range, board_cards),
                 1e-4)

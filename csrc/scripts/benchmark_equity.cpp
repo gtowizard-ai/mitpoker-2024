@@ -29,8 +29,8 @@ int main() {
   const Game game;
   const auto board = Card::to_vector("Qs9c6d3d2h");
 
-  range_2_cards.update_on_new_board_cards(game, board);
-  range_3_cards.update_on_new_board_cards(game, board);
+  range_2_cards.update_on_board_cards(game, board);
+  range_3_cards.update_on_board_cards(game, board);
 
   const auto start_2_vs_3 = std::chrono::high_resolution_clock::now();
 

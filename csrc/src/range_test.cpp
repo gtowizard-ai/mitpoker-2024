@@ -30,17 +30,17 @@ TEST_F(RangeTest, TestUpdateOnNewBoardCards) {
   Range range;
   ASSERT_EQ(range.num_cards, NumCards::Two);
 
-  range.update_on_new_board_cards(game_, board_cards);
+  range.update_on_board_cards(game_, board_cards);
 
   ASSERT_NEAR(ranges::sum(range.range), n_choose_k(49, 2), TOLERANCE);
 
   board_cards.push_back(Card("As").card());
-  range.update_on_new_board_cards(game_, board_cards);
+  range.update_on_board_cards(game_, board_cards);
 
   ASSERT_NEAR(ranges::sum(range.range), n_choose_k(48, 2), TOLERANCE);
 
   board_cards.push_back(Card("2s").card());
-  range.update_on_new_board_cards(game_, board_cards);
+  range.update_on_board_cards(game_, board_cards);
 
   ASSERT_NEAR(ranges::sum(range.range), n_choose_k(47, 2), TOLERANCE);
 
@@ -49,12 +49,26 @@ TEST_F(RangeTest, TestUpdateOnNewBoardCards) {
 
 TEST_F(RangeTest, TestTo3CardsRangeWithBoardCards) {
   const auto board_cards = Card::to_vector("AcAdAhAs");
-  Range range;
-  ASSERT_EQ(range.num_cards, NumCards::Two);
+  {
+    Range range;
 
-  range.to_3_cards_range(game_, board_cards);
-  range.update_on_new_board_cards(game_, board_cards);
+    range.to_3_cards_range(game_, board_cards);
+    range.update_on_board_cards(game_, board_cards);
 
-  ASSERT_EQ(range.num_cards, NumCards::Three);
-  ASSERT_NEAR(ranges::sum(range.range), n_choose_k(48, 2), TOLERANCE);
+    ASSERT_EQ(range.num_cards, NumCards::Three);
+    ASSERT_NEAR(ranges::sum(range.range), n_choose_k(48, 2), TOLERANCE);
+
+    // Calling it again should still gave same result
+    range.update_on_board_cards(game_, board_cards);
+    ASSERT_NEAR(ranges::sum(range.range), n_choose_k(48, 2), TOLERANCE);
+  }
+  {  // Reverse order should give the same result (update->to_3_cards)
+    Range range;
+
+    range.update_on_board_cards(game_, board_cards);
+    range.to_3_cards_range(game_, board_cards);
+
+    ASSERT_EQ(range.num_cards, NumCards::Three);
+    ASSERT_NEAR(ranges::sum(range.range), n_choose_k(48, 2), TOLERANCE);
+  }
 }
