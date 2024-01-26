@@ -6,6 +6,8 @@
 #include <optional>
 #include <sstream>
 
+#include "card.h"
+
 namespace pokerbot {
 
 StatePtr RoundState::showdown() const {
@@ -139,6 +141,17 @@ std::string RoundState::to_string() const {
 
 std::string TerminalState::to_string() const {
   return fmt::format(FMT_STRING("terminal(deltas=[{}])"), join(deltas, ", "));
+}
+
+std::vector<card_t> RoundState::board_cards() const {
+  std::vector<card_t> board;
+  board.reserve(MAX_BOARD_CARDS);
+  for (const auto& card : deck) {
+    if (!card.empty()) {
+      board.push_back(Card(card).card());
+    }
+  }
+  return board;
 }
 
 }  // namespace pokerbot

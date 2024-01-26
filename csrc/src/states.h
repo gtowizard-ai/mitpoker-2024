@@ -55,6 +55,8 @@ struct RoundState : public State {
 
   auto pot() const { return 2 * STARTING_STACK - stacks[0] - stacks[1]; }
 
+  std::vector<card_t> board_cards() const;
+
   std::array<int, 2> raise_bounds() const;
 
   StatePtr proceed_to_next_round() const;
