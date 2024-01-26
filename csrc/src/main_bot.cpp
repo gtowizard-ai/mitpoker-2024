@@ -5,7 +5,7 @@
 
 namespace pokerbot {
 
-MainBot::MainBot() : game_(), auctioneer_(), mccfr_(game_, 100) {}
+MainBot::MainBot() : game_(), auctioneer_(), mccfr_(game_, 10) {}
 
 void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*round_state*/,
                               int /*active*/) {
@@ -59,7 +59,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
     return {Action::Type::CALL};
   }
 
-  const float time_budget_ms = 2;  // FIXME
+  const float time_budget_ms = 1;  // FIXME
   const auto strategy = [&] {
     if (round_state->previous_state == nullptr && round_state->button == active) {
       // Use cache for preflop SB strategy
