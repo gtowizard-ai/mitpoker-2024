@@ -105,14 +105,6 @@ void MCCFR::precompute_child_values(const std::array<Range, 2>& ranges,
   }
 }
 
-float MCCFR::get_child_value(const unsigned hand, const unsigned action) const {
-  if (available_actions_[action].action_type == Action::Type::FOLD) {
-    return -static_cast<float>(my_contribution_);
-  } else {
-    return static_cast<float>(children_values_[action][hand]);
-  }
-}
-
 void MCCFR::update_root_value(const unsigned hand) {
   double root_value = 0;
 
@@ -124,7 +116,7 @@ void MCCFR::update_root_value(const unsigned hand) {
   for (unsigned action = 0; action < num_actions(); action++) {
     root_value += (normalization > 0 ? regrets_(hand, action) / normalization
                                      : 1.0f / static_cast<float>(num_actions())) *
-                  get_child_value(hand, action);
+                  children_values_[action][hand];
   }
   values_[hand] = static_cast<float>(root_value);
 }
@@ -152,7 +144,7 @@ void MCCFR::update_regrets(const std::array<Range, 2>& ranges) {
     }
   }();
 
-  const auto action_value = get_child_value(hand, action);
+  const auto action_value = children_values_[action][hand];
 
   update_root_value(hand);
 
@@ -195,7 +187,7 @@ void MCCFR::initial_regrets() {
   update_root_value();
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < num_actions(); action++) {
-      const auto action_value = get_child_value(hand, action);
+      const auto action_value = children_values_[action][hand];
       // Update regrets
       const float diff = action_value - values_[hand];
       if (diff > 0) {

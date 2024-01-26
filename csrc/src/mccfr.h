@@ -44,7 +44,6 @@ class MCCFR {
 
  private:
   void build_tree(const RoundStatePtr& state);
-  [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
   void update_root_value(unsigned hand);
   void update_root_value();
   void update_regrets(const std::array<Range, 2>& ranges);
