@@ -60,20 +60,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   }
 
   const float time_budget_ms = 1;  // FIXME
-  const auto strategy = [&] {
-    if (round_state->previous_state == nullptr && round_state->button == active) {
-      // Use cache for preflop SB strategy
-      if (preflop_sb_cached_strategy_.num_hands_ > 0) {
-        return preflop_sb_cached_strategy_;
-      }
-      fmt::print("Starting CFR.. \n");
-      preflop_sb_cached_strategy_ = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
-      return preflop_sb_cached_strategy_;
-    } else {
-      fmt::print("Starting CFR.. \n");
-      return mccfr_.solve(ranges_, round_state, active, time_budget_ms);
-    }
-  }();
+  const auto strategy = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
 
   // TODO UPDATE RANGE here..
 

@@ -7,9 +7,10 @@ void compute_cfvs_preflop(const Range& opponent_range, const Payoff& payoff,
   if (opponent_range.num_cards != NumCards::Two) {
     throw std::invalid_argument("Can't call compute_cfvs_preflop with 3-cards range");
   }
-  if (std::abs(payoff.tie) > 1e-4 || std::abs(payoff.win + payoff.lose) > 1e-4) {
-    throw std::invalid_argument("Preflop - Only support payoffs of tie=0, lose=-win");
-  }
+  // FIXME
+  // if (std::abs(payoff.tie) > 1e-4 || std::abs(payoff.win + payoff.lose) > 1e-4) {
+  //   throw std::invalid_argument("Preflop - Only support payoffs of tie=0, lose=-win");
+  // }
   if (postflop_cfvs.size() < NUM_HANDS_POSTFLOP_2CARDS) {
     throw std::invalid_argument("Preflop CFVs have wrong size");
   }

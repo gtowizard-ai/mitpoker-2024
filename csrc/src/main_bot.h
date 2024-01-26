@@ -38,7 +38,8 @@ class MainBot {
   Auctioneer auctioneer_;
   std::array<Range, 2> ranges_;
   MCCFR mccfr_;
-  HandActionsValues preflop_sb_cached_strategy_;
+  // TODO
+  // HandActionsValues preflop_sb_cached_strategy_;
 };
 
 }  // namespace pokerbot
