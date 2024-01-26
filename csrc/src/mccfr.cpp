@@ -56,7 +56,7 @@ void MCCFR::build_tree(const RoundStatePtr& state) {
     } else {
       // Add pot-sized bet if it's less than going all-in by `pot`
       auto pot_sized_bet = std::max(raise_bounds[0], state->pot());
-      if (raise_bounds[1] - pot_sized_bet < state->pot()) {
+      if (raise_bounds[1] - pot_sized_bet > state->pot()) {
         available_actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
       }
       // All-in
