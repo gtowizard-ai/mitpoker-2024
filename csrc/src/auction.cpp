@@ -42,9 +42,9 @@ int Auctioneer::get_bid(const std::vector<Range>& ranges, const Game& game,
   float villainThreeEq = mean_equity(villainThreeCard, ranges[0], game, board);
   float equityDifference = heroThreeEq - villainThreeEq;
 
-  float equity_bid = ((1 / (1 - equityDifference)) - 1) * pot;
+  float equityBid = ((1 / (1 - equityDifference)) - 1) * pot;
 
-  return equity_bid;
+  return equityBid;
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
