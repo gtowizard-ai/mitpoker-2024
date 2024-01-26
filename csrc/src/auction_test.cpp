@@ -1,6 +1,7 @@
 #include "auction.h"
 #include <gtest/gtest.h>
 #include <tuple>
+#include "flop_value_generator.h"
 
 using namespace pokerbot;
 
@@ -58,4 +59,8 @@ TEST_F(AuctionTest, TestMeanEquity) {
   float eq1 = auctioneer.mean_equity(r1, r2, game_, board);
   float eq2 = auctioneer.mean_equity(r2, r1, game_, board);
   ASSERT_GT(eq1, eq2);
+}
+
+TEST_F(AuctionTest, TestEquityValues) {
+  generate_flop_bids();
 }
