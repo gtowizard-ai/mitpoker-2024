@@ -6,7 +6,7 @@
 namespace pokerbot {
 
 HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned num_actions)
-    : data(num_hands * num_actions, 0), num_hands_(num_hands) {}
+    : data(num_hands * num_actions, 0), num_hands_(num_hands), num_actions_(num_actions) {}
 
 // ToDo: Using rgn can be time consuming. Consider using faster/less accurate methods
 // ToDo: Unify the sampling functions
@@ -78,7 +78,7 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
     }
   }
 
-  for (unsigned action = 0; action < available_actions_.size(); action++) {
+  for (unsigned action = 0; action < num_available_actions_; action++) {
     // ToDo: Not only river, but other streets
     if (available_actions_[action].action_type != Action::Type::FOLD && is_child_terminal(action)) {
       compute_cfvs_river(Game(), ranges[player_id_], ranges[1 - player_id_], PokerHand(board),
@@ -98,9 +98,9 @@ float MCCFR::get_child_value(const unsigned hand, const unsigned action) const {
 void MCCFR::update_root_value() {
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     double root_value = 0;
-    for (unsigned action = 0; action < available_actions_.size(); action++) {
+    for (unsigned action = 0; action < num_available_actions_; action++) {
       root_value += (sum_buffer_[hand] > 0 ? regrets_(hand, action) / sum_buffer_[hand]
-                                           : 1.0f / static_cast<float>(available_actions_.size())) *
+                                           : 1.0f / static_cast<float>(num_available_actions_)) *
                     get_child_value(hand, action);
     }
     values_[hand] = static_cast<float>(root_value);
@@ -118,10 +118,10 @@ void MCCFR::update_regrets(const std::vector<Range>& ranges) {
   // sample an action - if there is warm-up state sample uniformely
   const unsigned action = [&] {
     if (num_steps_[hand] < warm_up_iterations_) {
-      return sample_index(regrets_.data, hand * available_actions_.size(),
-                          available_actions_.size(), random_generator_);
+      return sample_index(regrets_.data, hand * max_available_actions_, available_actions_.size(),
+                          random_generator_);
     } else {
-      return sample_index(available_actions_.size(), random_generator_);
+      return sample_index(num_available_actions_, random_generator_);
     }
   }();
 
@@ -137,12 +137,12 @@ void MCCFR::update_regrets(const std::vector<Range>& ranges) {
 }
 
 HandActionsValues MCCFR::get_last_strategy() {
-  HandActionsValues strategy(num_hands_, available_actions_.size());
+  HandActionsValues strategy(num_hands_, num_available_actions_);
   for (unsigned hand = 0; hand < num_hands_; hand++) {
-    for (unsigned action = 0; action < available_actions_.size(); action++) {
+    for (unsigned action = 0; action < num_available_actions_; action++) {
       strategy(hand, action) = sum_buffer_[hand] > 0
                                    ? regrets_(hand, action) / static_cast<float>(sum_buffer_[hand])
-                                   : 1.0f / static_cast<float>(available_actions_.size());
+                                   : 1.0f / static_cast<float>(num_available_actions_);
     }
   }
   return strategy;
@@ -168,7 +168,7 @@ void MCCFR::initial_regrets() {
   // Iterate over all hands and actions once to prevent biased selection of actions in sampling
   update_root_value();
   for (unsigned hand = 0; hand < num_hands_; hand++) {
-    for (unsigned action = 0; action < available_actions_.size(); action++) {
+    for (unsigned action = 0; action < num_available_actions_; action++) {
       const auto& action_value = get_child_value(hand, action);
       // Update regrets
       if (const float diff = action_value - values_[hand]; diff > 0) {
@@ -179,9 +179,8 @@ void MCCFR::initial_regrets() {
   }
 }
 
-HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-                               const unsigned player_id,
-                               const std::chrono::milliseconds time_budget) {
+void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
+                  const unsigned player_id, const std::chrono::milliseconds time_budget) {
   const auto solve_timer_start = std::chrono::high_resolution_clock::now();
 
   // Initialize variable for this solve
@@ -195,7 +194,9 @@ HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStat
   std::fill_n(sum_buffer_.begin(), num_hands_, 0);
   std::fill_n(num_steps_.begin(), num_hands_, 0);
 
+  available_actions_.resize(0);
   build_tree(round_state);
+  num_available_actions_ = available_actions_.size();
   precompute_child_values(ranges, round_state);
 
   // estimate how much it would take to go through all hands and actions
@@ -212,13 +213,13 @@ HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStat
 
   unsigned max_iterations =
       static_cast<unsigned>((time_budget - duration_solve_function) * num_hands_ *
-                            available_actions_.size() * error_bound / duration_mccfr);
-  max_iterations = 100;
+                            num_available_actions_ * error_bound / duration_mccfr);
+
   while (max_iterations-- > 0) {
     step(ranges);
   }
 
-  return regrets_;
+  // return regrets_;
 }
 
 }  // namespace pokerbot

@@ -14,18 +14,18 @@ class HandActionsValues {
   HandActionsValues() = default;
 
   float& operator()(const hand_t hand, const unsigned action) {
-    return data[action * num_hands_ + hand];
+    return data[hand * num_actions_ + action];
   }
 
   float const& operator()(const hand_t hand, const unsigned action) const {
-    return data[action * num_hands_ + hand];
+    return data[hand * num_actions_ + action];
   }
 
   // Store a 2D data of [action, hand] in 1D vector of size num_hands * num_actions
   std::vector<float> data;
 
-  // Number of hands
   unsigned num_hands_{};
+  unsigned num_actions_{};
 };
 
 // Fixme: We won't create one MCCFR object for each Decision. Better to create one object and
@@ -33,8 +33,8 @@ class HandActionsValues {
 class MCCFR {
  public:
   explicit MCCFR(unsigned warm_up_iterations);
-  HandActionsValues solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-                          unsigned player_id, std::chrono::milliseconds time_budget);
+  void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state, unsigned player_id,
+             std::chrono::milliseconds time_budget);
 
  private:
   void build_tree(const RoundStatePtr& round_state);
@@ -55,6 +55,7 @@ class MCCFR {
   std::array<std::vector<double>, max_available_actions_> children_values_{};
 
   unsigned num_hands_;
+  unsigned num_available_actions_;
   unsigned player_id_;
 
   unsigned pot_;
