@@ -40,6 +40,7 @@ class MCCFR {
   void build_tree(const RoundStatePtr& round_state);
   bool is_child_terminal(unsigned action);
   [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
+  void update_root_value(unsigned hand);
   void update_root_value();
   void update_regrets(const std::vector<Range>& ranges);
   HandActionsValues get_last_strategy();
@@ -63,7 +64,7 @@ class MCCFR {
   // The value of the root node - size = num_hands_
   std::array<float, NUM_HANDS_POSTFLOP_3CARDS> values_;
   // Temporary buffer to store sum of regrets
-  std::array<double, NUM_HANDS_POSTFLOP_3CARDS> sum_buffer_;
+  // std::array<double, NUM_HANDS_POSTFLOP_3CARDS> sum_buffer_;
   std::array<unsigned, NUM_HANDS_POSTFLOP_3CARDS> num_steps_;
 
   std::vector<Action> available_actions_;

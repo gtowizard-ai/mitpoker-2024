@@ -95,21 +95,30 @@ float MCCFR::get_child_value(const unsigned hand, const unsigned action) const {
   }
 }
 
+void MCCFR::update_root_value(const unsigned hand) {
+  double root_value = 0;
+
+  double normalization = 0;
+  for (unsigned action = 0; action < num_available_actions_; action++) {
+    normalization += regrets_(hand, action);
+  }
+
+  for (unsigned action = 0; action < num_available_actions_; action++) {
+    root_value += (normalization > 0 ? regrets_(hand, action) / normalization
+                                     : 1.0f / static_cast<float>(num_available_actions_)) *
+                  get_child_value(hand, action);
+  }
+  values_[hand] = static_cast<float>(root_value);
+}
+
 void MCCFR::update_root_value() {
   for (unsigned hand = 0; hand < num_hands_; hand++) {
-    double root_value = 0;
-    for (unsigned action = 0; action < num_available_actions_; action++) {
-      root_value += (sum_buffer_[hand] > 0 ? regrets_(hand, action) / sum_buffer_[hand]
-                                           : 1.0f / static_cast<float>(num_available_actions_)) *
-                    get_child_value(hand, action);
-    }
-    values_[hand] = static_cast<float>(root_value);
+    update_root_value(hand);
   }
 }
 
 void MCCFR::update_regrets(const std::vector<Range>& ranges) {
   // ToDo: Add epsilon-greedy selection?
-  update_root_value();
 
   // sample a hand
   const unsigned hand =
@@ -125,12 +134,14 @@ void MCCFR::update_regrets(const std::vector<Range>& ranges) {
     }
   }();
 
-  const auto& action_value = get_child_value(hand, action);
+  const auto action_value = get_child_value(hand, action);
+
+  update_root_value(hand);
 
   // Update regrets
-  if (const float diff = action_value - values_[hand]; diff > 0) {
+  const float diff = action_value - values_[hand];
+  if (diff > 0) {
     regrets_(hand, action) += diff * get_linear_cfr_discount_factor(hand);
-    sum_buffer_[hand] += diff * get_linear_cfr_discount_factor(hand);
   }
 
   ++num_steps_[hand];
@@ -139,9 +150,15 @@ void MCCFR::update_regrets(const std::vector<Range>& ranges) {
 HandActionsValues MCCFR::get_last_strategy() {
   HandActionsValues strategy(num_hands_, num_available_actions_);
   for (unsigned hand = 0; hand < num_hands_; hand++) {
+
+    double normalization = 0;
     for (unsigned action = 0; action < num_available_actions_; action++) {
-      strategy(hand, action) = sum_buffer_[hand] > 0
-                                   ? regrets_(hand, action) / static_cast<float>(sum_buffer_[hand])
+      normalization += regrets_(hand, action);
+    }
+
+    for (unsigned action = 0; action < num_available_actions_; action++) {
+      strategy(hand, action) = normalization > 0
+                                   ? regrets_(hand, action) / static_cast<float>(normalization)
                                    : 1.0f / static_cast<float>(num_available_actions_);
     }
   }
@@ -169,11 +186,11 @@ void MCCFR::initial_regrets() {
   update_root_value();
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < num_available_actions_; action++) {
-      const auto& action_value = get_child_value(hand, action);
+      const auto action_value = get_child_value(hand, action);
       // Update regrets
-      if (const float diff = action_value - values_[hand]; diff > 0) {
-        regrets_(hand, action) += diff * get_linear_cfr_discount_factor(hand);
-        sum_buffer_[hand] += diff * get_linear_cfr_discount_factor(hand);
+      const float diff = action_value - values_[hand];
+      if (diff > 0) {
+        regrets_(hand, action) += diff;
       }
     }
   }
@@ -191,7 +208,6 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
 
   std::fill_n(values_.begin(), num_hands_, 0);
   std::fill(regrets_.data.begin(), regrets_.data.end(), 0);
-  std::fill_n(sum_buffer_.begin(), num_hands_, 0);
   std::fill_n(num_steps_.begin(), num_hands_, 0);
 
   available_actions_.resize(0);
