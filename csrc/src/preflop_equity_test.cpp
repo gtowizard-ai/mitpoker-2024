@@ -46,7 +46,8 @@ TEST(PreflopEquityTest, TestComputeCFVs) {
   }
 
   Payoff payoff{1.0, 0, -1.0};
-  auto cfvs = compute_preflop_cfvs(opponent_range, payoff);
+  std::vector<float> cfvs(NUM_HANDS_POSTFLOP_2CARDS, 0);
+  compute_cfvs_preflop(opponent_range, payoff, cfvs);
 
   ASSERT_EQ(cfvs.size(), NUM_HANDS_POSTFLOP_2CARDS);
   ASSERT_NEAR(cfvs[Hand("2c2d").index()], cfvs[Hand("2c2h").index()], 1e-6);

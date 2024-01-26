@@ -9,7 +9,7 @@ class MCCFRTest : public ::testing::Test {
 };
 
 TEST_F(MCCFRTest, TestNoError) {
-  auto mccfr = MCCFR(100);
+  auto mccfr = MCCFR(game_, 100);
 
   std::array<Range, 2> ranges{Range(), Range()};
   for (int i = 0; i < 2; i++) {
@@ -39,7 +39,7 @@ TEST_F(MCCFRTest, TestNoError) {
 
 TEST_F(MCCFRTest, TestNutAirToyGame) {
   // Test Classic Nuts+Air vs. Bluff catcher toy game.
-  auto mccfr = MCCFR(100);
+  auto mccfr = MCCFR(game_, 100);
   std::array<Range, 2> ranges{Range(), Range()};
   for (int i = 0; i < 2; i++) {
     for (unsigned index = 0; index < ranges[i].num_hands(); index++) {
@@ -80,7 +80,7 @@ TEST_F(MCCFRTest, TestNutAirToyGame) {
   auto round_state =
       std::make_shared<RoundState>(0, false, bids, pips, stacks, hands, board_cards, nullptr);
 
-  ranges[1].to_3_cards_range(Game(), board_cards);
+  ranges[1].to_3_cards_range(game_, board_cards);
 
   const auto timer_start = std::chrono::high_resolution_clock::now();
   auto strategy =

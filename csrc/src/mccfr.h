@@ -32,8 +32,9 @@ class HandActionsValues {
 // Reuse it over for each Round
 class MCCFR {
  public:
-  explicit MCCFR(unsigned warm_up_iterations);
-  HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& round_state,
+  explicit MCCFR(const Game& game, unsigned warm_up_iterations);
+
+  HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
                           unsigned player_id, float time_budget_ms);
 
   // Actions considered at the state
@@ -42,7 +43,7 @@ class MCCFR {
   auto num_actions() const { return available_actions_.size(); }
 
  private:
-  void build_tree(const RoundStatePtr& round_state);
+  void build_tree(const RoundStatePtr& state);
   [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
   void update_root_value(unsigned hand);
   void update_root_value();
@@ -50,13 +51,13 @@ class MCCFR {
   HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
-  void precompute_child_values(const std::array<Range, 2>& ranges,
-                               const RoundStatePtr& round_state);
+  void precompute_child_values(const std::array<Range, 2>& ranges, const RoundStatePtr& state);
 
   static constexpr unsigned max_available_actions_ = 10;
   static constexpr long long time_checkpoints_ = 1000;
   static constexpr float timer_error_bound_ = 0.85;
 
+  const Game& game_;
   std::minstd_rand random_generator_;
   unsigned warm_up_iterations_;
   std::array<std::vector<float>, max_available_actions_> children_values_{};

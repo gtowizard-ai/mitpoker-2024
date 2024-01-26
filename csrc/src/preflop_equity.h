@@ -32730,6 +32730,7 @@ inline std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> PREFLOP_PAYOFFS{
     0,
 };
 
-std::vector<float> compute_preflop_cfvs(const Range& opponent_range, const Payoff& payoff);
+void compute_cfvs_preflop(const Range& opponent_range, const Payoff& payoff,
+                          std::vector<float>& postflop_cfvs);
 
 }  // namespace pokerbot

@@ -2,6 +2,7 @@
 #include <chrono>
 #include "equity.h"
 #include "poker_hand.h"
+#include "preflop_equity.h"
 #include "states.h"
 
 namespace pokerbot {
@@ -32,8 +33,9 @@ unsigned sample_index(const unsigned length, std::minstd_rand& gen) {
   return distribution(gen);
 }
 
-MCCFR::MCCFR(const unsigned warm_up_iterations)
-    : random_generator_(std::random_device()()),
+MCCFR::MCCFR(const Game& game, const unsigned warm_up_iterations)
+    : game_(game),
+      random_generator_(std::random_device()()),
       warm_up_iterations_(warm_up_iterations),
       regrets_(NUM_HANDS_POSTFLOP_3CARDS, max_available_actions_) {
   for (auto& child_values : children_values_) {
@@ -41,20 +43,20 @@ MCCFR::MCCFR(const unsigned warm_up_iterations)
   }
 }
 
-void MCCFR::build_tree(const RoundStatePtr& round_state) {
+void MCCFR::build_tree(const RoundStatePtr& state) {
   available_actions_.clear();
   available_actions_.reserve(legal_actions().size() + 1);
 
-  const auto legal_actions = round_state->legal_actions();
-  const auto raise_bounds = round_state->raise_bounds();
+  const auto legal_actions = state->legal_actions();
+  const auto raise_bounds = state->raise_bounds();
 
   for (const auto legal_action : legal_actions) {
     if (legal_action != Action::Type::RAISE) {
       available_actions_.emplace_back(legal_action);
     } else {
       // Add pot-sized bet if it's less than going all-in by `pot`
-      auto pot_sized_bet = std::max(raise_bounds[0], round_state->pot());
-      if (raise_bounds[1] - pot_sized_bet < round_state->pot()) {
+      auto pot_sized_bet = std::max(raise_bounds[0], state->pot());
+      if (raise_bounds[1] - pot_sized_bet < state->pot()) {
         available_actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
       }
       // All-in
@@ -64,27 +66,41 @@ void MCCFR::build_tree(const RoundStatePtr& round_state) {
 }
 
 void MCCFR::precompute_child_values(const std::array<Range, 2>& ranges,
-                                    const RoundStatePtr& round_state) {
+                                    const RoundStatePtr& state) {
 
-  const float opp_contribution = STARTING_STACK - round_state->stacks[1 - player_id_];
-  const float my_contribution = STARTING_STACK - round_state->stacks[player_id_];
+  const float opp_contribution = STARTING_STACK - state->stacks[1 - player_id_];
+  const float my_contribution = STARTING_STACK - state->stacks[player_id_];
 
   for (auto& child_values : children_values_) {
     std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
   }
 
   for (unsigned action = 0; action < num_actions(); action++) {
-    if (available_actions_[action].action_type != Action::Type::FOLD) {
+    const Payoff payoff = [&] {
+      if (available_actions_[action].action_type == Action::Type::FOLD) {
+        return Payoff{
+            -my_contribution,
+            0,
+            -my_contribution,
+        };
+      }
       const float next_round_check = available_actions_[action].action_type == Action::Type::RAISE
                                          ? available_actions_[action].amount
                                          : 0.0f;
-      Payoff payoff = {opp_contribution + next_round_check,
-                       my_contribution - ((opp_contribution + my_contribution) / 2),
-                       -my_contribution - next_round_check};
-      compute_cfvs_river<float>(Game(), ranges[player_id_], ranges[1 - player_id_],
-                                PokerHand(round_state->board_cards), children_values_[action],
-                                payoff,
-                                round_state->board_cards.size() == round::RIVER.num_board_cards);
+      return Payoff{
+          opp_contribution + next_round_check,
+          my_contribution - ((opp_contribution + my_contribution) / 2),
+          -my_contribution - next_round_check,
+      };
+    }();
+
+    if (state->round() == round::PREFLOP) {
+      // TODO
+      compute_cfvs_preflop(ranges[1 - player_id_], payoff, children_values_[action]);
+    } else {
+      compute_cfvs_river<float>(game_, ranges[player_id_], ranges[1 - player_id_],
+                                PokerHand(state->board_cards), children_values_[action], payoff,
+                                false);
     }
   }
 }
@@ -189,7 +205,7 @@ void MCCFR::initial_regrets() {
   }
 }
 
-HandActionsValues MCCFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& round_state,
+HandActionsValues MCCFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
                                const unsigned player_id, const float time_budget_ms) {
   const auto timer_function_start = std::chrono::high_resolution_clock::now();
 
@@ -197,15 +213,15 @@ HandActionsValues MCCFR::solve(const std::array<Range, 2>& ranges, const RoundSt
   num_hands_ = ranges[player_id].num_hands();
   player_id_ = player_id;
 
-  my_contribution_ = STARTING_STACK - round_state->stacks[player_id_];
+  my_contribution_ = STARTING_STACK - state->stacks[player_id_];
 
   std::fill_n(values_.begin(), num_hands_, 0);
   std::fill(regrets_.data.begin(), regrets_.data.end(), 0);
   std::fill_n(num_steps_.begin(), num_hands_, 0);
 
-  build_tree(round_state);
+  build_tree(state);
 
-  precompute_child_values(ranges, round_state);
+  precompute_child_values(ranges, state);
 
   // estimate how much it would take to go through all hands and actions
   initial_regrets();
@@ -226,14 +242,16 @@ HandActionsValues MCCFR::solve(const std::array<Range, 2>& ranges, const RoundSt
   const auto mccfr_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                               timer_after_checkpoint - timer_before_mccfr)
                               .count();
-  auto max_iterations = static_cast<long long>((time_budget_ms - initialization_passed_time) *
-                                               timer_error_bound_ * time_checkpoints_ / mccfr_time);
+  const auto max_iterations =
+      static_cast<long long>((time_budget_ms - initialization_passed_time) * timer_error_bound_ *
+                             time_checkpoints_ / mccfr_time);
 
-  while (max_iterations-- > 0) {
+  for (unsigned i = 0; i < max_iterations; ++i) {
     // Compute cumulative regrets and counterfactual values.
     // and generate strategy profile from the regrets
     update_regrets(ranges);
   }
+  fmt::print("Completed {} MCCFR iterations \n", max_iterations);
 
   return get_last_strategy();
 }

@@ -1,12 +1,11 @@
 #include "main_bot.h"
-#include <random>
-
+#include <fmt/ranges.h>
 #include "mccfr.h"
 #include "ranges_utils.h"
 
 namespace pokerbot {
 
-MainBot::MainBot() : game_(), auctioneer_(), mccfr_(100) {}
+MainBot::MainBot() : game_(), auctioneer_(), mccfr_(game_, 100) {}
 
 void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*round_state*/,
                               int /*active*/) {
@@ -74,8 +73,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   const auto idx_action = ranges::argmax(hand_strat);
   const auto action = mccfr_.legal_actions()[idx_action];
 
-  fmt::print("Best action for hand {} on {} is {} \n", hero_hand.to_string(),
-             Card::to_string(round_state->board_cards), action.to_string());
+  fmt::print("Best action for hand {} on {} is {} (Strat={})\n", hero_hand.to_string(),
+             Card::to_string(round_state->board_cards), action.to_string(), hand_strat);
   return action;
 }
 
