@@ -19,8 +19,11 @@ struct Auctioneer {
   float v_pot_percentage_min_max[2];
   bool v_is_excessive_bidder;
 
-  std::tuple<Range, int> get_bid(const std::vector<Range>& ranges, const std::vector<Card>& board,
-                                 const Hand& hand, const int pot, float time_budget);
+  int get_bid(const std::vector<Range>& ranges, const Game& game, const std::vector<card_t>& board,
+              const Hand& hand, const int pot, float time_budget);
+
+  float mean_equity(const Range& range_one, const Range& range_two, const Game& game,
+                    const std::vector<card_t>& board);
 
   void receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
                    const Game& game, const std::vector<card_t>& board_cards, const int pot,
