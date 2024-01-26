@@ -41,6 +41,7 @@ endif()
 
 # Add compiler warning flags
 add_compile_options(-Wfatal-errors -Wall -Wextra -Wnon-virtual-dtor -pedantic-errors)
+add_compile_options($<$<STREQUAL:$<CXX_COMPILER_ID>,Clang>:-Wno-gnu-zero-variadic-macro-arguments>)
 
 # External libraries
 enable_testing()
