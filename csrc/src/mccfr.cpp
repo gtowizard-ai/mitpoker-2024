@@ -6,10 +6,7 @@
 namespace pokerbot {
 
 HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned num_actions)
-    : num_hands_(num_hands) {
-  data.reserve(num_hands_ * num_actions);
-  std::fill(data.begin(), data.end(), 0);
-}
+    : data(num_hands * num_actions, 0), num_hands_(num_hands) {}
 
 // ToDo: Using rgn can be time consuming. Consider using faster/less accurate methods
 // ToDo: Unify the sampling functions
@@ -33,9 +30,8 @@ unsigned sample_index(const unsigned length, std::mt19937& gen) {
   return distribution(gen);
 }
 
-MCCFR::MCCFR(const GameInfo& game_state, const unsigned warm_up_iterations)
-    : game_(game_state),
-      random_generator_(std::random_device()()),
+MCCFR::MCCFR(const unsigned warm_up_iterations)
+    : random_generator_(std::random_device()()),
       warm_up_iterations_(warm_up_iterations),
       regrets_(NUM_HANDS_POSTFLOP_3CARDS, max_available_actions_) {
   for (auto& child_values : children_values_) {
@@ -64,7 +60,8 @@ void MCCFR::build_tree(const RoundStatePtr& round_state) {
 
 bool MCCFR::is_child_terminal(const unsigned action) {
   // ToDo: implement
-  throw std::logic_error("Not implemented");
+  // throw std::logic_error("Not implemented");
+  return true;
 }
 
 void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
@@ -74,9 +71,11 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
   }
 
   std::vector<card_t> board;
-  board.reserve(MAX_DECK_SIZE);
+  board.reserve(MAX_BOARD_CARDS);
   for (const auto& card : round_state->deck) {
-    board.push_back(Card(card).card());
+    if (!card.empty()) {
+      board.push_back(Card(card).card());
+    }
   }
 
   for (unsigned action = 0; action < available_actions_.size(); action++) {
@@ -90,7 +89,7 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
 
 float MCCFR::get_child_value(const unsigned hand, const unsigned action) const {
   if (available_actions_[action].action_type == Action::Type::FOLD) {
-    return static_cast<float>(-pot_);
+    return -static_cast<float>(pot_);
   } else {
     return static_cast<float>(children_values_[action][hand]);
   }
@@ -126,7 +125,7 @@ void MCCFR::update_regrets(const std::vector<Range>& ranges) {
     }
   }();
 
-  const auto& action_value = get_child_value(action, hand);
+  const auto& action_value = get_child_value(hand, action);
 
   // Update regrets
   if (const float diff = action_value - values_[hand]; diff > 0) {
@@ -163,8 +162,6 @@ void MCCFR::step(const std::vector<Range>& ranges) {
   // 2) Compute cumulative regrets and counterfactual values.
   // and generate strategy profile from the regrets
   update_regrets(ranges);
-
-  // 3) Question: Should I update the reach/range probs?
 }
 
 void MCCFR::initial_regrets() {
@@ -172,7 +169,7 @@ void MCCFR::initial_regrets() {
   update_root_value();
   for (unsigned hand = 0; hand < num_hands_; hand++) {
     for (unsigned action = 0; action < available_actions_.size(); action++) {
-      const auto& action_value = get_child_value(action, hand);
+      const auto& action_value = get_child_value(hand, action);
       // Update regrets
       if (const float diff = action_value - values_[hand]; diff > 0) {
         regrets_(hand, action) += diff * get_linear_cfr_discount_factor(hand);
@@ -182,8 +179,9 @@ void MCCFR::initial_regrets() {
   }
 }
 
-void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-                  const unsigned player_id, const std::chrono::microseconds time_budget) {
+HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
+                               const unsigned player_id,
+                               const std::chrono::milliseconds time_budget) {
   const auto solve_timer_start = std::chrono::high_resolution_clock::now();
 
   // Initialize variable for this solve
@@ -193,6 +191,7 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
   pot_ = round_state->pot();
 
   std::fill_n(values_.begin(), num_hands_, 0);
+  std::fill(regrets_.data.begin(), regrets_.data.end(), 0);
   std::fill_n(sum_buffer_.begin(), num_hands_, 0);
   std::fill_n(num_steps_.begin(), num_hands_, 0);
 
@@ -203,9 +202,10 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
   const auto estimate_mccfr_time_start = std::chrono::high_resolution_clock::now();
   initial_regrets();
   const auto estimate_mccfr_time_stop = std::chrono::high_resolution_clock::now();
-  const auto duration_mccfr = std::chrono::duration_cast<std::chrono::microseconds>(
-      estimate_mccfr_time_stop - estimate_mccfr_time_start);
-  const auto duration_solve_function = std::chrono::duration_cast<std::chrono::microseconds>(
+  const auto duration_mccfr = std::max(static_cast<std::chrono::milliseconds>(1),
+                                       std::chrono::duration_cast<std::chrono::milliseconds>(
+                                           estimate_mccfr_time_stop - estimate_mccfr_time_start));
+  const auto duration_solve_function = std::chrono::duration_cast<std::chrono::milliseconds>(
       estimate_mccfr_time_stop - solve_timer_start);
 
   constexpr float error_bound = 0.8;
@@ -213,9 +213,12 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
   unsigned max_iterations =
       static_cast<unsigned>((time_budget - duration_solve_function) * num_hands_ *
                             available_actions_.size() * error_bound / duration_mccfr);
+  max_iterations = 100;
   while (max_iterations-- > 0) {
     step(ranges);
   }
+
+  return regrets_;
 }
 
 }  // namespace pokerbot

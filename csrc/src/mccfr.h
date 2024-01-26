@@ -32,7 +32,11 @@ class HandActionsValues {
 // Reuse it over for each Round
 class MCCFR {
  public:
-  MCCFR(const GameInfo& game_state, unsigned warm_up_iterations);
+  explicit MCCFR(unsigned warm_up_iterations);
+  HandActionsValues solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
+                          unsigned player_id, std::chrono::milliseconds time_budget);
+
+ private:
   void build_tree(const RoundStatePtr& round_state);
   bool is_child_terminal(unsigned action);
   [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
@@ -43,13 +47,9 @@ class MCCFR {
   void initial_regrets();
   void precompute_child_values(const std::vector<Range>& ranges, const RoundStatePtr& round_state);
   void step(const std::vector<Range>& ranges);
-  void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state, unsigned player_id,
-             std::chrono::microseconds time_budget);
 
- private:
   static constexpr unsigned max_available_actions_ = 10;
 
-  const GameInfo& game_;
   std::mt19937 random_generator_;  // Mersenne Twister engine
   unsigned warm_up_iterations_;
   std::array<std::vector<double>, max_available_actions_> children_values_{};
