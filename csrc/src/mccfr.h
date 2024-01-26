@@ -59,7 +59,7 @@ class MCCFR {
   unsigned num_available_actions_;
   unsigned player_id_;
 
-  unsigned pot_;
+  unsigned my_contribution_;
 
   // The value of the root node - size = num_hands_
   std::array<float, NUM_HANDS_POSTFLOP_3CARDS> values_;

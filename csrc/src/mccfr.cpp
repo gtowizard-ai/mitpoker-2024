@@ -61,6 +61,10 @@ void MCCFR::build_tree(const RoundStatePtr& round_state) {
 
 void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
                                     const RoundStatePtr& round_state) {
+
+  const float opp_contribution = STARTING_STACK - round_state->stacks[1 - player_id_];
+  const float my_contribution = STARTING_STACK - round_state->stacks[player_id_];
+
   for (auto& child_values : children_values_) {
     std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
   }
@@ -74,18 +78,22 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
   }
 
   for (unsigned action = 0; action < num_available_actions_; action++) {
-    // ToDo: Not only river, but other streets
     if (available_actions_[action].action_type != Action::Type::FOLD) {
-      // ToDo: if the action is Raise, assume the opp to do Check and updat pot_
+      const float next_round_check = available_actions_[action].action_type == Action::Type::RAISE
+                                         ? available_actions_[action].amount
+                                         : 0.0f;
+      Payoff payoff = {.win = opp_contribution + next_round_check,
+                       .tie = my_contribution - ((opp_contribution + my_contribution) / 2),
+                       .lose = -my_contribution - next_round_check};
       compute_cfvs_river(Game(), ranges[player_id_], ranges[1 - player_id_], PokerHand(board),
-                         children_values_[action], pot_);
+                         children_values_[action], payoff, board.size() == MAX_BOARD_CARDS);
     }
   }
 }
 
 float MCCFR::get_child_value(const unsigned hand, const unsigned action) const {
   if (available_actions_[action].action_type == Action::Type::FOLD) {
-    return -static_cast<float>(pot_);
+    return -static_cast<float>(my_contribution_);
   } else {
     return static_cast<float>(children_values_[action][hand]);
   }
@@ -191,7 +199,7 @@ HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStat
   num_hands_ = ranges[player_id].num_hands();
   player_id_ = player_id;
 
-  pot_ = round_state->pot();
+  my_contribution_ = STARTING_STACK - round_state->stacks[player_id_];
 
   std::fill_n(values_.begin(), num_hands_, 0);
   std::fill(regrets_.data.begin(), regrets_.data.end(), 0);
