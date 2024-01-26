@@ -529,7 +529,7 @@ static void compute_cfvs_river_3_vs_3(const Game& game, const Range& opponent_ra
   }
 }
 
-template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
+template <typename T, typename>
 void compute_cfvs_river(const Game& game, const Range& hero_range, const Range& opponent_range,
                         const PokerHand& board, std::vector<T>& cfvs, double payoff,
                         bool is_river_equity) {
