@@ -179,7 +179,7 @@ static std::vector<uint32_t> sorted_hands_3_cards(const Game& game, const PokerH
 
 static void compute_cfvs_river_2_vs_3(const Game& game, const Range& opponent_range,
                                       const PokerHand& board, std::vector<double>& cfvs,
-                                      double factor) {
+                                      double payoff) {
   const auto hero_hands_sorted = sorted_hands_2_cards(game, board);
   const auto opponent_hands_sorted = sorted_hands_3_cards(game, board);
 
@@ -220,7 +220,7 @@ static void compute_cfvs_river_2_vs_3(const Game& game, const Range& opponent_ra
     const auto& hero_cards = hero_hands[hero_index].cards;
     const double opponent_sum =
         opponent_sum_0 - opponent_sum_1[hero_cards[0]] - opponent_sum_1[hero_cards[1]];
-    cfvs[hero_index] += opponent_sum * factor;
+    cfvs[hero_index] += opponent_sum * payoff;
   }
 
   j = opponent_hands_sorted.size() - 2;
@@ -261,13 +261,13 @@ static void compute_cfvs_river_2_vs_3(const Game& game, const Range& opponent_ra
     const auto& hero_cards = hero_hands[hero_index].cards;
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
                                 opponent_sum_1[hero_cards[1]] + opponent_sum_2[hero_index];
-    cfvs[hero_index] -= opponent_sum * factor;
+    cfvs[hero_index] -= opponent_sum * payoff;
   }
 }
 
 static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_range,
                                       const PokerHand& board, std::vector<double>& cfvs,
-                                      double factor) {
+                                      double payoff) {
   const auto hero_hands_sorted = sorted_hands_3_cards(game, board);
   const auto opponent_hands_sorted = sorted_hands_2_cards(game, board);
 
@@ -312,7 +312,7 @@ static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_ra
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
                                 opponent_sum_1[hero_cards[1]] + opponent_sum_2[subs[0]] +
                                 opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]];
-    cfvs[hero_index] += opponent_sum * factor;
+    cfvs[hero_index] += opponent_sum * payoff;
   }
 
   j = opponent_hands_sorted.size() - 2;
@@ -348,13 +348,13 @@ static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_ra
     const auto& hero_cards = hero_hands[hero_index].cards;
     const double opponent_sum =
         opponent_sum_0 - opponent_sum_1[hero_cards[0]] - opponent_sum_1[hero_cards[1]];
-    cfvs[hero_index] -= opponent_sum * factor;
+    cfvs[hero_index] -= opponent_sum * payoff;
   }
 }
 
 static void compute_cfvs_river_3_vs_3(const Game& game, const Range& opponent_range,
                                       const PokerHand& board, std::vector<double>& cfvs,
-                                      double factor) {
+                                      double payoff) {
   const auto hero_hands_sorted = sorted_hands_3_cards(game, board);
   const auto opponent_hands_sorted = sorted_hands_3_cards(game, board);
 
@@ -401,7 +401,7 @@ static void compute_cfvs_river_3_vs_3(const Game& game, const Range& opponent_ra
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
                                 opponent_sum_1[hero_cards[1]] + opponent_sum_2[subs[0]] +
                                 opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]];
-    cfvs[hero_index] += opponent_sum * factor;
+    cfvs[hero_index] += opponent_sum * payoff;
   }
 
   j = opponent_hands_sorted.size() - 2;
@@ -444,19 +444,18 @@ static void compute_cfvs_river_3_vs_3(const Game& game, const Range& opponent_ra
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
                                 opponent_sum_1[hero_cards[1]] + opponent_sum_2[subs[0]] +
                                 opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]];
-    cfvs[hero_index] -= opponent_sum * factor;
+    cfvs[hero_index] -= opponent_sum * payoff;
   }
 }
 
-static void compute_cfvs_river(const Game& game, const Range& hero_range,
-                               const Range& opponent_range, const PokerHand& board,
-                               std::vector<double>& cfvs, double factor) {
+void compute_cfvs_river(const Game& game, const Range& hero_range, const Range& opponent_range,
+                        const PokerHand& board, std::vector<double>& cfvs, double payoff) {
   if (hero_range.num_cards == NumCards::Two) {
-    compute_cfvs_river_2_vs_3(game, opponent_range, board, cfvs, factor);
+    compute_cfvs_river_2_vs_3(game, opponent_range, board, cfvs, payoff);
   } else if (opponent_range.num_cards == NumCards::Two) {
-    compute_cfvs_river_3_vs_2(game, opponent_range, board, cfvs, factor);
+    compute_cfvs_river_3_vs_2(game, opponent_range, board, cfvs, payoff);
   } else {
-    compute_cfvs_river_3_vs_3(game, opponent_range, board, cfvs, factor);
+    compute_cfvs_river_3_vs_3(game, opponent_range, board, cfvs, payoff);
   }
 }
 
@@ -483,30 +482,30 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
 
   if (board.size() == 3) {
     // Flop
-    const double factor = 1.0 / (num_remaining_cards * (num_remaining_cards - 1));
+    const double payoff = 1.0 / (num_remaining_cards * (num_remaining_cards - 1));
     for (card_t i = 0; i < MAX_DECK_SIZE; ++i) {
       if (!board.contains(i)) {
         for (card_t j = i + 1; j < MAX_DECK_SIZE; ++j) {
           if (!board.contains(j)) {
             const auto new_board = board + PokerHand{i, j};
-            compute_cfvs_river(game, hero_range, opponent_range, new_board, cfvs, factor);
+            compute_cfvs_river(game, hero_range, opponent_range, new_board, cfvs, payoff);
           }
         }
       }
     }
   } else if (board.size() == 4) {
     // Turn
-    const double factor = 0.5 / num_remaining_cards;
+    const double payoff = 0.5 / num_remaining_cards;
     for (card_t i = 0; i < MAX_DECK_SIZE; ++i) {
       if (!board.contains(i)) {
         const auto new_board = board + PokerHand{i};
-        compute_cfvs_river(game, hero_range, opponent_range, new_board, cfvs, factor);
+        compute_cfvs_river(game, hero_range, opponent_range, new_board, cfvs, payoff);
       }
     }
   } else {
     // River
-    const double factor = 0.5;
-    compute_cfvs_river(game, hero_range, opponent_range, board, cfvs, factor);
+    const double payoff = 0.5;
+    compute_cfvs_river(game, hero_range, opponent_range, board, cfvs, payoff);
   }
 
   std::vector<float> equities;
