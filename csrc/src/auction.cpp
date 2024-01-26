@@ -4,11 +4,11 @@
 namespace pokerbot {
 
 Auctioneer::Auctioneer() {
-  vIsExcessiveBidder = true;
-  vAbsBidMinMax[0] = STARTING_STACK;
-  vAbsBidMinMax[1] = -1;
-  vPotPercentageMinMax[0] = static_cast<float>(STARTING_STACK);
-  vPotPercentageMinMax[1] = -1;
+  v_is_excessive_bidder = true;
+  v_abs_bid_min_max[0] = STARTING_STACK;
+  v_abs_bid_min_max[1] = -1;
+  v_pot_percentage_min_max[0] = static_cast<float>(STARTING_STACK);
+  v_pot_percentage_min_max[1] = -1;
 };
 
 std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
@@ -29,21 +29,21 @@ std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
 void Auctioneer::update_exploits(const int bid, const int pot) {
   int stack = STARTING_STACK - (pot / 2);
   if ((stack - bid) > REASONABLE_DIST_FROM_MAX) {
-    this->vIsExcessiveBidder = false;
+    v_is_excessive_bidder = false;
   }
-  if (bid < this->vAbsBidMinMax[0]) {
-    this->vAbsBidMinMax[0] = bid;
+  if (bid < v_abs_bid_min_max[0]) {
+    v_abs_bid_min_max[0] = bid;
   }
-  if (bid > this->vAbsBidMinMax[1]) {
-    this->vAbsBidMinMax[1] = bid;
+  if (bid > v_abs_bid_min_max[1]) {
+    v_abs_bid_min_max[1] = bid;
   }
   float bidToPot = static_cast<float>(bid) / static_cast<float>(pot);
 
-  if (bidToPot < this->vPotPercentageMinMax[0]) {
-    this->vPotPercentageMinMax[0] = bidToPot;
+  if (bidToPot < v_pot_percentage_min_max[0]) {
+    v_pot_percentage_min_max[0] = bidToPot;
   }
-  if (bidToPot > this->vPotPercentageMinMax[1]) {
-    this->vPotPercentageMinMax[1] = bidToPot;
+  if (bidToPot > v_pot_percentage_min_max[1]) {
+    v_pot_percentage_min_max[1] = bidToPot;
   }
 }
 

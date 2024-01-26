@@ -7,13 +7,17 @@
 
 namespace pokerbot {
 
+inline constexpr int ABS_BIDDING_EPSILON = 2;
+inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
+inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+
 struct Auctioneer {
 
   Auctioneer();
 
-  int vAbsBidMinMax[2];
-  float vPotPercentageMinMax[2];
-  bool vIsExcessiveBidder;
+  int v_abs_bid_min_max[2];
+  float v_pot_percentage_min_max[2];
+  bool v_is_excessive_bidder;
 
   std::tuple<Range, int> get_bid(const std::vector<Range>& ranges, const std::vector<Card>& board,
                                  const Hand& hand, const int pot, float time_budget);
