@@ -1,8 +1,15 @@
 #include "auction.h"
+#include "definitions.h"
 
 namespace pokerbot {
 
-Auctioneer::Auctioneer(){};
+Auctioneer::Auctioneer() {
+  v_is_excessive_bidder = true;
+  v_abs_bid_min_max[0] = STARTING_STACK;
+  v_abs_bid_min_max[1] = -1;
+  v_pot_percentage_min_max[0] = static_cast<float>(STARTING_STACK);
+  v_pot_percentage_min_max[1] = -1;
+};
 
 std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
                                            const std::vector<Card>& board, const Hand& hand,
@@ -19,19 +26,36 @@ std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
   return std::make_tuple(range, 0);
 }
 
+void Auctioneer::update_exploits(const int bid, const int pot) {
+  int stack = STARTING_STACK - (pot / 2);
+  if ((stack - bid) > REASONABLE_DIST_FROM_MAX) {
+    v_is_excessive_bidder = false;
+  }
+  if (bid < v_abs_bid_min_max[0]) {
+    v_abs_bid_min_max[0] = bid;
+  }
+  if (bid > v_abs_bid_min_max[1]) {
+    v_abs_bid_min_max[1] = bid;
+  }
+  float bidToPot = static_cast<float>(bid) / static_cast<float>(pot);
+
+  if (bidToPot < v_pot_percentage_min_max[0]) {
+    v_pot_percentage_min_max[0] = bidToPot;
+  }
+  if (bidToPot > v_pot_percentage_min_max[1]) {
+    v_pot_percentage_min_max[1] = bidToPot;
+  }
+}
+
 void Auctioneer::receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
-                             const int pot, float time_budget) {
-  /*TODO: In re exploits I think I like keeping track of the following:
-		- keep track of max absolute bid
-		- keep track of min absolute bid
-		- keep track of max % of pot bid
-		- keep track of min % of pot bid
-		If there is sufficiently low spread in either value, we make the floor of our minimum bid that value - 1.
-		Otherwise we do EV or equity based bidding*/
+                             const Game& game, const std::vector<card_t>& board, const int pot,
+                             float time_budget) {
+  update_exploits(villain_bid, pot);
   if (hero_bid > villain_bid) {
     return;
   }
-  //TODO: Change villain's range to reflect they received a card after the auction
+
+  villain_range.to_3_cards_range(game, board);
   return;
 }
 

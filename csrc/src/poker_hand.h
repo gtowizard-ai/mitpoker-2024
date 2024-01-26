@@ -67,15 +67,11 @@ class PokerHand {
     return (suitwise_bitset_ & other.suitwise_bitset_) != 0;
   }
 
-  /// @brief Returns the strength of the hand (higher is better). Throws an exception if the hand
+  /// @brief Returns the strength of the hand (higher is better). Undefined behavior if the hand
   /// contains more than 8 cards.
   strength_t evaluate() const {
     constexpr uint64_t suit_counter_offset = 0x3333'0000'0000'0000;
     constexpr uint64_t flush_mask = 0x8888'0000'0000'0000;
-
-    if (size() > MAX_SIZE) {
-      throw std::runtime_error("Cannot evaluate a hand with more than 8 cards.");
-    }
 
     const auto rank_key = static_cast<detail::rank_key_t>(misc_data_);
     const auto offset = detail::RANK_KEY_OFFSET_TABLE[rank_key >> detail::RANK_KEY_OFFSET_SHIFT];
@@ -91,22 +87,16 @@ class PokerHand {
     return std::max(strength, detail::FLUSH_LOOKUP_TABLE[flush_suit_bitset]);
   }
 
-  /// Merges two hands together. Throws an exception if the two hands contain the same card.
+  /// Merges two hands together. Undefined behavior if the two hands contain the same card.
   constexpr PokerHand& operator+=(const PokerHand& other) {
-    if (collides_with(other)) {
-      throw std::invalid_argument("Cannot merge two hands that contain the same card.");
-    }
     misc_data_ += other.misc_data_;
     suitwise_bitset_ += other.suitwise_bitset_;
     return *this;
   }
 
-  /// @brief Subtracts a hand from another hand. Throws an exception if the left hand does not
+  /// @brief Subtracts a hand from another hand. Undefined behavior if the left hand does not
   /// contain the right hand.
   constexpr PokerHand& operator-=(const PokerHand& other) {
-    if (!contains(other)) {
-      throw std::invalid_argument("Cannot subtract a hand that is not contained.");
-    }
     misc_data_ -= other.misc_data_;
     suitwise_bitset_ -= other.suitwise_bitset_;
     return *this;
@@ -172,12 +162,12 @@ inline constexpr std::array<PokerHand, MAX_DECK_SIZE> EVAL_HAND_ARRAY = init_eva
 
 inline PokerHand::PokerHand(std::initializer_list<card_t> cards) : PokerHand() {
   std::for_each(cards.begin(), cards.end(),
-                [&](auto card) { *this += detail::EVAL_HAND_ARRAY.at(card); });
+                [&](auto card) { *this += detail::EVAL_HAND_ARRAY[card]; });
 }
 
 inline PokerHand::PokerHand(const std::vector<card_t>& cards) : PokerHand() {
   std::for_each(cards.begin(), cards.end(),
-                [&](auto card) { *this += detail::EVAL_HAND_ARRAY.at(card); });
+                [&](auto card) { *this += detail::EVAL_HAND_ARRAY[card]; });
 }
 
 inline PokerHand::PokerHand(std::string_view card_string) : PokerHand() {
@@ -195,7 +185,7 @@ inline PokerHand::PokerHand(std::string_view card_string) : PokerHand() {
 }
 
 constexpr bool PokerHand::contains(card_t card) const {
-  return suitwise_bitset_ & detail::EVAL_HAND_ARRAY.at(card).suitwise_bitset_;
+  return suitwise_bitset_ & detail::EVAL_HAND_ARRAY[card].suitwise_bitset_;
 }
 
 }  // namespace pokerbot

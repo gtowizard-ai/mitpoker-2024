@@ -3,8 +3,6 @@
 # message(STATUS "Updating git submodules")
 # execute_process(COMMAND git submodule update --init --recursive)
 
-# Options
-set(SPDLOG_FMT_EXTERNAL ON)  # https://github.com/gabime/spdlog/issues/2832
 
 # Add subdirectories
 foreach(subdirectory IN ITEMS fmt googletest)

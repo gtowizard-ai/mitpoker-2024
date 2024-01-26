@@ -3,6 +3,7 @@ __pycache__/
 .DS_Store
 .metadata/
 build/
+data/
 
 *.txt
 !CMakeLists.txt
