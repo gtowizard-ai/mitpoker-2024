@@ -83,6 +83,10 @@ TEST_F(MCCFRTest, TestNutAirToyGame) {
   auto x1 = Hand("AcAd").index();
   auto x2 = Hand("4c4d").index();
 
+  const std::vector<card_t> board_cards = round_state->board_cards();
+
+  ranges[1].to_3_cards_range(Game(), board_cards);
+
   const auto timer_start = std::chrono::high_resolution_clock::now();
   auto strategy =
       mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), 0, 100);

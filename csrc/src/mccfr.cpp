@@ -70,13 +70,7 @@ void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
     std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
   }
 
-  std::vector<card_t> board;
-  board.reserve(MAX_BOARD_CARDS);
-  for (const auto& card : round_state->deck) {
-    if (!card.empty()) {
-      board.push_back(Card(card).card());
-    }
-  }
+  const std::vector<card_t> board = round_state->board_cards();
 
   for (unsigned action = 0; action < num_available_actions_; action++) {
     if (available_actions_[action].action_type != Action::Type::FOLD) {
