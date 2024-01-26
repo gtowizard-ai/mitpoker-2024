@@ -33,19 +33,20 @@ class HandActionsValues {
 class MCCFR {
  public:
   explicit MCCFR(unsigned warm_up_iterations);
-  HandActionsValues solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-                          unsigned player_id, long long time_budget);
+  HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& round_state,
+                          unsigned player_id, float time_budget_ms);
 
  private:
   void build_tree(const RoundStatePtr& round_state);
   [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
   void update_root_value(unsigned hand);
   void update_root_value();
-  void update_regrets(const std::vector<Range>& ranges);
+  void update_regrets(const std::array<Range, 2>& ranges);
   HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
-  void precompute_child_values(const std::vector<Range>& ranges, const RoundStatePtr& round_state);
+  void precompute_child_values(const std::array<Range, 2>& ranges,
+                               const RoundStatePtr& round_state);
 
   static constexpr unsigned max_available_actions_ = 10;
   static constexpr long long time_checkpoints_ = 1000;

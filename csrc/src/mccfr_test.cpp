@@ -11,7 +11,7 @@ class MCCFRTest : public ::testing::Test {
 TEST_F(MCCFRTest, TestNoError) {
   auto mccfr = MCCFR(100);
 
-  std::vector<Range> ranges = {Range(), Range()};
+  std::array<Range, 2> ranges{Range(), Range()};
   for (int i = 0; i < 2; i++) {
     for (unsigned index = 0; index < ranges[i].num_hands(); index++) {
       ranges[i].range[index] /= ranges[i].num_hands();
@@ -40,7 +40,7 @@ TEST_F(MCCFRTest, TestNoError) {
 TEST_F(MCCFRTest, TestNutAirToyGame) {
   // Test Classic Nuts+Air vs. Bluff catcher toy game.
   auto mccfr = MCCFR(100);
-  std::vector<Range> ranges = {Range(), Range()};
+  std::array<Range, 2> ranges{Range(), Range()};
   for (int i = 0; i < 2; i++) {
     for (unsigned index = 0; index < ranges[i].num_hands(); index++) {
       ranges[i].range[index] = 0;

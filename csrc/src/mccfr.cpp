@@ -60,7 +60,7 @@ void MCCFR::build_tree(const RoundStatePtr& round_state) {
   }
 }
 
-void MCCFR::precompute_child_values(const std::vector<Range>& ranges,
+void MCCFR::precompute_child_values(const std::array<Range, 2>& ranges,
                                     const RoundStatePtr& round_state) {
 
   const float opp_contribution = STARTING_STACK - round_state->stacks[1 - player_id_];
@@ -116,7 +116,7 @@ void MCCFR::update_root_value() {
   }
 }
 
-void MCCFR::update_regrets(const std::vector<Range>& ranges) {
+void MCCFR::update_regrets(const std::array<Range, 2>& ranges) {
   // ToDo: Add epsilon-greedy selection?
 
   // sample a hand
@@ -186,8 +186,8 @@ void MCCFR::initial_regrets() {
   }
 }
 
-HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-                               const unsigned player_id, const long long time_budget) {
+HandActionsValues MCCFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& round_state,
+                               const unsigned player_id, const float time_budget_ms) {
   const auto timer_function_start = std::chrono::high_resolution_clock::now();
 
   // Initialize variable for this solve
@@ -224,7 +224,7 @@ HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStat
   const auto mccfr_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                               timer_after_checkpoint - timer_before_mccfr)
                               .count();
-  auto max_iterations = static_cast<long long>((time_budget - initialization_passed_time) *
+  auto max_iterations = static_cast<long long>((time_budget_ms - initialization_passed_time) *
                                                timer_error_bound_ * time_checkpoints_ / mccfr_time);
 
   while (max_iterations-- > 0) {
