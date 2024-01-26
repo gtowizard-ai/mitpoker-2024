@@ -1,8 +1,13 @@
 #include "auction.h"
+#include "definitions.h"
 
 namespace pokerbot {
 
-Auctioneer::Auctioneer(){};
+Auctioneer::Auctioneer() {
+  bool vIsExcessiveBidder = true;
+  int vAbsBidMinMax[2] = {STARTING_STACK, -1};
+  int vPotPercentageMinMax[2] = {STARTING_STACK, -1};
+};
 
 std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
                                            const std::vector<Card>& board, const Hand& hand,
@@ -19,19 +24,35 @@ std::tuple<Range, int> Auctioneer::get_bid(const std::vector<Range>& ranges,
   return std::make_tuple(range, 0);
 }
 
+void Auctioneer::update_exploits(const int bid, const int pot) {
+  //TODO: Write tests for this
+  int stack = STARTING_STACK - pot / 2;
+  if ((stack - bid) > REASONABLE_DIST_FROM_MAX) {
+    this->vIsExcessiveBidder = false;
+  }
+  if (bid < vAbsBidMinMax[0]) {
+    vAbsBidMinMax[0] = bid;
+  }
+  if (bid > vAbsBidMinMax[1]) {
+    vAbsBidMinMax[1] = bid;
+  }
+  if (static_cast<float>(bid) / pot < vPotPercentageMinMax[0]) {
+    vPotPercentageMinMax[0] = bid;
+  }
+  if (static_cast<float>(bid) / pot > vPotPercentageMinMax[1]) {
+    vPotPercentageMinMax[1] = bid;
+  }
+}
+
 void Auctioneer::receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
-                             const int pot, float time_budget) {
-  /*TODO: In re exploits I think I like keeping track of the following:
-		- keep track of max absolute bid
-		- keep track of min absolute bid
-		- keep track of max % of pot bid
-		- keep track of min % of pot bid
-		If there is sufficiently low spread in either value, we make the floor of our minimum bid that value - 1.
-		Otherwise we do EV or equity based bidding*/
+                             const Game& game, const std::vector<card_t>& board, const int pot,
+                             float time_budget) {
+  update_exploits(villain_bid, pot);
   if (hero_bid > villain_bid) {
     return;
   }
-  //TODO: Change villain's range to reflect they received a card after the auction
+
+  villain_range.to_3_cards_range(game, board);
   return;
 }
 

@@ -24,4 +24,8 @@ inline constexpr int STARTING_STACK = 400;
 inline constexpr int BIG_BLIND = 2;
 inline constexpr int SMALL_BLIND = 1;
 
+inline constexpr int ABS_BIDDING_EPSILON = 2;
+inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
+inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+
 }  // namespace pokerbot

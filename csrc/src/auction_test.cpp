@@ -4,7 +4,11 @@
 
 using namespace pokerbot;
 
-class AuctionTest : public ::testing::Test {};
+class AuctionTest : public ::testing::Test {
+ protected:
+  static constexpr float TOLERANCE = 1e-5;
+  Game game_;
+};
 
 TEST_F(AuctionTest, TestGetBid) {
   Auctioneer auctioneer;
@@ -23,5 +27,17 @@ TEST_F(AuctionTest, TestReceiveBid) {
   int villain_bid = 2;
   int hero_bid = 1;
   int pot = 100;
-  auctioneer.receive_bid(v_range, villain_bid, hero_bid, pot, 2.0);
+  auto board_cards = Card::to_vector("AcAdAh");
+  auctioneer.receive_bid(v_range, villain_bid, hero_bid, game_, board_cards, pot, 2.0);
+}
+
+TEST_F(AuctionTest, TestUpdateExploits) {
+  Auctioneer auctioneer;
+  int bid = 190;
+  auctioneer.update_exploits(bid, 10);
+  ASSERT_FALSE(auctioneer.vIsExcessiveBidder);
+  ASSERT_EQ(auctioneer.vAbsBidMinMax[0], 190)
+  ASSERT_EQ(auctioneer.vAbsBidMinMax[1], 190)
+  ASSERT_NEAR(auctioneer.vPotPercentageMinMax[0], 19.0, TOLERANCE)
+  ASSERT_NEAR(auctioneer.vPotPercentageMinMax[1], 19.0, TOLERANCE)
 }
