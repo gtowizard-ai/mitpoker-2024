@@ -59,7 +59,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
     return {Action::Type::CALL};
   }
 
-  const float time_budget_ms = 5;  // FIXME
+  const float time_budget_ms = 2;  // FIXME
   fmt::print("Starting CFR.. \n");
   auto strategy = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
 
