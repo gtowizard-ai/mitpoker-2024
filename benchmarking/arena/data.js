@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706236121820,
+  "lastUpdate": 1706236488450,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "f0b573251094dd674241a6c4df73f5b989f918b6",
-          "message": "Add hand evaluator that supports 8 cards",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/12/commits/f0b573251094dd674241a6c4df73f5b989f918b6"
-        },
-        "date": 1706203951402,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": -0.1535,
-            "unit": "bb/hand",
-            "range": 0.4663
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 1.8371,
-            "unit": "bb/hand",
-            "range": 1.4771
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -332,6 +300,42 @@ window.BENCHMARK_DATA = {
             "value": 0.7436,
             "unit": "bb/hand",
             "range": 1.4765
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "oinari17@gmail.com",
+            "name": "Wataru Inariba",
+            "username": "b-inary"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "55f53e6f2a36dbc1c04de0dff8b6b81ae2aa5201",
+          "message": "Add CFV/equity calculator (#19)\n\n* WIP: Added `compute_equities` function\r\n\r\n* Eliminated warnings\r\n\r\n* tests for equity calculator\r\n\r\n* Added benchmark script\r\n\r\n2137.47 / 1993.73 / 1047.44 [calls/s]\r\n\r\n* wip\r\n\r\n* typo\r\n\r\n* fix\r\n\r\n* fix error\r\n\r\n* Made `compute_cfvs_river` public\r\n\r\n* fix\r\n\r\n* fix range test\r\n\r\n* cleanup a bit\r\n\r\n* temp fix - increase build time\r\n\r\n* temp fix - increase build time\r\n\r\n---------\r\n\r\nCo-authored-by: Philippe Beardsell <philbeardsell@gmail.com>",
+          "timestamp": "2024-01-25T21:33:13-05:00",
+          "tree_id": "fef3ffe92738f2b6a68e8ee488e723a8f7b9571f",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/55f53e6f2a36dbc1c04de0dff8b6b81ae2aa5201"
+        },
+        "date": 1706236487025,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.87,
+            "unit": "bb/hand",
+            "range": 0.4658
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -2.7226,
+            "unit": "bb/hand",
+            "range": 1.4685
           }
         ]
       }
