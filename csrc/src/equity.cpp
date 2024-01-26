@@ -1,7 +1,4 @@
 #include "equity.h"
-
-#include <hwy/contrib/sort/vqsort.h>
-
 #include <stdexcept>
 
 namespace pokerbot {
@@ -146,7 +143,7 @@ static std::vector<uint32_t> sorted_hands_2_cards(const Game& game, const PokerH
     }
   }
 
-  hwy::VQSort(hands_sorted.data(), hands_sorted.size(), hwy::SortAscending{});
+  std::sort(hands_sorted.begin(), hands_sorted.end());
   return hands_sorted;
 }
 
@@ -171,7 +168,7 @@ static std::vector<uint32_t> sorted_hands_3_cards(const Game& game, const PokerH
     }
   }
 
-  hwy::VQSort(hands_sorted.data(), hands_sorted.size(), hwy::SortAscending{});
+  std::sort(hands_sorted.begin(), hands_sorted.end());
   return hands_sorted;
 }
 
