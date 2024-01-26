@@ -39,8 +39,8 @@ int Auctioneer::get_bid(const std::vector<Range>& ranges, const Game& game,
   villainThreeCard.to_3_cards_range(game, board);
 
   float heroThreeEq = mean_equity(heroThreeCard, ranges[1], game, board);
-  float villainThreeEq = mean_equity(villainThreeCard, ranges[0], game, board);
-  float equityDifference = heroThreeEq - villainThreeEq;
+  float heroTwoCard = mean_equity(ranges[0], villainThreeCard, game, board);
+  float equityDifference = heroThreeEq - heroTwoCard;
 
   float equityBid = ((1 / (1 - equityDifference)) - 1) * pot;
 
