@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706300408576,
+  "lastUpdate": 1706300426297,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "cbb2babd5fd888d082c35d901a3b17bf38982c52",
-          "message": "Add Preflop EQ Table",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/26/commits/cbb2babd5fd888d082c35d901a3b17bf38982c52"
-        },
-        "date": 1706293295867,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.527,
-            "unit": "bb/hand",
-            "range": 0.4766
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 1.2268,
-            "unit": "bb/hand",
-            "range": 1.4777
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -324,6 +292,42 @@ window.BENCHMARK_DATA = {
             "value": -63.96,
             "unit": "bb/hand",
             "range": 2.6377
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2f8f6d851300d7b71caf7f11d988c3d301e29726",
+          "message": "Main bot (#29)\n\n* initialize the classes\r\n\r\n* merge Ranges to code\r\n\r\n* only use regret to track strategy\r\n\r\n* bug fix\r\n\r\n* fix\r\n\r\n* add warm-up steps\r\n\r\n* fix\r\n\r\n* optimization\r\n\r\n* bug fix - remove reference members\r\n\r\n* update comment\r\n\r\n* add timing\r\n\r\n* bug fix - using of std::chrono\r\n\r\n* bug fix - using array instead of vector\r\n\r\n* terminal value - messy initialization\r\n\r\n* add terminal value computation\r\n\r\n* rename\r\n\r\n* rename\r\n\r\n* bug fix - blocker hands\r\n\r\n* fix\r\n\r\n* remove files\r\n\r\n* start the node evaluation section\r\n\r\n* using equity calculator\r\n\r\n* bug fix\r\n\r\n* bug fix\r\n\r\n* optimization\r\n\r\n* sampling fix\r\n\r\n* timer\r\n\r\n* timer\r\n\r\n* remove terminal check\r\n\r\n* add preflop eq tabels\r\n\r\n* wip\r\n\r\n* add test cases\r\n\r\n* merge\r\n\r\n* C++ version fix\r\n\r\n* add chrono header\r\n\r\n* add board to the state\r\n\r\n* convert to 3 cards\r\n\r\n* fix test case\r\n\r\n* wip\r\n\r\n* wip\r\n\r\n* avoid cfr\r\n\r\n* wip\r\n\r\n* use mccfr legal actions as suggested\r\n\r\n* wip\r\n\r\n---------\r\n\r\nCo-authored-by: alikhasi <alikhasi@ualberta.ca>",
+          "timestamp": "2024-01-26T15:17:06-05:00",
+          "tree_id": "1a12c2c3ae72b7ee65f6478328052ff323daabe3",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/2f8f6d851300d7b71caf7f11d988c3d301e29726"
+        },
+        "date": 1706300425020,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.186,
+            "unit": "bb/hand",
+            "range": 0.0188
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -67.72,
+            "unit": "bb/hand",
+            "range": 2.6219
           }
         ]
       }
