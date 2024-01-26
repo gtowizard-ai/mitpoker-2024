@@ -50,8 +50,9 @@ class MCCFR {
 
   static constexpr unsigned max_available_actions_ = 10;
   static constexpr long long time_checkpoints_ = 1000;
+  static constexpr float timer_error_bound_ = 0.85;
 
-  std::mt19937 random_generator_;  // Mersenne Twister engine
+  std::minstd_rand random_generator_;
   unsigned warm_up_iterations_;
   std::array<std::vector<double>, max_available_actions_> children_values_{};
 

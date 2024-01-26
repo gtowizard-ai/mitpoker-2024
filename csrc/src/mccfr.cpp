@@ -1,4 +1,7 @@
 #include "mccfr.h"
+
+#include <iostream>
+
 #include "equity.h"
 #include "poker_hand.h"
 #include "states.h"
@@ -11,7 +14,7 @@ HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned nu
 // ToDo: Using rgn can be time consuming. Consider using faster/less accurate methods
 // ToDo: Unify the sampling functions
 unsigned sample_index(const std::vector<float>& distribution_values, const unsigned start_point,
-                      const unsigned length, std::mt19937& gen) {
+                      const unsigned length, std::minstd_rand& gen) {
   std::discrete_distribution<unsigned> distribution(
       distribution_values.begin() + start_point,
       distribution_values.begin() + start_point + length);
@@ -19,14 +22,14 @@ unsigned sample_index(const std::vector<float>& distribution_values, const unsig
 }
 
 unsigned sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values,
-                      const unsigned start_point, const unsigned length, std::mt19937& gen) {
+                      const unsigned start_point, const unsigned length, std::minstd_rand& gen) {
   std::discrete_distribution<unsigned> distribution(
       distribution_values.begin() + start_point,
       distribution_values.begin() + start_point + length);
   return distribution(gen);
 }
 
-unsigned sample_index(const unsigned length, std::mt19937& gen) {
+unsigned sample_index(const unsigned length, std::minstd_rand& gen) {
   std::uniform_int_distribution<unsigned> distribution(0, length);
   return distribution(gen);
 }
@@ -208,34 +211,29 @@ HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStat
   precompute_child_values(ranges, round_state);
 
   // estimate how much it would take to go through all hands and actions
-  const auto timer_before_regrets_initialization = std::chrono::high_resolution_clock::now();
   initial_regrets();
-  const auto timer_after_regret_initialization = std::chrono::high_resolution_clock::now();
-  const auto duration_mccfr =
-      std::chrono::duration_cast<std::chrono::milliseconds>(timer_after_regret_initialization -
-                                                            timer_before_regrets_initialization)
-          .count();
-  const auto duration_solve_function = std::chrono::duration_cast<std::chrono::milliseconds>(
-                                           timer_after_regret_initialization - timer_function_start)
-                                           .count();
 
-  constexpr float error_bound = 0.8;
+  const auto timer_before_mccfr = std::chrono::high_resolution_clock::now();
 
-  auto max_iterations =
-      static_cast<long long>((time_budget - duration_solve_function) * num_hands_ *
-                             num_available_actions_ * error_bound / (duration_mccfr + 1));
+  for (int i = 0; i < time_checkpoints_; i++) {
+    // Compute cumulative regrets and counterfactual values.
+    // and generate strategy profile from the regrets
+    update_regrets(ranges);
+  }
 
+  const auto timer_after_checkpoint = std::chrono::high_resolution_clock::now();
+
+  const auto initialization_passed_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                              timer_before_mccfr - timer_function_start)
+                                              .count();
+  const auto mccfr_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                              timer_after_checkpoint - timer_before_mccfr)
+                              .count();
+  auto max_iterations = static_cast<long long>((time_budget - initialization_passed_time) *
+                                               timer_error_bound_ * time_checkpoints_ / mccfr_time);
+
+  std::cout << max_iterations << "\n";
   while (max_iterations-- > 0) {
-    // check if we used 90% of time
-    if (max_iterations % time_checkpoints_ == 0) {
-      const auto time = std::chrono::high_resolution_clock::now();
-      const auto used_time =
-          std::chrono::duration_cast<std::chrono::milliseconds>(time - timer_function_start)
-              .count();
-      if (used_time > time_budget * 0.9) {
-        break;
-      }
-    }
     // Compute cumulative regrets and counterfactual values.
     // and generate strategy profile from the regrets
     update_regrets(ranges);
