@@ -45,7 +45,8 @@ TEST(PreflopEquityTest, TestComputeCFVs) {
     v /= sum;
   }
 
-  auto cfvs = compute_preflop_cfvs(opponent_range, 1.0, 0.5, -1.0);
+  Payoff payoff{1.0, 0, -1.0};
+  auto cfvs = compute_preflop_cfvs(opponent_range, payoff);
 
   ASSERT_EQ(cfvs.size(), NUM_HANDS_POSTFLOP_2CARDS);
   ASSERT_NEAR(cfvs[Hand("2c2d").index()], cfvs[Hand("2c2h").index()], 1e-6);
@@ -53,6 +54,12 @@ TEST(PreflopEquityTest, TestComputeCFVs) {
   ASSERT_NEAR(cfvs[Hand("2d2h").index()], cfvs[Hand("2d2s").index()], 1e-6);
   ASSERT_NEAR(cfvs[Hand("2d2h").index()], cfvs[Hand("2h2s").index()], 1e-6);
   ASSERT_NEAR(cfvs[Hand("2d2s").index()], cfvs[Hand("2h2s").index()], 1e-6);
+
+  ASSERT_NEAR(cfvs[Hand("3c2d").index()], cfvs[Hand("3s2h").index()], 1e-6);
+  ASSERT_NEAR(cfvs[Hand("AsKs").index()], cfvs[Hand("AhKh").index()], 1e-6);
+
+  ASSERT_NEAR(cfvs[Hand("2d3h").index()], *std::min_element(cfvs.begin(), cfvs.end()), 1e-6);
+  ASSERT_NEAR(cfvs[Hand("AsAh").index()], *std::max_element(cfvs.begin(), cfvs.end()), 1e-6);
 
   // FIXME NEED MORE TESTS HERE
 }
