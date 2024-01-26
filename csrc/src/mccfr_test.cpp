@@ -28,6 +28,11 @@ TEST_F(MCCFRTest, TestNoError) {
   hands[active][1] = cards[1];
   auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks,
                                                   std::move(hands), std::move(deck), nullptr);
-  mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), 0,
-              static_cast<std::chrono::milliseconds>(100));
+  const auto timer_start = std::chrono::high_resolution_clock::now();
+  mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), 0, 100);
+  const auto timer_end = std::chrono::high_resolution_clock::now();
+  std::cout
+      << "Time Taken: "
+      << std::chrono::duration_cast<std::chrono::milliseconds>(timer_end - timer_start).count()
+      << " ms.\n";
 }

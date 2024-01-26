@@ -33,8 +33,8 @@ class HandActionsValues {
 class MCCFR {
  public:
   explicit MCCFR(unsigned warm_up_iterations);
-  void solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state, unsigned player_id,
-             std::chrono::milliseconds time_budget);
+  HandActionsValues solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
+                          unsigned player_id, long long time_budget);
 
  private:
   void build_tree(const RoundStatePtr& round_state);
@@ -47,9 +47,9 @@ class MCCFR {
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
   void precompute_child_values(const std::vector<Range>& ranges, const RoundStatePtr& round_state);
-  void step(const std::vector<Range>& ranges);
 
   static constexpr unsigned max_available_actions_ = 10;
+  static constexpr long long time_checkpoints_ = 1000;
 
   std::mt19937 random_generator_;  // Mersenne Twister engine
   unsigned warm_up_iterations_;

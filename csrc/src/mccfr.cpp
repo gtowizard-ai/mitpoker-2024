@@ -173,15 +173,6 @@ float MCCFR::get_linear_cfr_discount_factor(const unsigned hand) const {
   return num_iterations / (num_iterations + 1);
 }
 
-void MCCFR::step(const std::vector<Range>& ranges) {
-  // 1) Set CF values of all terminal and pseudo leaf nodes
-  // precompute_all_leaf_values();
-
-  // 2) Compute cumulative regrets and counterfactual values.
-  // and generate strategy profile from the regrets
-  update_regrets(ranges);
-}
-
 void MCCFR::initial_regrets() {
   // Iterate over all hands and actions once to prevent biased selection of actions in sampling
   update_root_value();
@@ -197,9 +188,9 @@ void MCCFR::initial_regrets() {
   }
 }
 
-void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
-                  const unsigned player_id, const std::chrono::milliseconds time_budget) {
-  const auto solve_timer_start = std::chrono::high_resolution_clock::now();
+HandActionsValues MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_state,
+                               const unsigned player_id, const long long time_budget) {
+  const auto timer_function_start = std::chrono::high_resolution_clock::now();
 
   // Initialize variable for this solve
   num_hands_ = ranges[player_id].num_hands();
@@ -217,26 +208,40 @@ void MCCFR::solve(const std::vector<Range>& ranges, const RoundStatePtr& round_s
   precompute_child_values(ranges, round_state);
 
   // estimate how much it would take to go through all hands and actions
-  const auto estimate_mccfr_time_start = std::chrono::high_resolution_clock::now();
+  const auto timer_before_regrets_initialization = std::chrono::high_resolution_clock::now();
   initial_regrets();
-  const auto estimate_mccfr_time_stop = std::chrono::high_resolution_clock::now();
-  const auto duration_mccfr = std::max(static_cast<std::chrono::milliseconds>(1),
-                                       std::chrono::duration_cast<std::chrono::milliseconds>(
-                                           estimate_mccfr_time_stop - estimate_mccfr_time_start));
+  const auto timer_after_regret_initialization = std::chrono::high_resolution_clock::now();
+  const auto duration_mccfr =
+      std::chrono::duration_cast<std::chrono::milliseconds>(timer_after_regret_initialization -
+                                                            timer_before_regrets_initialization)
+          .count();
   const auto duration_solve_function = std::chrono::duration_cast<std::chrono::milliseconds>(
-      estimate_mccfr_time_stop - solve_timer_start);
+                                           timer_after_regret_initialization - timer_function_start)
+                                           .count();
 
   constexpr float error_bound = 0.8;
 
-  unsigned max_iterations =
-      static_cast<unsigned>((time_budget - duration_solve_function) * num_hands_ *
-                            num_available_actions_ * error_bound / duration_mccfr);
+  auto max_iterations =
+      static_cast<long long>((time_budget - duration_solve_function) * num_hands_ *
+                             num_available_actions_ * error_bound / (duration_mccfr + 1));
 
   while (max_iterations-- > 0) {
-    step(ranges);
+    // check if we used 90% of time
+    if (max_iterations % time_checkpoints_ == 0) {
+      const auto time = std::chrono::high_resolution_clock::now();
+      const auto used_time =
+          std::chrono::duration_cast<std::chrono::milliseconds>(time - timer_function_start)
+              .count();
+      if (used_time > time_budget * 0.9) {
+        break;
+      }
+    }
+    // Compute cumulative regrets and counterfactual values.
+    // and generate strategy profile from the regrets
+    update_regrets(ranges);
   }
 
-  // return regrets_;
+  return get_last_strategy();
 }
 
 }  // namespace pokerbot
