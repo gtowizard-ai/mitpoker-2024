@@ -46,12 +46,12 @@ TEST_F(MCCFRTest, TestNutAirToyGame) {
       ranges[i].range[index] = 0;
     }
   }
-  ranges[1].range[Hand("ThTs").index()] = 1;
-  ranges[1].range[Hand("ThTc").index()] = 1;
-  ranges[1].range[Hand("ThTd").index()] = 1;
-  ranges[1].range[Hand("TsTc").index()] = 1;
-  ranges[1].range[Hand("TsTd").index()] = 1;
-  ranges[1].range[Hand("TcTd").index()] = 1;
+  ranges[1].range[Hand("ThTs5s").index()] = 1;
+  ranges[1].range[Hand("ThTc5s").index()] = 1;
+  ranges[1].range[Hand("ThTd5s").index()] = 1;
+  ranges[1].range[Hand("TsTc5s").index()] = 1;
+  ranges[1].range[Hand("TsTd5s").index()] = 1;
+  ranges[1].range[Hand("TcTd5s").index()] = 1;
 
   ranges[0].range[Hand("4h4s").index()] = 1;
   ranges[0].range[Hand("4h4c").index()] = 1;
@@ -79,9 +79,6 @@ TEST_F(MCCFRTest, TestNutAirToyGame) {
   hands[active][1] = cards[1];
   auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks,
                                                   std::move(hands), std::move(deck), nullptr);
-
-  auto x1 = Hand("AcAd").index();
-  auto x2 = Hand("4c4d").index();
 
   const std::vector<card_t> board_cards = round_state->board_cards();
 

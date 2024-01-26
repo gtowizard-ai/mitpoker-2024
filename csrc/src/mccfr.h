@@ -53,7 +53,7 @@ class MCCFR {
 
   std::minstd_rand random_generator_;
   unsigned warm_up_iterations_;
-  std::array<std::vector<double>, max_available_actions_> children_values_{};
+  std::array<std::vector<float>, max_available_actions_> children_values_{};
 
   unsigned num_hands_;
   unsigned num_available_actions_;
