@@ -68,8 +68,9 @@ static std::vector<double> compute_weights_3_vs_2(const Game& game, const Range&
     const auto& cards = hero_hands[i].cards;
     const auto& subs = subhand_indices[i];
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[cards[0]] -
-                                opponent_sum_1[cards[1]] + opponent_range.range[subs[0]] +
-                                opponent_range.range[subs[1]] + opponent_range.range[subs[2]];
+                                opponent_sum_1[cards[1]] - opponent_sum_1[cards[2]] +
+                                opponent_range.range[subs[0]] + opponent_range.range[subs[1]] +
+                                opponent_range.range[subs[2]];
     weights.push_back(hero_range.range[i] * opponent_sum);
   }
 
@@ -106,9 +107,9 @@ static std::vector<double> compute_weights_3_vs_3(const Game& game, const Range&
     const auto& cards = hands[i].cards;
     const auto& subs = subhand_indices[i];
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[cards[0]] -
-                                opponent_sum_1[cards[1]] + opponent_sum_2[subs[0]] +
-                                opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]] -
-                                opponent_range.range[i];
+                                opponent_sum_1[cards[1]] - opponent_sum_1[cards[2]] +
+                                opponent_sum_2[subs[0]] + opponent_sum_2[subs[1]] +
+                                opponent_sum_2[subs[2]] - opponent_range.range[i];
     weights.push_back(hero_range.range[i] * opponent_sum);
   }
 
@@ -301,7 +302,6 @@ static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_ra
       opponent_sum_0 += prob;
       opponent_sum_1[opponent_cards[0]] += prob;
       opponent_sum_1[opponent_cards[1]] += prob;
-      opponent_sum_1[opponent_cards[2]] += prob;
       opponent_sum_2[opponent_index] += prob;
 
       ++j;
@@ -310,8 +310,9 @@ static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_ra
     const auto& hero_cards = hero_hands[hero_index].cards;
     const auto& subs = subhand_indices[hero_index];
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
-                                opponent_sum_1[hero_cards[1]] + opponent_sum_2[subs[0]] +
-                                opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]];
+                                opponent_sum_1[hero_cards[1]] - opponent_sum_1[hero_cards[2]] +
+                                opponent_sum_2[subs[0]] + opponent_sum_2[subs[1]] +
+                                opponent_sum_2[subs[2]];
     cfvs[hero_index] += opponent_sum * payoff;
   }
 
@@ -340,14 +341,13 @@ static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_ra
       opponent_sum_0 += prob;
       opponent_sum_1[opponent_cards[0]] += prob;
       opponent_sum_1[opponent_cards[1]] += prob;
-      opponent_sum_1[opponent_cards[2]] += prob;
 
       --j;
     }
 
     const auto& hero_cards = hero_hands[hero_index].cards;
-    const double opponent_sum =
-        opponent_sum_0 - opponent_sum_1[hero_cards[0]] - opponent_sum_1[hero_cards[1]];
+    const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
+                                opponent_sum_1[hero_cards[1]] - opponent_sum_1[hero_cards[2]];
     cfvs[hero_index] -= opponent_sum * payoff;
   }
 }
@@ -399,8 +399,9 @@ static void compute_cfvs_river_3_vs_3(const Game& game, const Range& opponent_ra
     const auto& hero_cards = hands[hero_index].cards;
     const auto& subs = subhand_indices[hero_index];
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
-                                opponent_sum_1[hero_cards[1]] + opponent_sum_2[subs[0]] +
-                                opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]];
+                                opponent_sum_1[hero_cards[1]] - opponent_sum_1[hero_cards[2]] +
+                                opponent_sum_2[subs[0]] + opponent_sum_2[subs[1]] +
+                                opponent_sum_2[subs[2]];
     cfvs[hero_index] += opponent_sum * payoff;
   }
 
@@ -442,8 +443,9 @@ static void compute_cfvs_river_3_vs_3(const Game& game, const Range& opponent_ra
     const auto& hero_cards = hands[hero_index].cards;
     const auto& subs = subhand_indices[hero_index];
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
-                                opponent_sum_1[hero_cards[1]] + opponent_sum_2[subs[0]] +
-                                opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]];
+                                opponent_sum_1[hero_cards[1]] - opponent_sum_1[hero_cards[2]] +
+                                opponent_sum_2[subs[0]] + opponent_sum_2[subs[1]] +
+                                opponent_sum_2[subs[2]];
     cfvs[hero_index] -= opponent_sum * payoff;
   }
 }

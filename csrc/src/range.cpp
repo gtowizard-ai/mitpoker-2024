@@ -23,7 +23,7 @@ void Range::to_3_cards_range(const Game& game, const std::vector<card_t>& board_
   std::fill_n(range.begin(), NUM_HANDS_POSTFLOP_2CARDS, 0);
 
   const auto& two_card_hands = game.hands(NumCards::Two);
-  float normalization_factor = MAX_DECK_SIZE - 2;
+  float normalization_factor = MAX_DECK_SIZE - board_cards.size() - 2;
 
   for (hand_t i = 0; i < two_card_hands.size(); ++i) {
     for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {

@@ -147,10 +147,10 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsTwoCards) {
   Range hero_range;
   Range opponent_range;
 
+  hero_range.to_3_cards_range(game_, board_cards);
+
   hero_range.update_on_new_board_cards(game_, board_cards);
   opponent_range.update_on_new_board_cards(game_, board_cards);
-
-  hero_range.to_3_cards_range(game_, board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("2c2s2h"), opponent_range, board_cards), 0);
   ASSERT_EQ(naive_compute_equity(Hand("AcKs8h"), opponent_range, board_cards), 0);
@@ -165,10 +165,10 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverTwoVsThreeCards) {
   Range hero_range;
   Range opponent_range;
 
+  opponent_range.to_3_cards_range(game_, board_cards);
+
   hero_range.update_on_new_board_cards(game_, board_cards);
   opponent_range.update_on_new_board_cards(game_, board_cards);
-
-  opponent_range.to_3_cards_range(game_, board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("2c2s"), opponent_range, board_cards), 0);
   ASSERT_EQ(naive_compute_equity(Hand("8d8s"), opponent_range, board_cards), 0.0);
@@ -182,11 +182,11 @@ TEST_F(EquityTest, TestNaiveEquityComputationRiverThreeVsThreeCards) {
   Range hero_range;
   Range opponent_range;
 
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
-
   hero_range.to_3_cards_range(game_, board_cards);
   opponent_range.to_3_cards_range(game_, board_cards);
+
+  hero_range.update_on_new_board_cards(game_, board_cards);
+  opponent_range.update_on_new_board_cards(game_, board_cards);
 
   ASSERT_EQ(naive_compute_equity(Hand("3s5s6s"), opponent_range, board_cards), 1.0);
   // We lose to exactly {3s, 5s, 6s} and {As, 3s, 5s}
@@ -199,10 +199,10 @@ TEST_F(EquityTest, TestEquityComputationRiverThreeVsTwoCards) {
   Range hero_range;
   Range opponent_range;
 
+  hero_range.to_3_cards_range(game_, board_cards);
+
   hero_range.update_on_new_board_cards(game_, board_cards);
   opponent_range.update_on_new_board_cards(game_, board_cards);
-
-  hero_range.to_3_cards_range(game_, board_cards);
 
   const auto equities = compute_equities(game_, hero_range, opponent_range, board_cards);
   ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_3CARDS);
@@ -221,11 +221,10 @@ TEST_F(EquityTest, TestEquityComputationRiverTwoVsThreeCards) {
   Range hero_range;
   Range opponent_range;
 
-  hero_range.update_on_new_board_cards(game_, board_cards);
-  opponent_range.update_on_new_board_cards(game_, board_cards);
-
   opponent_range.to_3_cards_range(game_, board_cards);
 
+  hero_range.update_on_new_board_cards(game_, board_cards);
+  opponent_range.update_on_new_board_cards(game_, board_cards);
   const auto equities = compute_equities(game_, hero_range, opponent_range, board_cards);
   ASSERT_EQ(equities.size(), NUM_HANDS_POSTFLOP_2CARDS);
   assert_equities_values(equities);
