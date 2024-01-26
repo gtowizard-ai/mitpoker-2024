@@ -24,8 +24,8 @@ class HandActionsValues {
   // Store a 2D data of [action, hand] in 1D vector of size num_hands * num_actions
   std::vector<float> data;
 
-  unsigned num_hands_{};
-  unsigned num_actions_{};
+  unsigned num_hands_ = 0;
+  unsigned num_actions_ = 0;
 };
 
 // Fixme: We won't create one MCCFR object for each Decision. Better to create one object and
