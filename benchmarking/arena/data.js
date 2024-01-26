@@ -1,44 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706293633802,
+  "lastUpdate": 1706293735749,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "46653792+GrahamZugPitt@users.noreply.github.com",
-            "name": "GrahamZugPitt",
-            "username": "GrahamZugPitt"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "3dd36037f5bc0b1180980b16ab1580c622169bad",
-          "message": "Receive bid (#24)\n\n* Just a little checkpoint.\r\n\r\n* Finished UpdateExploits Test\r\n\r\n* Removed excessive import and inaccurate comment\r\n\r\n* Phils comments",
-          "timestamp": "2024-01-26T10:11:26-05:00",
-          "tree_id": "0768e51542bb48eda78d9e10f076611f11d87eaf",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/3dd36037f5bc0b1180980b16ab1580c622169bad"
-        },
-        "date": 1706282053460,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.3508,
-            "unit": "bb/hand",
-            "range": 0.4793
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 0.0853,
-            "unit": "bb/hand",
-            "range": 1.471
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -324,6 +288,38 @@ window.BENCHMARK_DATA = {
             "value": 0,
             "unit": "bb/hand",
             "range": 0.005
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "committer": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "id": "1c408b7ecc8776f058c7fc5b531d475c861cb01b",
+          "message": "Get bid",
+          "timestamp": "2024-01-24T02:28:03Z",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/28/commits/1c408b7ecc8776f058c7fc5b531d475c861cb01b"
+        },
+        "date": 1706293734435,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.3291,
+            "unit": "bb/hand",
+            "range": 0.479
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 2.2591,
+            "unit": "bb/hand",
+            "range": 1.4745
           }
         ]
       }
