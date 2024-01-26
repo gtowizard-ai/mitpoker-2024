@@ -24,51 +24,51 @@ class HandActionsValues {
   // Store a 2D data of [action, hand] in 1D vector of size num_hands * num_actions
   std::vector<float> data;
 
-  unsigned num_hands_{};
-  unsigned num_actions_{};
+  unsigned num_hands_ = 0;
+  unsigned num_actions_ = 0;
 };
 
 // Fixme: We won't create one MCCFR object for each Decision. Better to create one object and
 // Reuse it over for each Round
 class MCCFR {
  public:
-  explicit MCCFR(unsigned warm_up_iterations);
-  HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& round_state,
+  explicit MCCFR(const Game& game, unsigned warm_up_iterations);
+
+  HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
                           unsigned player_id, float time_budget_ms);
 
   // Actions considered at the state
   const auto& legal_actions() const { return available_actions_; }
 
+  auto num_actions() const { return available_actions_.size(); }
+
  private:
-  void build_tree(const RoundStatePtr& round_state);
-  [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
+  void build_tree(const RoundStatePtr& state);
   void update_root_value(unsigned hand);
   void update_root_value();
   void update_regrets(const std::array<Range, 2>& ranges);
   HandActionsValues get_last_strategy();
   [[nodiscard]] float get_linear_cfr_discount_factor(unsigned hand) const;
   void initial_regrets();
-  void precompute_child_values(const std::array<Range, 2>& ranges,
-                               const RoundStatePtr& round_state);
+  void precompute_child_values(const std::array<Range, 2>& ranges, const RoundStatePtr& state);
 
   static constexpr unsigned max_available_actions_ = 10;
   static constexpr long long time_checkpoints_ = 1000;
   static constexpr float timer_error_bound_ = 0.85;
 
+  const Game& game_;
   std::minstd_rand random_generator_;
   unsigned warm_up_iterations_;
   std::array<std::vector<float>, max_available_actions_> children_values_{};
 
   unsigned num_hands_;
-  unsigned num_available_actions_;
   unsigned player_id_;
 
   unsigned my_contribution_;
 
   // The value of the root node - size = num_hands_
   std::array<float, NUM_HANDS_POSTFLOP_3CARDS> values_;
-  // Temporary buffer to store sum of regrets
-  // std::array<double, NUM_HANDS_POSTFLOP_3CARDS> sum_buffer_;
+
   std::array<unsigned, NUM_HANDS_POSTFLOP_3CARDS> num_steps_;
 
   std::vector<Action> available_actions_;

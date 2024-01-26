@@ -1,12 +1,11 @@
 #include "main_bot.h"
-#include <random>
-
+#include <fmt/ranges.h>
 #include "mccfr.h"
 #include "ranges_utils.h"
 
 namespace pokerbot {
 
-MainBot::MainBot() : game_(), auctioneer_(), mccfr_(100) {}
+MainBot::MainBot() : game_(), auctioneer_(), mccfr_(game_, 10) {}
 
 void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*round_state*/,
                               int /*active*/) {
@@ -51,8 +50,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
                             round_state->pot(), time_budget_ms);
   }
 
-  // FIXME cant afford to do CFR on preflop/flop/turn for now
-  if (round_state->round() != round::RIVER) {
+  // FIXME cant afford to do CFR on flop/turn for now
+  if (round_state->round() == round::FLOP || round_state->round() == round::TURN) {
     if (ranges::contains(legal_actions, Action::Type::CHECK)) {
       // check-call
       return {Action::Type::CHECK};
@@ -60,9 +59,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
     return {Action::Type::CALL};
   }
 
-  const float time_budget_ms = 5;  // FIXME
-  fmt::print("Starting CFR.. \n");
-  auto strategy = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
+  const float time_budget_ms = 1;  // FIXME
+  const auto strategy = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
 
   // TODO UPDATE RANGE here..
 
@@ -74,8 +72,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   const auto idx_action = ranges::argmax(hand_strat);
   const auto action = mccfr_.legal_actions()[idx_action];
 
-  fmt::print("Best action for hand {} on {} is {} \n", hero_hand.to_string(),
-             Card::to_string(round_state->board_cards), action.to_string());
+  fmt::print("Best action for hand {} on {} is {} (Strat={})\n", hero_hand.to_string(),
+             Card::to_string(round_state->board_cards), action.to_string(), hand_strat);
   return action;
 }
 

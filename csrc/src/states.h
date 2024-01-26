@@ -52,6 +52,7 @@ struct RoundState final : State {
 
   auto pot() const { return 2 * STARTING_STACK - stacks[0] - stacks[1]; }
 
+  // the smallest and largest numbers of chips for a legal bet/raise
   std::array<int, 2> raise_bounds() const;
 
   StatePtr proceed_to_next_round() const;
