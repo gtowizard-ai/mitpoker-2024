@@ -23,7 +23,6 @@ using StatePtr = std::shared_ptr<const State>;
 
 struct RoundState final : State {
   int button;
-  round::Round round;
   bool auction;
   std::array<std::optional<int>, 2> bids;
   std::array<int, 2> pips;
@@ -32,13 +31,11 @@ struct RoundState final : State {
   std::vector<card_t> board_cards;
   StatePtr previous_state;
 
-  RoundState(int button, round::Round round, bool auction,
-             const std::array<std::optional<int>, 2>& bids, const std::array<int, 2>& pips,
-             const std::array<int, 2>& stacks,
+  RoundState(int button, bool auction, const std::array<std::optional<int>, 2>& bids,
+             const std::array<int, 2>& pips, const std::array<int, 2>& stacks,
              const std::array<std::array<std::string, 3>, 2>& hands,
-             const std::vector<card_t>& board_cards, StatePtr previous_state)
+             const std::vector<card_t>& board_cards = {}, StatePtr previous_state = nullptr)
       : button(button),
-        round(round),
         auction(auction),
         bids(bids),
         pips(pips),
@@ -62,6 +59,8 @@ struct RoundState final : State {
   StatePtr proceed(Action action) const;
 
   std::string to_string() const;
+
+  const auto& round() const { return round::from_num_cards(board_cards.size()); }
 };
 
 using RoundStatePtr = std::shared_ptr<const RoundState>;

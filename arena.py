@@ -7,7 +7,7 @@ import config as config
 from engine import Game, Player, BIG_BLIND
 
 
-NUM_HANDS = 10000
+NUM_HANDS = 100
 
 
 @dataclass

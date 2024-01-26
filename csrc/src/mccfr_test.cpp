@@ -26,8 +26,8 @@ TEST_F(MCCFRTest, TestNoError) {
   std::vector<std::string> cards = {"2h", "2d"};
   hands[active][0] = cards[0];
   hands[active][1] = cards[1];
-  auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks, hands,
-                                                  board_cards, nullptr);
+  auto round_state =
+      std::make_shared<RoundState>(0, false, bids, pips, stacks, hands, board_cards, nullptr);
   const auto timer_start = std::chrono::high_resolution_clock::now();
   mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), 0, 100);
   const auto timer_end = std::chrono::high_resolution_clock::now();
@@ -77,8 +77,8 @@ TEST_F(MCCFRTest, TestNutAirToyGame) {
   std::vector<std::string> cards = {"4h", "4d"};
   hands[active][0] = cards[0];
   hands[active][1] = cards[1];
-  auto round_state = std::make_shared<RoundState>(0, round::RIVER, false, bids, pips, stacks, hands,
-                                                  board_cards, nullptr);
+  auto round_state =
+      std::make_shared<RoundState>(0, false, bids, pips, stacks, hands, board_cards, nullptr);
 
   ranges[1].to_3_cards_range(Game(), board_cards);
 

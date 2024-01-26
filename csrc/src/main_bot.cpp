@@ -35,6 +35,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
 
   if (ranges::contains(legal_actions, Action::Type::BID)) {
     /// Auction
+    fmt::print("Bidding.. \n");
     const float time_budget_ms = 1;  // FIXME
     const auto bid =
         auctioneer_.get_bid(ranges_[active], ranges_[1 - active], round_state->board_cards,
@@ -43,6 +44,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   }
   if (round_state->bids[active].has_value() && round_state->bids[1 - active].has_value()) {
     /// Right after auction
+    /// NB - Careful this is called on *every action* after auction happened
     const float time_budget_ms = 1;  // FIXME
     auctioneer_.receive_bid(ranges_[1 - active], *round_state->bids[1 - active],
                             *round_state->bids[active], game_, round_state->board_cards,
@@ -50,7 +52,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   }
 
   // FIXME cant afford to do CFR on preflop/flop/turn for now
-  if (round_state->round != round::RIVER) {
+  if (round_state->round() != round::RIVER) {
     if (ranges::contains(legal_actions, Action::Type::CHECK)) {
       // check-call
       return {Action::Type::CHECK};
@@ -59,25 +61,35 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   }
 
   const float time_budget_ms = 5;  // FIXME
+  fmt::print("Starting CFR.. \n");
   auto strategy = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
 
   // TODO UPDATE RANGE here..
+
+  if (strategy.num_actions_ != round_state->legal_actions().size()) {
+    throw std::runtime_error("Actions mistmatch");
+  }
 
   std::vector<float> hand_strat;
   for (unsigned a = 0; a < strategy.num_actions_; ++a) {
     hand_strat.push_back(strategy(hero_hand.index(), a));
   }
   // HACK -> TODO should sample here
-  auto idx_action = ranges::argmax(hand_strat);
-  auto action = round_state->legal_actions()[idx_action];
+  const auto idx_action = ranges::argmax(hand_strat);
+  const auto action_type = round_state->legal_actions()[idx_action];
 
   // FIXME -> This is bad.. we don't know which action MCCFR returns
-  if (action == Action::Type::RAISE) {
-    auto raise_bounds = round_state->raise_bounds();
-    return {Action::Type::RAISE, raise_bounds[0]};
-  } else {
-    return {action};
-  }
+  const Action action = [&]() {
+    if (action_type == Action::Type::RAISE) {
+      auto raise_bounds = round_state->raise_bounds();
+      return Action{Action::Type::RAISE, raise_bounds[0]};
+    } else {
+      return Action{action_type};
+    }
+  }();
+  fmt::print("Best action for hand {} on {} is {} \n", hero_hand.to_string(),
+             Card::to_string(round_state->board_cards), action.to_string());
+  return action;
 }
 
 }  // namespace pokerbot

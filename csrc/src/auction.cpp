@@ -49,6 +49,10 @@ void Auctioneer::update_exploits(const int bid, const int pot) {
 void Auctioneer::receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
                              const Game& game, const std::vector<card_t>& board_cards,
                              const int pot, float time_budget_ms) {
+  if (villain_range.num_cards == NumCards::Three) {
+    return;  // We've already been here on the same hand
+  }
+
   update_exploits(villain_bid, pot);
   if (hero_bid > villain_bid) {
     return;
