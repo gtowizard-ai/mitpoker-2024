@@ -21,7 +21,8 @@ unsigned sample_index(const std::vector<float>& distribution_values, const unsig
 unsigned sample_index(const std::array<float, NUM_HANDS_POSTFLOP_3CARDS>& distribution_values,
                       const unsigned start_point, const unsigned length, std::mt19937& gen) {
   std::discrete_distribution<unsigned> distribution(
-      distribution_values.begin() + start_point, distribution_values.end() + start_point + length);
+      distribution_values.begin() + start_point,
+      distribution_values.begin() + start_point + length);
   return distribution(gen);
 }
 

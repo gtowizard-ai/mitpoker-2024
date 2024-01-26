@@ -11,7 +11,12 @@ class MCCFRTest : public ::testing::Test {
 TEST_F(MCCFRTest, TestNoError) {
   auto mccfr = MCCFR(100);
 
-  const std::vector<Range> ranges = {Range(), Range()};
+  std::vector<Range> ranges = {Range(), Range()};
+  for (int i = 0; i < 2; i++) {
+    for (unsigned index = 0; index < ranges[i].num_hands(); index++) {
+      ranges[i].range[index] /= ranges[i].num_hands();
+    }
+  }
   std::array<std::optional<int>, 2> bids = {std::nullopt, std::nullopt};
   std::array<int, 2> pips = {SMALL_BLIND, BIG_BLIND};
   std::array<int, 2> stacks = {STARTING_STACK - SMALL_BLIND, STARTING_STACK - BIG_BLIND};
