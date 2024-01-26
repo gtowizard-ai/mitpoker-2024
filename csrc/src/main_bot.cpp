@@ -66,27 +66,14 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
 
   // TODO UPDATE RANGE here..
 
-  if (strategy.num_actions_ != round_state->legal_actions().size()) {
-    throw std::runtime_error("Actions mistmatch");
-  }
-
   std::vector<float> hand_strat;
   for (unsigned a = 0; a < strategy.num_actions_; ++a) {
     hand_strat.push_back(strategy(hero_hand.index(), a));
   }
   // HACK -> TODO should sample here
   const auto idx_action = ranges::argmax(hand_strat);
-  const auto action_type = round_state->legal_actions()[idx_action];
+  const auto action = mccfr_.legal_actions()[idx_action];
 
-  // FIXME -> This is bad.. we don't know which action MCCFR returns
-  const Action action = [&]() {
-    if (action_type == Action::Type::RAISE) {
-      auto raise_bounds = round_state->raise_bounds();
-      return Action{Action::Type::RAISE, raise_bounds[0]};
-    } else {
-      return Action{action_type};
-    }
-  }();
   fmt::print("Best action for hand {} on {} is {} \n", hero_hand.to_string(),
              Card::to_string(round_state->board_cards), action.to_string());
   return action;

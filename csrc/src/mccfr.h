@@ -36,6 +36,9 @@ class MCCFR {
   HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& round_state,
                           unsigned player_id, float time_budget_ms);
 
+  // Actions considered at the state
+  const auto& legal_actions() const { return available_actions_; }
+
  private:
   void build_tree(const RoundStatePtr& round_state);
   [[nodiscard]] float get_child_value(unsigned hand, unsigned action) const;
