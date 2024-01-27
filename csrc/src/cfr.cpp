@@ -1,5 +1,4 @@
 #include "cfr.h"
-#include <chrono>
 #include "equity.h"
 #include "poker_hand.h"
 #include "preflop_equity.h"
@@ -152,8 +151,8 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges,
 void CFR::update_opponent_regrets() {
   const auto regret_discount = get_linear_cfr_discount_factor();
   for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
-    const float root_value = opponent_strategy_vs_bet_(hand, 0) * raise_fold_cfvs_[hand] +
-                             opponent_strategy_vs_bet_(hand, 1) * raise_call_cfvs_[hand];
+    const float root_value = opponent_fold_strategy_vs_bet_[hand] * raise_fold_cfvs_[hand] +
+                             (1.0f - opponent_fold_strategy_vs_bet_[hand]) * raise_call_cfvs_[hand];
 
     opponent_regrets_vs_bet_(hand, 0) += raise_fold_cfvs_[hand] - root_value;
     opponent_regrets_vs_bet_(hand, 1) += raise_call_cfvs_[hand] - root_value;
@@ -194,9 +193,7 @@ void CFR::update_hero_reaches(const Range& hero_range) {
 
 void CFR::update_opponent_reaches(const Range& opponent_range) {
   for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
-    // FIXME NO NEED TO STORE PROB FOR EACH HAND FOR OPPONENT
-    const auto fold_prob = opponent_strategy_vs_bet_(hand, 0);
-
+    const auto fold_prob = opponent_fold_strategy_vs_bet_[hand];
     opponent_range_raise_fold_.range[hand] = opponent_range.range[hand] * fold_prob;
     opponent_range_raise_call_.range[hand] = opponent_range.range[hand] * (1.0f - fold_prob);
   }
@@ -234,20 +231,23 @@ void CFR::update_hero_strategy() {
 void CFR::update_opponent_strategy() {
   for (unsigned hand = 0; hand < num_hands_[1 - player_id_]; hand++) {
     float sum_positive_regrets = 0;
-    for (unsigned action = 0; action < 2; action++) {
-      if (opponent_regrets_vs_bet_(hand, action) > 0) {
-        sum_positive_regrets += opponent_regrets_vs_bet_(hand, action);
-        opponent_strategy_vs_bet_(hand, action) = opponent_regrets_vs_bet_(hand, action);
-      } else {
-        opponent_strategy_vs_bet_(hand, action) = 0;
-      }
+
+    // Fold
+    if (opponent_regrets_vs_bet_(hand, 0) > 0) {
+      sum_positive_regrets += opponent_regrets_vs_bet_(hand, 0);
+      opponent_fold_strategy_vs_bet_[hand] = opponent_regrets_vs_bet_(hand, 0);
+    } else {
+      opponent_fold_strategy_vs_bet_[hand] = 0;
     }
 
-    for (unsigned action = 0; action < 2; action++) {
-      opponent_strategy_vs_bet_(hand, action) =
-          sum_positive_regrets > 0 ? opponent_strategy_vs_bet_(hand, action) / sum_positive_regrets
-                                   : 0.5f;
+    // Call
+    if (opponent_regrets_vs_bet_(hand, 1) > 0) {
+      sum_positive_regrets += opponent_regrets_vs_bet_(hand, 1);
     }
+
+    opponent_fold_strategy_vs_bet_[hand] =
+        sum_positive_regrets > 0 ? opponent_fold_strategy_vs_bet_[hand] / sum_positive_regrets
+                                 : 0.5f;
   }
 }
 
@@ -290,7 +290,7 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
   regrets_ = HandActionsValues(num_hands_[player_id_], num_actions(), 0);
   opponent_regrets_vs_bet_ = HandActionsValues(num_hands_[1 - player_id_], 2, 0);
   strategy_ = HandActionsValues(num_hands_[player_id_], num_actions(), 1.0f / num_actions());
-  opponent_strategy_vs_bet_ = HandActionsValues(num_hands_[1 - player_id_], 2, 0.5f);
+  opponent_fold_strategy_vs_bet_.assign(num_hands_[1 - player_id_], 0.5f);
 
   precompute_cfvs_fixed_nodes(ranges, state);
   update_hero_reaches(ranges[player_id_]);

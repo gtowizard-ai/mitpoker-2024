@@ -78,7 +78,7 @@ class CFR {
   HandActionsValues regrets_;
   HandActionsValues opponent_regrets_vs_bet_;
   HandActionsValues strategy_;
-  HandActionsValues opponent_strategy_vs_bet_;
+  std::vector<float> opponent_fold_strategy_vs_bet_;
 
   Range hero_range_raise_;
   Range opponent_range_raise_fold_;
