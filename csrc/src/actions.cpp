@@ -5,7 +5,7 @@
 namespace pokerbot {
 
 std::string Action::to_string() const {
-  switch (action_type) {
+  switch (type) {
     case Type::FOLD:
       return "F";
     case Type::CALL:

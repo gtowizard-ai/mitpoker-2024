@@ -1,7 +1,7 @@
 #pragma once
 #include "auction.h"
+#include "cfr.h"
 #include "game.h"
-#include "mccfr.h"
 #include "states.h"
 
 namespace pokerbot {
@@ -37,7 +37,7 @@ class MainBot {
   const Game game_;
   Auctioneer auctioneer_;
   std::array<Range, 2> ranges_;
-  MCCFR mccfr_;
+  CFR cfr_;
   // TODO
   // HandActionsValues preflop_sb_cached_strategy_;
 };

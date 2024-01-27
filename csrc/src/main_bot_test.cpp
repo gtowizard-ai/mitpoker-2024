@@ -21,9 +21,8 @@ TEST(MainBotTest, TestPreflopState) {
 
     auto action =
         bot.get_action(game_info, std::static_pointer_cast<const RoundState>(round_state), 0);
-    ASSERT_TRUE(action.action_type == Action::Type::FOLD ||
-                action.action_type == Action::Type::CALL ||
-                action.action_type == Action::Type::RAISE);
+    ASSERT_TRUE(action.type == Action::Type::FOLD || action.type == Action::Type::CALL ||
+                action.type == Action::Type::RAISE);
     fmt::print("{} - {} \n", hands[0], action.to_string());
   }
 
@@ -43,8 +42,7 @@ TEST(MainBotTest, TestFlopState) {
 
   auto action =
       bot.get_action(game_info, std::static_pointer_cast<const RoundState>(round_state), 0);
-  ASSERT_TRUE(action.action_type == Action::Type::CHECK ||
-              action.action_type == Action::Type::RAISE);
+  ASSERT_TRUE(action.type == Action::Type::CHECK || action.type == Action::Type::RAISE);
   // TODO more tests
 }
 
@@ -61,8 +59,7 @@ TEST(MainBotTest, TestTurnState) {
 
   auto action =
       bot.get_action(game_info, std::static_pointer_cast<const RoundState>(round_state), 0);
-  ASSERT_TRUE(action.action_type == Action::Type::CHECK ||
-              action.action_type == Action::Type::RAISE);
+  ASSERT_TRUE(action.type == Action::Type::CHECK || action.type == Action::Type::RAISE);
   // TODO more tests
 }
 
@@ -79,7 +76,6 @@ TEST(MainBotTest, TestRiverState) {
 
   auto action =
       bot.get_action(game_info, std::static_pointer_cast<const RoundState>(round_state), 0);
-  ASSERT_TRUE(action.action_type == Action::Type::CHECK ||
-              action.action_type == Action::Type::RAISE);
+  ASSERT_TRUE(action.type == Action::Type::CHECK || action.type == Action::Type::RAISE);
   // TODO more tests
 }

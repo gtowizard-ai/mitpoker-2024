@@ -1,11 +1,10 @@
 #include "main_bot.h"
 #include <fmt/ranges.h>
-#include "mccfr.h"
 #include "ranges_utils.h"
 
 namespace pokerbot {
 
-MainBot::MainBot() : game_(), auctioneer_(), mccfr_(game_, 10) {}
+MainBot::MainBot() : game_(), auctioneer_(), cfr_(game_) {}
 
 void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*round_state*/,
                               int /*active*/) {
@@ -60,7 +59,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   }
 
   const float time_budget_ms = 1;  // FIXME
-  const auto strategy = mccfr_.solve(ranges_, round_state, active, time_budget_ms);
+  const auto strategy = cfr_.solve(ranges_, round_state, active, time_budget_ms);
 
   // TODO UPDATE RANGE here..
 
@@ -70,7 +69,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& r
   }
   // HACK -> TODO should sample here
   const auto idx_action = ranges::argmax(hand_strat);
-  const auto action = mccfr_.legal_actions()[idx_action];
+  const auto action = cfr_.legal_actions()[idx_action];
 
   fmt::print("Best action for hand {} on {} is {} (Strat={})\n", hero_hand.to_string(),
              Card::to_string(round_state->board_cards), action.to_string(), hand_strat);

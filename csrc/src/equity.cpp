@@ -217,6 +217,11 @@ static void compute_cfvs_river_2_vs_3(const Game& game, const Range& opponent_ra
     const double opponent_sum =
         opponent_sum_0 - opponent_sum_1[hero_cards[0]] - opponent_sum_1[hero_cards[1]];
     cfvs[hero_index] += opponent_sum * payoff.win;
+
+    // FIXME
+    if (!std::isfinite(cfvs[hero_index])) {
+      throw std::runtime_error("win Non finite CFV compute_cfvs_river_2_vs_3");
+    }
   }
 
   j = opponent_hands_sorted.size() - 2;
@@ -258,6 +263,11 @@ static void compute_cfvs_river_2_vs_3(const Game& game, const Range& opponent_ra
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
                                 opponent_sum_1[hero_cards[1]] + opponent_sum_2[hero_index];
     cfvs[hero_index] += opponent_sum * payoff.lose;
+
+    // FIXME
+    if (!std::isfinite(cfvs[hero_index])) {
+      throw std::runtime_error("lose Non finite CFV compute_cfvs_river_2_vs_3");
+    }
   }
 
   if (is_river_equity) {
@@ -377,6 +387,11 @@ static void compute_cfvs_river_3_vs_2(const Game& game, const Range& opponent_ra
     const double opponent_sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
                                 opponent_sum_1[hero_cards[1]] - opponent_sum_1[hero_cards[2]];
     cfvs[hero_index] += opponent_sum * payoff.lose;
+
+    // FIXME
+    if (!std::isfinite(cfvs[hero_index])) {
+      throw std::runtime_error("Non finite CFV compute_cfvs_river_3_vs_2");
+    }
   }
 
   if (is_river_equity) {
