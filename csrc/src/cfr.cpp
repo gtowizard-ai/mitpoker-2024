@@ -296,7 +296,7 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
   update_hero_reaches(ranges[player_id_]);
   update_opponent_reaches(ranges[1 - player_id_]);
 
-  const unsigned max_iterations = 20;  // FIXME
+  const unsigned max_iterations = 10;  // FIXME
   for (unsigned i = 0; i < max_iterations; ++i) {
     step(ranges);
   }
