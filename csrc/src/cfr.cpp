@@ -152,8 +152,8 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges,
 void CFR::update_opponent_regrets() {
   const auto regret_discount = get_linear_cfr_discount_factor();
   for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
-    const float root_value = opponent_regrets_vs_bet_(hand, 0) * raise_fold_cfvs_[hand] +
-                             opponent_regrets_vs_bet_(hand, 1) * raise_call_cfvs_[hand];
+    const float root_value = opponent_strategy_vs_bet_(hand, 0) * raise_fold_cfvs_[hand] +
+                             opponent_strategy_vs_bet_(hand, 1) * raise_call_cfvs_[hand];
 
     opponent_regrets_vs_bet_(hand, 0) += raise_fold_cfvs_[hand] - root_value;
     opponent_regrets_vs_bet_(hand, 1) += raise_call_cfvs_[hand] - root_value;
@@ -165,25 +165,14 @@ void CFR::update_opponent_regrets() {
 
 void CFR::update_hero_regrets() {
   const auto regret_discount = get_linear_cfr_discount_factor();
-  fmt::print("regret_discount = {} \n", regret_discount);
   for (hand_t hand = 0; hand < num_hands_[player_id_]; ++hand) {
     float root_value = 0;
     for (unsigned action = 0; action < num_actions(); action++) {
-      if (!std::isfinite(strategy_(hand, action))) {
-        fmt::print("Non finite strategy {} \n", strategy_(hand, action));
-      }
-      if (!std::isfinite(children_values_[action][hand])) {
-        fmt::print("Non finite children_values_[action][hand] {} \n",
-                   children_values_[action][hand]);
-      }
       root_value += strategy_(hand, action) * children_values_[action][hand];
     }
 
     for (unsigned action = 0; action < num_actions(); action++) {
       const auto immediate_regret = children_values_[action][hand] - root_value;
-      if (!std::isfinite(immediate_regret)) {
-        fmt::print("Non finite immediate regret {} \n", immediate_regret);
-      }
       regrets_(hand, action) += immediate_regret;
       regrets_(hand, action) *= regret_discount;
     }
@@ -201,12 +190,6 @@ void CFR::update_hero_reaches(const Range& hero_range) {
     const auto raise_prob = strategy_(hand, num_actions() - 1);
     hero_range_raise_.range[hand] = hero_range.range[hand] * raise_prob;
   }
-
-  for (hand_t hand = 0; hand < num_hands_[player_id_]; ++hand) {
-    if (!std::isfinite(hero_range_raise_.range[hand])) {
-      throw std::runtime_error("Not finite hero_range_raise_");
-    }
-  }
 }
 
 void CFR::update_opponent_reaches(const Range& opponent_range) {
@@ -218,17 +201,14 @@ void CFR::update_opponent_reaches(const Range& opponent_range) {
     opponent_range_raise_call_.range[hand] = opponent_range.range[hand] * (1.0f - fold_prob);
   }
 
-  // FIXME
-  for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
-    if (!std::isfinite(opponent_range_raise_fold_.range[hand])) {
-      throw std::runtime_error(
-          fmt::format("Not finite opponent_range_raise_fold_ / strat = {} / regret = {}",
-                      opponent_strategy_vs_bet_(hand, 0), opponent_regrets_vs_bet_(hand, 0)));
-    }
-    if (!std::isfinite(opponent_range_raise_call_.range[hand])) {
-      throw std::runtime_error("Not finite opponent_range_raise_call_");
-    }
-  }
+  // for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
+  //   if (!std::isfinite(opponent_range_raise_fold_.range[hand]) || !std::isfinite(opponent_range_raise_call_.range[hand])) {
+  //     throw std::runtime_error(
+  //         fmt::format("Not finite opponent_range_raise_ / range = {} / strat = {} / regret = {} / fold cfv = {} / call cfv = {}",
+  //                     opponent_range.range[hand], opponent_strategy_vs_bet_(hand, 0), opponent_regrets_vs_bet_(hand, 0),
+  //                     raise_fold_cfvs_[hand], raise_call_cfvs_[hand]));
+  //   }
+  // }
 }
 
 void CFR::update_hero_strategy() {
@@ -241,10 +221,6 @@ void CFR::update_hero_strategy() {
       } else {
         strategy_(hand, action) = 0;
       }
-    }
-
-    if (num_steps_ >= 95) {
-      fmt::print("edd\n");
     }
 
     for (unsigned action = 0; action < num_actions(); action++) {
@@ -320,7 +296,7 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
   update_hero_reaches(ranges[player_id_]);
   update_opponent_reaches(ranges[1 - player_id_]);
 
-  const unsigned max_iterations = 100;  // FIXME
+  const unsigned max_iterations = 20;  // FIXME
   for (unsigned i = 0; i < max_iterations; ++i) {
     step(ranges);
   }

@@ -55,16 +55,6 @@ TEST_F(CFRTest, TestNutAirToyGame) {
   ranges[1].update_on_board_cards(game_, board_cards);
   ranges[1].to_3_cards_range(game_, board_cards);
 
-  double sum_r0 = ranges::sum(ranges[0].range);
-  for (auto& v : ranges[0].range) {
-    v /= sum_r0;
-  }
-
-  double sum_r1 = ranges::sum(ranges[1].range);
-  for (auto& v : ranges[1].range) {
-    v /= sum_r1;
-  }
-
   // ranges[1].range[Hand("ThTs5s").index()] = 1;
   // ranges[1].range[Hand("ThTc5s").index()] = 1;
   // ranges[1].range[Hand("ThTd5s").index()] = 1;
@@ -102,7 +92,13 @@ TEST_F(CFRTest, TestNutAirToyGame) {
   auto strategy =
       mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), hero_id, 100);
 
-  fmt::print("Strategy = {} \n", strategy.data);
+  fmt::print("Board is {} \n", Card::to_string(board_cards));
+  for (std::string hand_str :
+       {"JdTd", "3h3c", "AdKc", "2c2d", "AdTh", "8d7d", "6s4h", "4h3s", "4h3d"}) {
+    fmt::print("{} Check = {} / Raise = {} \n", hand_str, strategy(Hand(hand_str).index(), 0),
+               strategy(Hand(hand_str).index(), 1));
+  }
+
   const auto timer_end = std::chrono::high_resolution_clock::now();
   std::cout
       << "Time Taken: "
