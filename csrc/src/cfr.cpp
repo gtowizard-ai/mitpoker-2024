@@ -32,8 +32,8 @@ void CFR::build_tree(const RoundStatePtr& state) {
     }
   }
 
+  // NB: PUT RAISE ACTION AS LAST ONE
   if (raise_avail) {
-    // Put last TEMP FIXME
     // Add pot-sized bet if it's less than going all-in by `pot`
     const auto raise_bounds = state->raise_bounds();
     auto pot_sized_bet = std::max(raise_bounds[0], state->pot());
@@ -54,17 +54,16 @@ void CFR::update_opponent_cfvs_vs_bet() {
   if (actions_.back().type != Action::Type::RAISE) {
     return;
   }
-
-  // FOLD
   const auto& raise_action = actions_.back();
-  // FIXME MULTI STREET
+
+  // FIXME PAYOFFS -> Well defined?
 
   // Opponent is the one folding
   Payoff fold_payoff;
   fold_payoff.win = -((root_->pot() / 2) + root_->bets[1 - player_id_]);
   fold_payoff.lose = fold_payoff.win;
 
-  raise_fold_cfvs_.assign(opponent_range_raise_fold_.num_hands(), 0);
+  std::fill_n(raise_fold_cfvs_.begin(), opponent_range_raise_fold_.num_hands(), 0);
   compute_cfvs_river<float>(game_, opponent_range_raise_fold_, hero_range_raise_,
                             PokerHand(root_->board_cards), raise_fold_cfvs_, fold_payoff);
 
@@ -73,13 +72,9 @@ void CFR::update_opponent_cfvs_vs_bet() {
   call_payoff.win = (root_->pot() / 2) + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
 
-  raise_call_cfvs_.assign(opponent_range_raise_call_.num_hands(), 0);
+  std::fill_n(raise_call_cfvs_.begin(), opponent_range_raise_call_.num_hands(), 0);
   compute_cfvs_river<float>(game_, opponent_range_raise_call_, hero_range_raise_,
                             PokerHand(root_->board_cards), raise_call_cfvs_, call_payoff);
-
-  // Give opponent two options (fold/call) with fixed strategy
-  // double cost_bet = available_actions_[a].amount - state->bets[player_id_];
-  // double pot_odds = cost_bet / (state->pot() + 2 * cost_bet);
 }
 
 void CFR::update_hero_cfvs_bet_node() {
@@ -88,12 +83,16 @@ void CFR::update_hero_cfvs_bet_node() {
   }
   const auto& raise_action = actions_.back();
 
+  // FIXME PAYOFFS -> Well defined?
+
   // Opponent is the one folding so we win
   Payoff fold_payoff;
   fold_payoff.win = (root_->pot() / 2) + root_->bets[1 - player_id_];
   fold_payoff.lose = fold_payoff.win;
 
-  raise_fold_cfvs_.assign(hero_range_raise_.num_hands(), 0);
+  // FIXME -> HANDLE ALL CASES (Preflop/flop/turn/river)
+
+  std::fill_n(raise_fold_cfvs_.begin(), hero_range_raise_.num_hands(), 0);
   compute_cfvs_river<float>(game_, hero_range_raise_, opponent_range_raise_fold_,
                             PokerHand(root_->board_cards), raise_fold_cfvs_, fold_payoff);
 
@@ -102,7 +101,7 @@ void CFR::update_hero_cfvs_bet_node() {
   call_payoff.win = (root_->pot() / 2) + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
 
-  raise_call_cfvs_.assign(hero_range_raise_.num_hands(), 0);
+  std::fill_n(raise_call_cfvs_.begin(), hero_range_raise_.num_hands(), 0);
   compute_cfvs_river<float>(game_, hero_range_raise_, opponent_range_raise_call_,
                             PokerHand(root_->board_cards), raise_call_cfvs_, call_payoff);
 
@@ -138,8 +137,8 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges,
       return call_payoff;
     }();
 
+    // FIXME -> HANDLE ALL CASES
     if (state->round() == round::PREFLOP) {
-      // TODO
       compute_cfvs_preflop(ranges[1 - player_id_], payoff, children_values_[a]);
     } else {
       compute_cfvs_river<float>(game_, ranges[player_id_], ranges[1 - player_id_],
@@ -278,6 +277,7 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
       ranges[0].num_hands(),
       ranges[1].num_hands(),
   };
+  const auto max_num_hands = std::max(ranges[0].num_hands(), ranges[1].num_hands());
   player_id_ = player_id;
   num_steps_ = 0;
 
@@ -291,6 +291,8 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
   opponent_regrets_vs_bet_ = HandActionsValues(num_hands_[1 - player_id_], 2, 0);
   strategy_ = HandActionsValues(num_hands_[player_id_], num_actions(), 1.0f / num_actions());
   opponent_fold_strategy_vs_bet_.assign(num_hands_[1 - player_id_], 0.5f);
+  raise_fold_cfvs_.assign(max_num_hands, 0);
+  raise_call_cfvs_.assign(max_num_hands, 0);
 
   precompute_cfvs_fixed_nodes(ranges, state);
   update_hero_reaches(ranges[player_id_]);

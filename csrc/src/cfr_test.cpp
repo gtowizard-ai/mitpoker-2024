@@ -93,8 +93,8 @@ TEST_F(CFRTest, TestNutAirToyGame) {
       mccfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), hero_id, 100);
 
   fmt::print("Board is {} \n", Card::to_string(board_cards));
-  for (std::string hand_str :
-       {"JdTd", "3h3c", "AdKc", "2c2d", "AdTh", "8d7d", "6s4h", "4h3s", "4h3d"}) {
+  for (std::string hand_str : {"JdTd", "3h3c", "AdKc", "2c2d", "AdTh", "8d7d", "6s4h", "4h3s",
+                               "4h3d", "4h5d", "Ks5d", "7h9d"}) {
     fmt::print("{} Check = {} / Raise = {} \n", hand_str, strategy(Hand(hand_str).index(), 0),
                strategy(Hand(hand_str).index(), 1));
   }

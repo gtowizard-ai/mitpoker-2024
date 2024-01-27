@@ -13,6 +13,7 @@ template <class R>
 double sum(const R& r) {
   return std::accumulate(r.begin(), r.end(), 0.0);
 }
+
 template <class R>
 size_t argmax(const R& r) {
   return std::distance(r.begin(), std::max_element(r.begin(), r.end()));

@@ -61,7 +61,7 @@ class CFR {
   void update_hero_cfvs_bet_node();
   void update_hero_strategy();
 
-  static constexpr unsigned max_available_actions_ = 6;
+  static constexpr unsigned max_available_actions_ = 3;
 
   const Game& game_;
 
@@ -72,12 +72,15 @@ class CFR {
   unsigned player_id_;
   unsigned num_steps_ = 0;
 
+  // Actions in abstraction at root node
   std::vector<Action> actions_;
 
   // Regrets for root node. Indexed by [action].
   HandActionsValues regrets_;
   HandActionsValues opponent_regrets_vs_bet_;
   HandActionsValues strategy_;
+  // Since we only allow fold/call vs. raise for our opponent,
+  // we can only keep track of fold strategy
   std::vector<float> opponent_fold_strategy_vs_bet_;
 
   Range hero_range_raise_;
