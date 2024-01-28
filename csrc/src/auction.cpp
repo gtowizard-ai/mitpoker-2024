@@ -57,7 +57,10 @@ void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int 
   update_exploits(villain_bid, pot);
 
   // Update ranges based on who won the bid
-  if (hero_bid > villain_bid) {
+  if (hero_bid == villain_bid) {
+    hero_range.to_3_cards_range(game, board_cards);
+    villain_range.to_3_cards_range(game, board_cards);
+  } else if (hero_bid > villain_bid) {
     hero_range.to_3_cards_range(game, board_cards);
   } else {
     villain_range.to_3_cards_range(game, board_cards);

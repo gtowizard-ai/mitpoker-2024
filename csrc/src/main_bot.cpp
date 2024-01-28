@@ -68,6 +68,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
   const auto& my_cards = state->hands[active];
   Hand hero_hand(my_cards[0] + my_cards[1] + my_cards[2]);
 
+  // TODO - Need to update ranges on new board cards
+
   if (ranges::contains(legal_actions, Action::Type::BID)) {
     /// Auction
     fmt::print("Bidding.. \n");
@@ -86,7 +88,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
                             time_budget_ms);
   }
 
-  // FIXME cant afford to do CFR on flop/turn for now
+  // TODO cant afford to do CFR on flop/turn for now
   if (state->round() == round::FLOP || state->round() == round::TURN) {
     if (ranges::contains(legal_actions, Action::Type::CHECK)) {
       // check-call
@@ -100,7 +102,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
   cfr_.solve(ranges_, state, active, time_budget_ms);
   const auto sampled_action = sample_action_and_update_range(*state, hero_hand, active);
 
-  // TODO UPDATE RANGE here..
+  // TODO - Update Villain range somehow..
 
   return sampled_action;
 }
