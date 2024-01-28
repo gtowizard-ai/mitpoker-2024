@@ -53,8 +53,7 @@ class Runner {
     std::array<std::array<std::string, 3>, 2> empty_hand = {{{"", "", ""}, {"", "", ""}}};
     StatePtr round_state = std::make_shared<RoundState>(
         0, false, std::array<std::optional<int>, 2>{std::nullopt, std::nullopt},
-        std::array<int, 2>{0, 0}, std::array<int, 2>{0, 0}, empty_hand, std::vector<card_t>{},
-        nullptr);
+        std::array<int, 2>{0, 0}, std::array<int, 2>{0, 0}, empty_hand);
     int active = 0;
     bool round_flag = true;
     while (true) {

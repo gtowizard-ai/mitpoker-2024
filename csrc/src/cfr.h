@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-
 #include "equity.h"
 #include "game.h"
 #include "range.h"
@@ -36,7 +35,7 @@ class CFR {
   explicit CFR(const Game& game);
 
   HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
-                          unsigned player_id, float time_budget_ms);
+                          unsigned player_id, float time_budget_ms, unsigned max_num_iters = 1000);
 
   // Actions considered at the state
   const auto& legal_actions() const { return actions_; }
@@ -49,7 +48,11 @@ class CFR {
   void build_tree(const RoundStatePtr& state);
 
   [[nodiscard]] float get_linear_cfr_discount_factor() const;
-  void precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges, const RoundStatePtr& state);
+
+  void precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges);
+
+  void compute_node_cfvs(const Range& traverser_range, const Range& opponent_range,
+                         const Payoff& payoff, std::vector<float>& cfvs) const;
 
   void update_opponent_cfvs_vs_bet();
   void update_opponent_regrets();

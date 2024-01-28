@@ -1,4 +1,8 @@
 #include "cfr.h"
+
+#include <chrono>
+#include <csignal>
+
 #include "equity.h"
 #include "poker_hand.h"
 #include "preflop_equity.h"
@@ -50,31 +54,38 @@ void CFR::build_tree(const RoundStatePtr& state) {
   }
 }
 
+void CFR::compute_node_cfvs(const Range& traverser_range, const Range& opponent_range,
+                            const Payoff& payoff, std::vector<float>& cfvs) const {
+  // FIXME - HANDLE ALL CASES (preflop/flop/turn/river..)
+  std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
+  if (root_->round() == round::PREFLOP) {
+    compute_cfvs_preflop(opponent_range, payoff, cfvs);
+  } else {
+    compute_cfvs_river<float>(game_, traverser_range, opponent_range, PokerHand(root_->board_cards),
+                              cfvs, payoff, false);
+  }
+}
+
 void CFR::update_opponent_cfvs_vs_bet() {
   if (actions_.back().type != Action::Type::RAISE) {
     return;
   }
   const auto& raise_action = actions_.back();
 
-  // FIXME PAYOFFS -> Well defined?
-
-  // Opponent is the one folding
-  Payoff fold_payoff;
-  fold_payoff.win = -((root_->pot() / 2) + root_->bets[1 - player_id_]);
+  // Opponent's perspective -> Fold means he lose
+  const auto half_pot = root_->pot_start_round() / 2;
+  Payoff fold_payoff{};
+  fold_payoff.win = -(half_pot + root_->bets[1 - player_id_]);
   fold_payoff.lose = fold_payoff.win;
 
-  std::fill_n(raise_fold_cfvs_.begin(), opponent_range_raise_fold_.num_hands(), 0);
-  compute_cfvs_river<float>(game_, opponent_range_raise_fold_, hero_range_raise_,
-                            PokerHand(root_->board_cards), raise_fold_cfvs_, fold_payoff);
+  compute_node_cfvs(opponent_range_raise_fold_, hero_range_raise_, fold_payoff, raise_fold_cfvs_);
 
   // CALL
-  Payoff call_payoff;
-  call_payoff.win = root_->pot_start_round() / 2;  // FIXME PAYOFFS
+  Payoff call_payoff{};
+  call_payoff.win = half_pot + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
 
-  std::fill_n(raise_call_cfvs_.begin(), opponent_range_raise_call_.num_hands(), 0);
-  compute_cfvs_river<float>(game_, opponent_range_raise_call_, hero_range_raise_,
-                            PokerHand(root_->board_cards), raise_call_cfvs_, call_payoff);
+  compute_node_cfvs(opponent_range_raise_call_, hero_range_raise_, call_payoff, raise_call_cfvs_);
 }
 
 void CFR::update_hero_cfvs_bet_node() {
@@ -83,27 +94,20 @@ void CFR::update_hero_cfvs_bet_node() {
   }
   const auto& raise_action = actions_.back();
 
-  // FIXME PAYOFFS -> Well defined?
-
-  // Opponent is the one folding so we win
-  Payoff fold_payoff;
-  fold_payoff.win = (root_->pot() / 2) + root_->bets[1 - player_id_];
+  // Hero's perspective -> Opponent folds mean we wins
+  const auto half_pot = root_->pot_start_round() / 2;
+  Payoff fold_payoff{};
+  fold_payoff.win = half_pot + root_->bets[1 - player_id_];
   fold_payoff.lose = fold_payoff.win;
 
-  // FIXME -> HANDLE ALL CASES (Preflop/flop/turn/river)
-
-  std::fill_n(raise_fold_cfvs_.begin(), hero_range_raise_.num_hands(), 0);
-  compute_cfvs_river<float>(game_, hero_range_raise_, opponent_range_raise_fold_,
-                            PokerHand(root_->board_cards), raise_fold_cfvs_, fold_payoff);
+  compute_node_cfvs(hero_range_raise_, opponent_range_raise_fold_, fold_payoff, raise_fold_cfvs_);
 
   // CALL
-  Payoff call_payoff;
-  call_payoff.win = (root_->pot() / 2) + raise_action.amount;
+  Payoff call_payoff{};
+  call_payoff.win = half_pot + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
 
-  std::fill_n(raise_call_cfvs_.begin(), hero_range_raise_.num_hands(), 0);
-  compute_cfvs_river<float>(game_, hero_range_raise_, opponent_range_raise_call_,
-                            PokerHand(root_->board_cards), raise_call_cfvs_, call_payoff);
+  compute_node_cfvs(hero_range_raise_, opponent_range_raise_call_, call_payoff, raise_call_cfvs_);
 
   auto& cfvs = children_values_[num_actions() - 1];
   for (hand_t hand = 0; hand < hero_range_raise_.num_hands(); ++hand) {
@@ -111,8 +115,7 @@ void CFR::update_hero_cfvs_bet_node() {
   }
 }
 
-void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges,
-                                      const RoundStatePtr& state) {
+void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges) {
   for (auto& child_values : children_values_) {
     std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
   }
@@ -123,27 +126,22 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges,
     }
 
     const Payoff payoff = [&] {
+      const auto half_pot = root_->pot_start_round() / 2;
       if (actions_[a].type == Action::Type::FOLD) {
-        Payoff fold_payoff;
-        fold_payoff.win = -(root_->pot() / 2 + root_->bets[player_id_]);
+        Payoff fold_payoff{};
+        fold_payoff.win = -(half_pot + root_->bets[player_id_]);
         fold_payoff.lose = fold_payoff.win;
         return fold_payoff;
+      } else {
+        // Call or Check
+        Payoff call_payoff{};
+        call_payoff.win = half_pot + root_->bets[1 - player_id_];
+        call_payoff.lose = -call_payoff.win;
+        return call_payoff;
       }
-      // Call or Check
-
-      Payoff call_payoff;
-      call_payoff.win = (root_->pot() / 2) + ranges::sum(root_->bets);
-      call_payoff.lose = -call_payoff.win;
-      return call_payoff;
     }();
 
-    // FIXME -> HANDLE ALL CASES
-    if (state->round() == round::PREFLOP) {
-      compute_cfvs_preflop(ranges[1 - player_id_], payoff, children_values_[a]);
-    } else {
-      compute_cfvs_river<float>(game_, ranges[player_id_], ranges[1 - player_id_],
-                                PokerHand(state->board_cards), children_values_[a], payoff, false);
-    }
+    compute_node_cfvs(ranges[player_id_], ranges[1 - player_id_], payoff, children_values_[a]);
   }
 }
 
@@ -180,7 +178,6 @@ void CFR::update_hero_regrets() {
 void CFR::update_hero_reaches(const Range& hero_range) {
   const auto& raise_action = actions_.back();
   if (raise_action.type != Action::Type::RAISE) {
-    throw std::runtime_error("Not implemented");
     return;
   }
 
@@ -271,7 +268,9 @@ void CFR::step(const std::array<Range, 2>& ranges) {
 }
 
 HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
-                             const unsigned player_id, const float time_budget_ms) {
+                             const unsigned player_id, const float time_budget_ms,
+                             const unsigned max_num_iters) {
+  const auto timer_enter = std::chrono::high_resolution_clock::now();
   root_ = state;
   num_hands_ = {
       ranges[0].num_hands(),
@@ -294,15 +293,26 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
   raise_fold_cfvs_.assign(max_num_hands, 0);
   raise_call_cfvs_.assign(max_num_hands, 0);
 
-  precompute_cfvs_fixed_nodes(ranges, state);
+  precompute_cfvs_fixed_nodes(ranges);
   update_hero_reaches(ranges[player_id_]);
   update_opponent_reaches(ranges[1 - player_id_]);
 
-  const unsigned max_iterations = 10;  // FIXME
-  for (unsigned i = 0; i < max_iterations; ++i) {
+  while (true) {
     step(ranges);
+
+    const auto duration_micros = std::chrono::duration_cast<std::chrono::microseconds>(
+                                     std::chrono::high_resolution_clock::now() - timer_enter)
+                                     .count();
+    if (static_cast<float>(duration_micros) >= 1000 * time_budget_ms) {
+      fmt::print("Stopping CFR after {} iters (Reached time budget) \n", num_steps_);
+      break;
+    }
+    if (num_steps_ >= max_num_iters) {
+      fmt::print("Stopping CFR after {} iters (Reached max number of iters of {}) \n", num_steps_,
+                 max_num_iters);
+      break;
+    }
   }
-  fmt::print("Completed {} CFR iterations \n", max_iterations);
 
   return strategy_;
 }
