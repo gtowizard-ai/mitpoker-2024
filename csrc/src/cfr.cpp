@@ -58,6 +58,7 @@ void CFR::compute_node_cfvs(const Range& traverser_range, const Range& opponent_
   // FIXME - HANDLE ALL CASES (preflop/flop/turn/river..)
   std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
   if (root_->round() == round::PREFLOP) {
+    // FIXME -> This doesn't work for preflop fold nodes!
     compute_cfvs_preflop(opponent_range, payoff, cfvs);
   } else {
     compute_cfvs_river<float>(game_, traverser_range, opponent_range, PokerHand(root_->board_cards),
