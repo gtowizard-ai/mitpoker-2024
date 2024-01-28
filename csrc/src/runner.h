@@ -228,7 +228,7 @@ void runBot(std::string& host, std::string& port, Args... args) {
 
 inline std::array<std::string, 2> parseArgs(int argc, char* argv[]) {
   std::string host = "localhost";
-  int port;
+  int port = 0;
 
   bool host_flag = false;
   for (int i = 1; i < argc; i++) {

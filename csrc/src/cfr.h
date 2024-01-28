@@ -34,13 +34,16 @@ class CFR {
  public:
   explicit CFR(const Game& game);
 
-  HandActionsValues solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
-                          unsigned player_id, float time_budget_ms, unsigned max_num_iters = 1000);
+  void solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state, unsigned player_id,
+             float time_budget_ms, unsigned max_num_iters = 1000);
 
   // Actions considered at the state
   const auto& legal_actions() const { return actions_; }
 
   auto num_actions() const { return actions_.size(); }
+
+  // Strategy at root
+  const auto& strategy() const { return strategy_; }
 
  private:
   void step(const std::array<Range, 2>& ranges);
@@ -68,7 +71,8 @@ class CFR {
 
   const Game& game_;
 
-  std::array<std::vector<float>, max_available_actions_> children_values_{};
+  // CFVs for each action at root node
+  std::array<std::vector<float>, max_available_actions_> children_cfvs_{};
 
   RoundStatePtr root_;
   std::array<hand_t, 2> num_hands_{0, 0};

@@ -69,7 +69,7 @@ def _run_match(player_1: Player, player_2: Player):
 
 
 def run_benchmark_vs_check_call_bot():
-    main_bot = Player(name="main", path="./csrc/main_bot")
+    main_bot = Player(name="main_vs_check_or_call", path="./csrc/main_bot")
     check_call_bot = Player(name="check_or_call", path="./csrc/check_or_call_bot")
     results = _run_match(main_bot, check_call_bot)
 
@@ -82,7 +82,7 @@ def run_benchmark_vs_check_call_bot():
 
 
 def run_match_vs_bid_everything_bot():
-    main_bot = Player(name="main", path="./csrc/main_bot")
+    main_bot = Player(name="main_vs_bid_everything", path="./csrc/main_bot")
     bid_everything_bot = Player(
         name="bid_everything_bot", path="./csrc/bid_everything_bot"
     )

@@ -6,7 +6,6 @@
 #include "equity.h"
 #include "poker_hand.h"
 #include "preflop_equity.h"
-#include "ranges_utils.h"
 #include "states.h"
 
 namespace pokerbot {
@@ -16,7 +15,7 @@ HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned nu
     : data(num_hands * num_actions, value), num_hands_(num_hands), num_actions_(num_actions) {}
 
 CFR::CFR(const Game& game) : game_(game) {
-  for (auto& child_values : children_values_) {
+  for (auto& child_values : children_cfvs_) {
     child_values.resize(NUM_HANDS_POSTFLOP_3CARDS);
   }
 }
@@ -47,6 +46,8 @@ void CFR::build_tree() {
       // All-in
       actions_.emplace_back(Action::Type::RAISE, raise_bounds[1]);
     }
+  } else {
+    fmt::print("CFR NO RAISE POSSIBLE Pot={}/Stack={}\n", root_->pot(), root_->effective_stack());
   }
 
   if (actions_.size() > max_available_actions_) {
@@ -109,14 +110,14 @@ void CFR::update_hero_cfvs_bet_node() {
 
   compute_node_cfvs(hero_range_raise_, opponent_range_raise_call_, call_payoff, raise_call_cfvs_);
 
-  auto& cfvs = children_values_[num_actions() - 1];
+  auto& cfvs = children_cfvs_[num_actions() - 1];
   for (hand_t hand = 0; hand < hero_range_raise_.num_hands(); ++hand) {
     cfvs[hand] = raise_fold_cfvs_[hand] + raise_call_cfvs_[hand];
   }
 }
 
 void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges) {
-  for (auto& child_values : children_values_) {
+  for (auto& child_values : children_cfvs_) {
     std::fill_n(child_values.begin(), ranges[player_id_].num_hands(), 0);
   }
 
@@ -141,7 +142,7 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges) {
       }
     }();
 
-    compute_node_cfvs(ranges[player_id_], ranges[1 - player_id_], payoff, children_values_[a]);
+    compute_node_cfvs(ranges[player_id_], ranges[1 - player_id_], payoff, children_cfvs_[a]);
   }
 }
 
@@ -163,12 +164,12 @@ void CFR::update_hero_regrets() {
   const auto regret_discount = get_linear_cfr_discount_factor();
   for (hand_t hand = 0; hand < num_hands_[player_id_]; ++hand) {
     float root_value = 0;
-    for (unsigned action = 0; action < num_actions(); action++) {
-      root_value += strategy_(hand, action) * children_values_[action][hand];
+    for (unsigned action = 0; action < num_actions(); ++action) {
+      root_value += strategy_(hand, action) * children_cfvs_[action][hand];
     }
 
-    for (unsigned action = 0; action < num_actions(); action++) {
-      const auto immediate_regret = children_values_[action][hand] - root_value;
+    for (unsigned action = 0; action < num_actions(); ++action) {
+      const auto immediate_regret = children_cfvs_[action][hand] - root_value;
       regrets_(hand, action) += immediate_regret;
       regrets_(hand, action) *= regret_discount;
     }
@@ -193,21 +194,12 @@ void CFR::update_opponent_reaches(const Range& opponent_range) {
     opponent_range_raise_fold_.range[hand] = opponent_range.range[hand] * fold_prob;
     opponent_range_raise_call_.range[hand] = opponent_range.range[hand] * (1.0f - fold_prob);
   }
-
-  // for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
-  //   if (!std::isfinite(opponent_range_raise_fold_.range[hand]) || !std::isfinite(opponent_range_raise_call_.range[hand])) {
-  //     throw std::runtime_error(
-  //         fmt::format("Not finite opponent_range_raise_ / range = {} / strat = {} / regret = {} / fold cfv = {} / call cfv = {}",
-  //                     opponent_range.range[hand], opponent_strategy_vs_bet_(hand, 0), opponent_regrets_vs_bet_(hand, 0),
-  //                     raise_fold_cfvs_[hand], raise_call_cfvs_[hand]));
-  //   }
-  // }
 }
 
 void CFR::update_hero_strategy() {
-  for (hand_t hand = 0; hand < num_hands_[player_id_]; hand++) {
+  for (hand_t hand = 0; hand < num_hands_[player_id_]; ++hand) {
     float sum_positive_regrets = 0;
-    for (unsigned action = 0; action < num_actions(); action++) {
+    for (unsigned action = 0; action < num_actions(); ++action) {
       if (regrets_(hand, action) > 0) {
         sum_positive_regrets += regrets_(hand, action);
         strategy_(hand, action) = regrets_(hand, action);
@@ -216,7 +208,7 @@ void CFR::update_hero_strategy() {
       }
     }
 
-    for (unsigned action = 0; action < num_actions(); action++) {
+    for (unsigned action = 0; action < num_actions(); ++action) {
       strategy_(hand, action) = sum_positive_regrets > 0
                                     ? strategy_(hand, action) / sum_positive_regrets
                                     : 1.0f / static_cast<float>(num_actions());
@@ -225,7 +217,7 @@ void CFR::update_hero_strategy() {
 }
 
 void CFR::update_opponent_strategy() {
-  for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; hand++) {
+  for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
     float sum_positive_regrets = 0;
 
     // Fold
@@ -267,10 +259,10 @@ void CFR::step(const std::array<Range, 2>& ranges) {
   num_steps_++;
 }
 
-HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
-                             const unsigned player_id, const float time_budget_ms,
-                             const unsigned max_num_iters) {
-  const auto timer_enter = std::chrono::high_resolution_clock::now();
+void CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
+                const unsigned player_id, const float time_budget_ms,
+                const unsigned max_num_iters) {
+  const auto start_time = std::chrono::high_resolution_clock::now();
   root_ = state;
   num_hands_ = {
       ranges[0].num_hands(),
@@ -301,7 +293,7 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
     step(ranges);
 
     const auto duration_micros = std::chrono::duration_cast<std::chrono::microseconds>(
-                                     std::chrono::high_resolution_clock::now() - timer_enter)
+                                     std::chrono::high_resolution_clock::now() - start_time)
                                      .count();
     if (static_cast<float>(duration_micros) >= 1000 * time_budget_ms) {
       fmt::print("Stopping CFR after {} iters (Reached time budget) \n", num_steps_);
@@ -313,8 +305,6 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
       break;
     }
   }
-
-  return strategy_;
 }
 
 }  // namespace pokerbot

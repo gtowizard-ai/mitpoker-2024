@@ -4,7 +4,39 @@
 
 namespace pokerbot {
 
-MainBot::MainBot() : game_(), auctioneer_(), cfr_(game_) {}
+MainBot::MainBot() : game_(), auctioneer_(), cfr_(game_), gen_(std::random_device{}()) {}
+
+Action MainBot::sample_action_and_update_range(const RoundState& state, const Hand& hand,
+                                               const int hero_id, const float min_prob_sampling) {
+  const auto& strategy = cfr_.strategy();
+
+  // Get strategy for hand
+  std::vector<float> probs;
+  probs.reserve(strategy.num_actions_);
+  for (unsigned a = 0; a < strategy.num_actions_; ++a) {
+    probs.push_back(strategy(hand.index(), a));
+  }
+  // Don't sample if prob is too low due to non-convergence
+  for (auto& val : probs) {
+    if (val < min_prob_sampling) {
+      val = 0;
+    }
+  }
+
+  std::discrete_distribution<> dis(probs.begin(), probs.end());
+  const int sampled_idx = dis(gen_);
+  const auto sampled_action = cfr_.legal_actions()[sampled_idx];
+  fmt::print("{} - {} - Sampled Action {} on {} based on strategy = {} \n",
+             state.round().to_string(), hand.to_string(), sampled_action.to_string(),
+             Card::to_string(state.board_cards), probs);
+
+  for (hand_t i = 0; i < ranges_[hero_id].num_hands(); ++i) {
+    const auto action_prob = strategy(i, sampled_idx);
+    ranges_[hero_id].range[i] = ranges_[hero_id].range[i] * action_prob;
+  }
+
+  return sampled_action;
+}
 
 void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*state*/,
                               int /*active*/) {
@@ -57,22 +89,14 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
     return {Action::Type::CALL};
   }
 
-  const float time_budget_ms = 1;  // FIXME
-  const auto strategy = cfr_.solve(ranges_, state, active, time_budget_ms);
+  // Solve..
+  const float time_budget_ms = 5;  // FIXME
+  cfr_.solve(ranges_, state, active, time_budget_ms);
+  const auto sampled_action = sample_action_and_update_range(*state, hero_hand, active);
 
   // TODO UPDATE RANGE here..
 
-  std::vector<float> hand_strat;
-  for (unsigned a = 0; a < strategy.num_actions_; ++a) {
-    hand_strat.push_back(strategy(hero_hand.index(), a));
-  }
-  // HACK -> TODO should sample here
-  const auto idx_action = ranges::argmax(hand_strat);
-  const auto action = cfr_.legal_actions()[idx_action];
-
-  fmt::print("Best action for hand {} on {} is {} (Strat={})\n", hero_hand.to_string(),
-             Card::to_string(state->board_cards), action.to_string(), hand_strat);
-  return action;
+  return sampled_action;
 }
 
 }  // namespace pokerbot

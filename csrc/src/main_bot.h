@@ -1,4 +1,6 @@
 #pragma once
+#include <random>
+
 #include "auction.h"
 #include "cfr.h"
 #include "game.h"
@@ -38,8 +40,15 @@ class MainBot {
   Auctioneer auctioneer_;
   std::array<Range, 2> ranges_;
   CFR cfr_;
+  mutable std::mt19937 gen_;
   // TODO
   // HandActionsValues preflop_sb_cached_strategy_;
+
+  // Sample action based on strategy in `cfr_`
+  // Won't sample any action with prob < `min_prob_sampling`
+  // Then update hero's range based on sampled action
+  Action sample_action_and_update_range(const RoundState& state, const Hand& hand, int hero_id,
+                                        float min_prob_sampling = 0.01);
 };
 
 }  // namespace pokerbot

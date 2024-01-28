@@ -68,8 +68,8 @@ TEST_F(CFRTest, TestNutAirToyGame) {
   auto round_state =
       std::make_shared<RoundState>(BB_POS, false, bids, bets, stacks, hands, board_cards, nullptr);
 
-  auto strategy = cfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state),
-                            hero_id, 4000, 500);
+  cfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), hero_id, 4000, 500);
+  const auto& strategy = cfr.strategy();
 
   fmt::print("Board is {} \n", Card::to_string(board_cards));
   double bluff_frequency = 0;
