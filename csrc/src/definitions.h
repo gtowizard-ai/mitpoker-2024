@@ -18,9 +18,9 @@ constexpr int MAX_SUITS = 4;
 constexpr int MAX_RANKS = 13;
 constexpr int MAX_DECK_SIZE = MAX_SUITS * MAX_RANKS;
 constexpr int MAX_BOARD_CARDS = 5;
-constexpr int NUM_HANDS_PREFLOP = 169;
-constexpr int NUM_HANDS_POSTFLOP_2CARDS = 1326;
-constexpr int NUM_HANDS_POSTFLOP_3CARDS = 22100;
+constexpr hand_t NUM_HANDS_PREFLOP = 169;
+constexpr hand_t NUM_HANDS_POSTFLOP_2CARDS = 1326;
+constexpr hand_t NUM_HANDS_POSTFLOP_3CARDS = 22100;
 
 inline constexpr int STARTING_STACK = 400;
 inline constexpr int BIG_BLIND = 2;

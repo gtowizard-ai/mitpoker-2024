@@ -603,7 +603,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
   std::vector<float> equities;
   equities.reserve(hero_range.num_hands());
 
-  for (int i = 0; i < hero_range.num_hands(); ++i) {
+  for (hand_t i = 0; i < hero_range.num_hands(); ++i) {
     if (weights[i] > 0.0) {
       equities.push_back(cfvs[i] / weights[i] + 0.5);
     } else {

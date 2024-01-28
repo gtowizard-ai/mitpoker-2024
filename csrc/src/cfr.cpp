@@ -21,11 +21,11 @@ CFR::CFR(const Game& game) : game_(game) {
   }
 }
 
-void CFR::build_tree(const RoundStatePtr& state) {
+void CFR::build_tree() {
   actions_.clear();
   actions_.reserve(legal_actions().size() + 1);
 
-  const auto legal_actions = state->legal_actions();
+  const auto legal_actions = root_->legal_actions();
 
   bool raise_avail = false;
   for (const auto legal_action : legal_actions) {
@@ -39,9 +39,9 @@ void CFR::build_tree(const RoundStatePtr& state) {
   // NB: PUT RAISE ACTION AS LAST ONE
   if (raise_avail) {
     // Add pot-sized bet if it's less than going all-in by `pot`
-    const auto raise_bounds = state->raise_bounds();
-    auto pot_sized_bet = std::max(raise_bounds[0], state->pot());
-    if (raise_bounds[1] - pot_sized_bet > state->pot()) {
+    const auto raise_bounds = root_->raise_bounds();
+    auto pot_sized_bet = std::max(raise_bounds[0], root_->pot());
+    if (raise_bounds[1] - pot_sized_bet > root_->pot()) {
       actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
     } else {
       // All-in
@@ -205,7 +205,7 @@ void CFR::update_opponent_reaches(const Range& opponent_range) {
 }
 
 void CFR::update_hero_strategy() {
-  for (unsigned hand = 0; hand < num_hands_[player_id_]; hand++) {
+  for (hand_t hand = 0; hand < num_hands_[player_id_]; hand++) {
     float sum_positive_regrets = 0;
     for (unsigned action = 0; action < num_actions(); action++) {
       if (regrets_(hand, action) > 0) {
@@ -225,7 +225,7 @@ void CFR::update_hero_strategy() {
 }
 
 void CFR::update_opponent_strategy() {
-  for (unsigned hand = 0; hand < num_hands_[1 - player_id_]; hand++) {
+  for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; hand++) {
     float sum_positive_regrets = 0;
 
     // Fold
@@ -284,7 +284,7 @@ HandActionsValues CFR::solve(const std::array<Range, 2>& ranges, const RoundStat
   opponent_range_raise_call_ = ranges[1 - player_id_];
   opponent_range_raise_fold_ = ranges[1 - player_id_];
 
-  build_tree(state);
+  build_tree();
 
   regrets_ = HandActionsValues(num_hands_[player_id_], num_actions(), 0);
   opponent_regrets_vs_bet_ = HandActionsValues(num_hands_[1 - player_id_], 2, 0);

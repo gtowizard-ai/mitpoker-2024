@@ -18,7 +18,8 @@ struct BidEverythingBot {
     @param active Your player's index.
     @return Your action.
   */
-  Action get_action(const GameInfo& /*game_state*/, const RoundStatePtr& round_state, int active) {
+  Action get_action(const GameInfo& /*game_state*/, const RoundStatePtr& round_state,
+                    int /*active*/) {
     auto legal_actions = round_state->legal_actions();
     auto min_stack = round_state->effective_stack();
 

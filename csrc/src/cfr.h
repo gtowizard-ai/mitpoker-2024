@@ -45,7 +45,7 @@ class CFR {
  private:
   void step(const std::array<Range, 2>& ranges);
 
-  void build_tree(const RoundStatePtr& state);
+  void build_tree();
 
   [[nodiscard]] float get_linear_cfr_discount_factor() const;
 
@@ -71,7 +71,7 @@ class CFR {
   std::array<std::vector<float>, max_available_actions_> children_values_{};
 
   RoundStatePtr root_;
-  std::array<int, 2> num_hands_{0, 0};
+  std::array<hand_t, 2> num_hands_{0, 0};
   unsigned player_id_;
   unsigned num_steps_ = 0;
 

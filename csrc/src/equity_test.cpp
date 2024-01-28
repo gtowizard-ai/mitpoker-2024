@@ -88,7 +88,7 @@ class EquityTest : public ::testing::Test {
     const auto eval_board = PokerHand(board_cards);
 
     auto hero_hand = eval_board + to_poker_hand(hand);
-    for (int i = 0; i < opponent_range.num_hands(); ++i) {
+    for (hand_t i = 0; i < opponent_range.num_hands(); ++i) {
       if (hand.collides_with(opponent_hands[i]) || opponent_hands[i].collides_with(board_cards)) {
         continue;
       }

@@ -31,7 +31,7 @@ class MainBot {
     @param active Your player's index.
     @return Your action.
   */
-  Action get_action(const GameInfo& game_info, const RoundStatePtr& round_state, int active);
+  Action get_action(const GameInfo& game_info, const RoundStatePtr& state, int active);
 
  private:
   const Game game_;

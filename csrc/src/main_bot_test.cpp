@@ -70,8 +70,9 @@ TEST(MainBotTest, TestRiverState) {
   std::array<std::array<std::string, 3>, 2> empty_hand = {
       {{"4c", "4d", "5c"}, {"", "", ""}},
   };
+  std::array<std::optional<int>, 2> bids = {0, 0};
   const auto board_cards = Card::to_vector("2c2d2h2s3c");
-  StatePtr round_state = std::make_shared<RoundState>(0, false, NO_BIDS, NO_BETS, STARTING_STACKS,
+  StatePtr round_state = std::make_shared<RoundState>(0, false, bids, NO_BETS, STARTING_STACKS,
                                                       empty_hand, board_cards, nullptr);
 
   auto action =

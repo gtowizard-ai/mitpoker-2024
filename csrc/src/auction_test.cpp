@@ -23,12 +23,15 @@ TEST_F(AuctionTest, TestGetBid) {
 
 TEST_F(AuctionTest, TestReceiveBid) {
   Auctioneer auctioneer;
-  Range v_range;
-  int villain_bid = 2;
+  Range hero_range;
+  Range villain_range;
   int hero_bid = 1;
+  int villain_bid = 2;
+
   int pot = 100;
   auto board_cards = Card::to_vector("AcAdAh");
-  auctioneer.receive_bid(v_range, villain_bid, hero_bid, game_, board_cards, pot, 2.0);
+  auctioneer.receive_bid(hero_range, villain_range, hero_bid, villain_bid, game_, board_cards, pot,
+                         2.0);
 }
 
 TEST_F(AuctionTest, TestUpdateExploits) {
