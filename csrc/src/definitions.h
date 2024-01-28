@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <optional>
 #include <string_view>
 
 namespace pokerbot {
@@ -24,8 +25,12 @@ constexpr int NUM_HANDS_POSTFLOP_3CARDS = 22100;
 inline constexpr int STARTING_STACK = 400;
 inline constexpr int BIG_BLIND = 2;
 inline constexpr int SMALL_BLIND = 1;
+inline constexpr int SB_POS = 0;
+inline constexpr int BB_POS = 1;
 
-inline std::array<int, 2> STARTING_STACKS = {STARTING_STACK, STARTING_STACK};
-inline std::array<int, 2> STARTING_BLINDS = {SMALL_BLIND, BIG_BLIND};
+inline std::array<int, 2> STARTING_STACKS = {STARTING_STACK - SMALL_BLIND,
+                                             STARTING_STACK - BIG_BLIND};
+inline std::array<int, 2> BLINDS = {SMALL_BLIND, BIG_BLIND};
+inline std::array<std::optional<int>, 2> EMPTY_BIDS = {std::nullopt, std::nullopt};
 
 }  // namespace pokerbot

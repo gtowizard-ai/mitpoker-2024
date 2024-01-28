@@ -69,7 +69,7 @@ void CFR::update_opponent_cfvs_vs_bet() {
 
   // CALL
   Payoff call_payoff;
-  call_payoff.win = (root_->pot() / 2) + raise_action.amount;
+  call_payoff.win = root_->pot_start_round() / 2;  // FIXME PAYOFFS
   call_payoff.lose = -call_payoff.win;
 
   std::fill_n(raise_call_cfvs_.begin(), opponent_range_raise_call_.num_hands(), 0);

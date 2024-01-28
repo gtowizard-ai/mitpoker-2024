@@ -20,7 +20,7 @@ struct BidEverythingBot {
   */
   Action get_action(const GameInfo& /*game_state*/, const RoundStatePtr& round_state, int active) {
     auto legal_actions = round_state->legal_actions();
-    auto min_stack = round_state->min_stack();
+    auto min_stack = round_state->effective_stack();
 
     // Basic bot that check/call preflop, then bids everything on the flop
     // to win the auction and then goes all-in

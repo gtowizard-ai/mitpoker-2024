@@ -275,7 +275,7 @@ TEST_F(EquityTest, TestComputeCFVsFoldNode) {
   opponent_range.to_3_cards_range(game_, board_cards);
 
   std::vector<double> cfvs(NUM_HANDS_POSTFLOP_3CARDS, 0);
-  Payoff payoff{-1.0, 0, -1.0};
+  Payoff payoff{-1.0, -1.0};
   PokerHand board(board_cards);
   compute_cfvs_river(game_, hero_range, opponent_range, board, cfvs, payoff, false);
 

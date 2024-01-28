@@ -16,8 +16,8 @@ TEST(MainBotTest, TestPreflopState) {
     std::array<std::array<std::string, 3>, 2> hands = {
         {hand, {"", "", ""}},
     };
-    StatePtr round_state = std::make_shared<RoundState>(
-        0, false, NO_BIDS, STARTING_BLINDS, STARTING_STACKS, hands, std::vector<card_t>{}, nullptr);
+    StatePtr round_state = std::make_shared<RoundState>(0, false, NO_BIDS, BLINDS, STARTING_STACKS,
+                                                        hands, std::vector<card_t>{}, nullptr);
 
     auto action =
         bot.get_action(game_info, std::static_pointer_cast<const RoundState>(round_state), 0);

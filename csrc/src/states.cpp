@@ -53,7 +53,7 @@ StatePtr RoundState::proceed_to_next_round() const {
                                       board_cards, get_shared());
 }
 
-StatePtr RoundState::proceed(Action action) const {
+StatePtr RoundState::proceed(const Action& action) const {
   auto active = get_active(button);
   switch (action.type) {
     case Action::Type::FOLD: {

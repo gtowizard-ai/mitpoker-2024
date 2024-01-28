@@ -48,16 +48,26 @@ struct RoundState final : State {
 
   std::vector<Action::Type> legal_actions() const;
 
-  auto min_stack() const { return std::min(stacks[0], stacks[1]); }
+  auto effective_stack() const { return std::min(stacks[0], stacks[1]); }
+
+  auto effective_stack_start_round() const {
+    return std::min(stacks[0] + bets[0], stacks[1] + bets[1]);
+  }
 
   auto pot() const { return 2 * STARTING_STACK - stacks[0] - stacks[1]; }
+
+  // Chips in the middle at start of the round
+  auto pot_start_round() const { return pot() - bets[0] - bets[1]; }
+
+  // Amount invested so far during the hand - across all rounds
+  auto spent_total(int player) const { return STARTING_STACK - stacks[player]; }
 
   // the smallest and largest numbers of chips for a legal bet/raise
   std::array<int, 2> raise_bounds() const;
 
   StatePtr proceed_to_next_round() const;
 
-  StatePtr proceed(Action action) const;
+  StatePtr proceed(const Action& action) const;
 
   std::string to_string() const;
 

@@ -556,7 +556,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
 
   PokerHand board(board_cards);
 
-  Payoff payoff{0.5, 0, -0.5};
+  Payoff payoff{0.5, -0.5};
 
   // River
   if (board.size() == 5) {

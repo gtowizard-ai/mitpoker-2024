@@ -77,11 +77,9 @@ class Runner {
             std::array<std::array<std::string, 3>, 2> hands;
             hands[active][0] = cards[0];
             hands[active][1] = cards[1];
-            std::array<std::optional<int>, 2> bids = {std::nullopt, std::nullopt};
-            std::array<int, 2> bets = {SMALL_BLIND, BIG_BLIND};
-            std::array<int, 2> stacks = {STARTING_STACK - SMALL_BLIND, STARTING_STACK - BIG_BLIND};
-            round_state = std::make_shared<RoundState>(
-                0, false, bids, bets, stacks, std::move(hands), std::vector<card_t>{}, nullptr);
+
+            round_state = std::make_shared<RoundState>(0, false, EMPTY_BIDS, BLINDS,
+                                                       STARTING_STACKS, std::move(hands));
             if (round_flag) {
               pokerbot.handle_new_hand(
                   game_info, std::static_pointer_cast<const RoundState>(round_state), active);
