@@ -58,8 +58,14 @@ void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
 
 Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& state, int active) {
   const auto legal_actions = state->legal_actions();
-  const auto& my_cards = state->hands[active];
 
+  if (legal_actions.size() == 1) {
+    // Engine keeps asking to take an action even when both players are all-in..
+    // Don't waste any time and return
+    return Action{state->legal_actions().front()};
+  }
+
+  const auto& my_cards = state->hands[active];
   Hand hero_hand(my_cards[0] + my_cards[1] + my_cards[2]);
 
   if (ranges::contains(legal_actions, Action::Type::BID)) {

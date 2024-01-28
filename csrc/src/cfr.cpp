@@ -26,17 +26,17 @@ void CFR::build_tree() {
 
   const auto legal_actions = root_->legal_actions();
 
-  bool raise_avail = false;
+  bool raise_is_legal = false;
   for (const auto legal_action : legal_actions) {
     if (legal_action != Action::Type::RAISE) {
       actions_.emplace_back(legal_action);
     } else {
-      raise_avail = true;
+      raise_is_legal = true;
     }
   }
 
-  // NB: PUT RAISE ACTION AS LAST ONE
-  if (raise_avail) {
+  // NB: We need to put the raise option as the last one since some functions depend on it
+  if (raise_is_legal) {
     // Add pot-sized bet if it's less than going all-in by `pot`
     const auto raise_bounds = root_->raise_bounds();
     auto pot_sized_bet = std::max(raise_bounds[0], root_->pot());
@@ -46,8 +46,6 @@ void CFR::build_tree() {
       // All-in
       actions_.emplace_back(Action::Type::RAISE, raise_bounds[1]);
     }
-  } else {
-    fmt::print("CFR NO RAISE POSSIBLE Pot={}/Stack={}\n", root_->pot(), root_->effective_stack());
   }
 
   if (actions_.size() > max_available_actions_) {
@@ -81,7 +79,7 @@ void CFR::update_opponent_cfvs_vs_bet() {
 
   compute_node_cfvs(opponent_range_raise_fold_, hero_range_raise_, fold_payoff, raise_fold_cfvs_);
 
-  // CALL
+  // Call
   Payoff call_payoff{};
   call_payoff.win = half_pot + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
@@ -103,7 +101,7 @@ void CFR::update_hero_cfvs_bet_node() {
 
   compute_node_cfvs(hero_range_raise_, opponent_range_raise_fold_, fold_payoff, raise_fold_cfvs_);
 
-  // CALL
+  // Call
   Payoff call_payoff{};
   call_payoff.win = half_pot + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
@@ -123,6 +121,8 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges) {
 
   for (unsigned a = 0; a < num_actions(); ++a) {
     if (actions_[a].type == Action::Type::RAISE) {
+      // For raise nodes, we let our opponent choose between call/fold
+      // so we can't precompute the values
       continue;
     }
 
