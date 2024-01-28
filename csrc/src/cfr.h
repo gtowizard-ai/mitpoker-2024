@@ -74,8 +74,12 @@ class CFR {
   std::array<std::vector<float>, max_available_actions_> children_cfvs_{};
 
   RoundStatePtr root_;
+  // Number of hands of each player, based on whether they have 2 or 3 cards
   std::array<hand_t, 2> num_hands_{0, 0};
+  // Index of player at root node
   unsigned player_id_;
+  // Number of steps/iterations completed,
+  // where we update both players on each iteration
   unsigned num_steps_ = 0;
 
   // Actions in abstraction at root node
