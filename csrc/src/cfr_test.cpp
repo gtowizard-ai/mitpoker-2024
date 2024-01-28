@@ -29,7 +29,7 @@ TEST_F(CFRTest, TestNoErrorThreeVsThreeCards) {
   cfr.solve(ranges, round_state, 0, 10);
 }
 
-TEST_F(CFRTest, TestNutAirToyGame) {
+TEST_F(CFRTest, TestRiverNutAirToyGame) {
   // Test Classic Nuts+Air vs. Bluff catcher toy game.
   const auto board_cards = Card::to_vector("2c2d2h3c3d");
   auto cfr = CFR(game_);
@@ -92,4 +92,30 @@ TEST_F(CFRTest, TestNutAirToyGame) {
              ratio_bluff_to_vbet);
   ASSERT_NEAR(valuebet_frequency, 2.0, 1e-4);
   ASSERT_NEAR(pot_odds, ratio_bluff_to_vbet, 0.05);
+}
+
+TEST_F(CFRTest, TestPreflopOpenRaiseStrategy) {
+  auto cfr = CFR(game_);
+
+  const auto board_cards = Card::to_vector("");
+  std::array<Range, 2> ranges{Range(), Range()};
+
+  std::array<std::array<std::string, 3>, 2> hands;
+  hands[1] = {"8h", "8d"};
+
+  auto round_state = std::make_shared<RoundState>(SB_POS, false, EMPTY_BIDS, BLINDS,
+                                                  STARTING_STACKS, hands, board_cards, nullptr);
+
+  cfr.solve(ranges, round_state, 0, 500);
+
+  const auto& strategy = cfr.strategy();
+
+  for (std::string hand_str : {"AcAs", "AcKc", "AcKd", "AcTh", "Ac2d", "6c6d", "2c2d", "JdTh",
+                               "9s8s", "9h8s", "3c2c", "3c2d"}) {
+    Hand hand(hand_str);
+    fmt::print("{} Fold = {} / Call = {} / Raise = {} \n", hand.to_string(),
+               strategy(hand.index(), 0), strategy(hand.index(), 1), strategy(hand.index(), 2));
+  }
+
+  // TODO Add tests/asserts here
 }
