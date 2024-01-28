@@ -28,8 +28,7 @@ class HandActionsValues {
   unsigned num_actions_ = 0;
 };
 
-// NB: We won't create one CFR object for each Decision. Better to create one object and
-// Reuse it over for each Round
+// NB: Should create this object once and reuse it each time you need to solve a subgame
 class CFR {
  public:
   explicit CFR(const Game& game);

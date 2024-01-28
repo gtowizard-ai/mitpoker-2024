@@ -2,13 +2,8 @@
 #include "game.h"
 #include "hand.h"
 #include "range.h"
-#include "states.h"
 
 namespace pokerbot {
-
-inline constexpr int ABS_BIDDING_EPSILON = 2;
-inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
-inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
 
 struct Auctioneer {
 
