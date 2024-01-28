@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706471647083,
+  "lastUpdate": 1706472237875,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "34644ef981dae3d1010dac6bd6f392565eb5e132",
-          "message": "Mccfr",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/27/commits/34644ef981dae3d1010dac6bd6f392565eb5e132"
-        },
-        "date": 1706295145760,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 0.2739,
-            "unit": "bb/hand",
-            "range": 0.4679
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 0.1858,
-            "unit": "bb/hand",
-            "range": 1.4749
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -328,6 +296,38 @@ window.BENCHMARK_DATA = {
             "value": -41.732,
             "unit": "bb/hand",
             "range": 5.2121
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "committer": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "id": "fa3daa51b2e4bc04d5f9a416a79a52a029c4652a",
+          "message": "CFR two limited steps",
+          "timestamp": "2024-01-24T02:28:03Z",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/32/commits/fa3daa51b2e4bc04d5f9a416a79a52a029c4652a"
+        },
+        "date": 1706472237026,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.248,
+            "unit": "bb/hand",
+            "range": 0.0499
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -35.1335,
+            "unit": "bb/hand",
+            "range": 5.2415
           }
         ]
       }
