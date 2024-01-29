@@ -1,56 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706570027976,
+  "lastUpdate": 1706570159174,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "philbeardsell@gmail.com",
-            "name": "Philippe Beardsell",
-            "username": "philqc"
-          },
-          "committer": {
-            "email": "philbeardsell@gmail.com",
-            "name": "Philippe Beardsell",
-            "username": "philqc"
-          },
-          "distinct": true,
-          "id": "f12b83a1541a5b6b3eb1f68cb20ecf80f6b58596",
-          "message": "more tests",
-          "timestamp": "2024-01-29T08:44:07-05:00",
-          "tree_id": "b5d14fc4c24776bc3cd3b17fff7de61d32d0de86",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/f12b83a1541a5b6b3eb1f68cb20ecf80f6b58596"
-        },
-        "date": 1706536201330,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": -0.237,
-            "unit": "bb/hand",
-            "range": 0.0421
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -36.921,
-            "unit": "bb/hand",
-            "range": 5.2635
-          },
-          {
-            "name": "Results vs. Uniform Random Bot",
-            "value": 4.2755,
-            "unit": "bb/hand",
-            "range": 3.318
-          },
-          {
-            "name": "Results vs. Ourselves",
-            "value": -0.936,
-            "unit": "bb/hand",
-            "range": 0.5314
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -452,6 +404,54 @@ window.BENCHMARK_DATA = {
             "value": -4.4525,
             "unit": "bb/hand",
             "range": 4.3933
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "02ad4bb27e0298931207818c097b8899343f1471",
+          "message": "Average equity of 3rd card bid strategy (#34)\n\n* initial get_bid commit\r\n\r\n* Added equity based bidding\r\n\r\n* snake to camel\r\n\r\n* Fixed arithmetic mistake\r\n\r\n* checkpoint\r\n\r\n* Removed old slow bidding\r\n\r\n* snakkkkeeee\r\n\r\n* wip\r\n\r\n* change name file\r\n\r\n* add equity bid base on average equity 3rd card\r\n\r\n* add test integrity of precomputed table\r\n\r\n---------\r\n\r\nCo-authored-by: GrahamZugPitt <GVZ3@pitt.edu>",
+          "timestamp": "2024-01-29T18:10:36-05:00",
+          "tree_id": "8eecc361da6c6174d25eca7164c58ec551bf26c2",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/02ad4bb27e0298931207818c097b8899343f1471"
+        },
+        "date": 1706570157134,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 0.7165,
+            "unit": "bb/hand",
+            "range": 0.1302
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -69.6275,
+            "unit": "bb/hand",
+            "range": 5.7972
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 14.5685,
+            "unit": "bb/hand",
+            "range": 3.3748
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": -0.682,
+            "unit": "bb/hand",
+            "range": 4.367
           }
         ]
       }
