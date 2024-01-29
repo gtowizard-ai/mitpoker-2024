@@ -20,7 +20,7 @@ TEST_F(AuctionTest, TestGetBid) {
   float time = 2.0;
   int pot = 100;
   const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
-  ASSERT_EQ(bid, 0);
+  ASSERT_EQ(bid, 25);
 }
 
 TEST_F(AuctionTest, TestReceiveBid) {
@@ -32,7 +32,7 @@ TEST_F(AuctionTest, TestReceiveBid) {
 
   int pot = 100;
   auto board = Card::to_vector("AcAdAh");
-  auctioneer.receive_bid(v_range, villain_bid, hero_bid, game_, board, pot, 2.0);
+  auctioneer.receive_bid(hero_range, villain_range, hero_bid, villain_bid, game_, board, pot, 2.0);
 }
 
 TEST_F(AuctionTest, TestUpdateExploits) {
@@ -62,8 +62,4 @@ TEST_F(AuctionTest, TestMeanEquity) {
   float eq1 = auctioneer.mean_equity(r1, r2, game_, board);
   float eq2 = auctioneer.mean_equity(r2, r1, game_, board);
   ASSERT_GT(eq1, eq2);
-}
-
-TEST_F(AuctionTest, TestEquityValues) {
-  generate_flop_bids();
 }

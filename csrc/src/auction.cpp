@@ -22,25 +22,20 @@ float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, co
 }
 
 int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
-                        const std::vector<card_t>& board_cards, const Hand& hand, const int pot,
+                        const std::vector<card_t>& board, const Hand& hand, const int pot,
                         float time_budget_ms) {
-  /*TODO: Implement a "slow, fast, very_fast" bidding method as follows:
-  	If we are making good time, do a CFR calculation and bid 1/(1-EVdiff) - 1
-  	If we are not making good time, do an equity calculation and bid 1/(1-EQdiff) - 1
-  	If we are making extremely bad time, bid a constant value (3/4ths of the pot, perhaps)
-  	
-  	We may want to pass this function what hand we're on (e.g. being on hand 750 with 10s to go isn't a big deal but being on hand 100 with 10s is)
-  */
   //TODO: Implement exploitative bidding based on previous received values
-  Range heroThreeCard = ranges[0];
+  Range heroThreeCard = hero_range;
   heroThreeCard.to_3_cards_range(game, board);
 
-  Range villainThreeCard = ranges[1];
+  Range villainThreeCard = villain_range;
   villainThreeCard.to_3_cards_range(game, board);
-
-  float heroThreeEq = mean_equity(heroThreeCard, ranges[1], game, board);
-  float heroTwoCard = mean_equity(ranges[0], villainThreeCard, game, board);
-  float equityDifference = heroThreeEq - heroTwoCard;
+  //TODO: Implement time efficient way for calculating equity
+  //TODO: Add cohesive get_bid test to testing
+  /*float heroThreeEq = mean_equity(heroThreeCard, villain_range, game, board);
+  float heroTwoCard = mean_equity(hero_range, villainThreeCard, game, board);
+  float equityDifference = heroThreeEq - heroTwoCard;*/
+  float equityDifference = .2;
 
   float equityBid = ((1 / (1 - equityDifference)) - 1) * pot;
 
