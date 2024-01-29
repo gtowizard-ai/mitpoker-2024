@@ -1,11 +1,15 @@
 #include "auction.h"
+#include <numeric>
 #include "definitions.h"
+#include "equity.h"
 
 namespace pokerbot {
 
 inline constexpr int ABS_BIDDING_EPSILON = 2;
 inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
 inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+inline constexpr float BID_MULTIPLIER_OOP = 1;
+inline constexpr float BID_MULTIPLIER_IP = 1;
 
 Auctioneer::Auctioneer() {
   v_is_excessive_bidder = true;
@@ -15,7 +19,14 @@ Auctioneer::Auctioneer() {
   v_pot_percentage_min_max[1] = -1;
 };
 
-int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range,
+// float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, const Game& game,
+//                               const std::vector<card_t>& board) {
+//   std::vector<float> eq = compute_equities(game, range_one, range_two, board);
+//   float sum = std::accumulate(eq.begin(), eq.end(), 0.0);
+//   return eq.empty() ? 0.0 : sum / eq.size();
+// }
+
+int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
                         const std::vector<card_t>& board_cards, const Hand& hand, const int pot,
                         float time_budget_ms) {
   /*TODO: Implement a "slow, fast, very_fast" bidding method as follows:
@@ -26,6 +37,20 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range,
   	We may want to pass this function what hand we're on (e.g. being on hand 750 with 10s to go isn't a big deal but being on hand 100 with 10s is)
   */
   //TODO: Implement exploitative bidding based on previous received values
+  // TODO
+  // Range heroThreeCard = hero_range;
+  // heroThreeCard.to_3_cards_range(game, board);
+  //
+  // Range villainThreeCard = villain_range;
+  // villainThreeCard.to_3_cards_range(game, board);
+  //
+  // float heroThreeEq = mean_equity(heroThreeCard, ranges[1], game, board);
+  // float heroTwoCard = mean_equity(ranges[0], villainThreeCard, game, board);
+  // float equityDifference = heroThreeEq - heroTwoCard;
+  //
+  // float equityBid = ((1 / (1 - equityDifference)) - 1) * pot;
+  //
+  // return equityBid;
   return 0;
 }
 

@@ -71,8 +71,9 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
     /// Auction
     fmt::print("Bidding.. \n");
     const float time_budget_ms = 1;  // FIXME
-    const auto bid = auctioneer_.get_bid(ranges_[active], ranges_[1 - active], state->board_cards,
-                                         hero_hand, state->pot(), time_budget_ms);
+    const auto bid =
+        auctioneer_.get_bid(ranges_[active], ranges_[1 - active], game_, state->board_cards,
+                            hero_hand, state->pot(), time_budget_ms);
     return {Action::Type::BID, bid};
   }
   if (state->bids[active].has_value() && state->bids[1 - active].has_value()) {

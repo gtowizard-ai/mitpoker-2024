@@ -13,7 +13,7 @@ struct Auctioneer {
   float v_pot_percentage_min_max[2];
   bool v_is_excessive_bidder;
 
-  int get_bid(const Range& hero_range, const Range& villain_range,
+  int get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
               const std::vector<card_t>& board_cards, const Hand& hand, int pot,
               float time_budget_ms);
 
