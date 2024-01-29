@@ -49,7 +49,8 @@ void generate_flop_bids() {
                 auto flop_as_cards = Card::to_vector(flop);
                 Range r2;
                 r2.to_3_cards_range(game_, flop_as_cards);
-                float equity = auctioneer.mean_equity(r1, r2, game_, flop_as_cards);
+                float equity = auctioneer.mean_equity(r2, r1, game_, flop_as_cards) -
+                               auctioneer.mean_equity(r1, r2, game_, flop_as_cards);
                 std::string output_string = "{";
                 output_string += flop;
                 output_string += ", ";

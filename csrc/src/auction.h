@@ -1,6 +1,4 @@
 #pragma once
-#include <tuple>
-#include "card.h"
 #include "game.h"
 #include "hand.h"
 #include "range.h"
@@ -28,8 +26,9 @@ struct Auctioneer {
   float mean_equity(const Range& range_one, const Range& range_two, const Game& game,
                     const std::vector<card_t>& board);
 
-  void receive_bid(Range& villain_range, int villain_bid, int hero_bid, const Game& game,
-                   const std::vector<card_t>& board_cards, int pot, float time_budget_ms);
+  void receive_bid(Range& hero_range, Range& villain_range, int hero_bid, int villain_bid,
+                   const Game& game, const std::vector<card_t>& board_cards, int pot,
+                   float time_budget_ms);
 
   void update_exploits(int bid, int pot);
 };

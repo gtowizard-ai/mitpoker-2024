@@ -530,6 +530,10 @@ template <typename T, typename>
 void compute_cfvs_river(const Game& game, const Range& hero_range, const Range& opponent_range,
                         const PokerHand& board, std::vector<T>& cfvs, const Payoff& payoff,
                         bool is_river_equity) {
+  if (hero_range.num_cards == NumCards::Two && opponent_range.num_cards == NumCards::Two) {
+    throw std::invalid_argument("CFV - 2 vs. 2 cards computations are not supported");
+  }
+
   if (hero_range.num_cards == NumCards::Two) {
     compute_cfvs_river_2_vs_3(game, opponent_range, board, cfvs, payoff, is_river_equity);
   } else if (opponent_range.num_cards == NumCards::Two) {
@@ -546,7 +550,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
     throw std::invalid_argument("Board must have at least 3 cards");
   }
   if (hero_range.num_cards == NumCards::Two && opponent_range.num_cards == NumCards::Two) {
-    throw std::invalid_argument("2 vs. 2 cards computations are not supported");
+    throw std::invalid_argument("Equities - 2 vs. 2 cards computations are not supported");
   }
 
   unsigned total_num_hole_cards = 5;
@@ -556,7 +560,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
 
   PokerHand board(board_cards);
 
-  Payoff payoff{0.5, 0, -0.5};
+  Payoff payoff{0.5, -0.5};
 
   // River
   if (board.size() == 5) {
@@ -599,7 +603,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
   std::vector<float> equities;
   equities.reserve(hero_range.num_hands());
 
-  for (int i = 0; i < hero_range.num_hands(); ++i) {
+  for (hand_t i = 0; i < hero_range.num_hands(); ++i) {
     if (weights[i] > 0.0) {
       equities.push_back(cfvs[i] / weights[i] + 0.5);
     } else {
@@ -610,6 +614,41 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
   return equities;
 }
 
+template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
+void compute_fold_cfvs_2_vs_2(const Game& game, const Range& opponent_range, std::vector<T>& cfvs,
+                              const float payoff) {
+  std::array<double, MAX_DECK_SIZE> opponent_sum{};
+  double sum = 0;
+
+  const auto& hands = game.hands(NumCards::Two);
+  for (hand_t i = 0; i < hands.size(); ++i) {
+    opponent_sum[hands[i].cards[0]] += opponent_range.range[i];
+    opponent_sum[hands[i].cards[1]] += opponent_range.range[i];
+    sum += opponent_range.range[i];
+  }
+  for (hand_t i = 0; i < hands.size(); ++i) {
+    const double normalized_sum = sum - opponent_sum[hands[i].cards[0]] -
+                                  opponent_sum[hands[i].cards[1]] + opponent_range.range[i];
+    cfvs[i] = normalized_sum * payoff;
+  }
+}
+
+template <typename T, typename>
+void compute_fold_cfvs(const Game& game, const Range& hero_range, const Range& opponent_range,
+                       std::vector<T>& cfvs, const float payoff) {
+  if (hero_range.num_cards == NumCards::Two && opponent_range.num_cards == NumCards::Two) {
+    compute_fold_cfvs_2_vs_2(game, opponent_range, cfvs, payoff);
+  } else if (hero_range.num_cards == NumCards::Two) {
+    throw std::runtime_error("NotImplementedError: Fold CFVs 2vs3");
+  } else if (opponent_range.num_cards == NumCards::Two) {
+    throw std::runtime_error("NotImplementedError: Fold CFVs 3vs2");
+  } else {
+    throw std::runtime_error("NotImplementedError: Fold CFVs 3vs3");
+  }
+}
+
+// Explicit template initializations
+
 template void compute_cfvs_river<float>(const Game& game, const Range& hero_range,
                                         const Range& opponent_range, const PokerHand& board,
                                         std::vector<float>& cfvs, const Payoff& payoff,
@@ -618,5 +657,12 @@ template void compute_cfvs_river<double>(const Game& game, const Range& hero_ran
                                          const Range& opponent_range, const PokerHand& board,
                                          std::vector<double>& cfvs, const Payoff& payoff,
                                          bool is_river_equity);
+
+template void compute_fold_cfvs<float>(const Game& game, const Range& hero_range,
+                                       const Range& opponent_range, std::vector<float>& cfvs,
+                                       float payoff);
+template void compute_fold_cfvs<double>(const Game& game, const Range& hero_range,
+                                        const Range& opponent_range, std::vector<double>& cfvs,
+                                        float payoff);
 
 }  // namespace pokerbot

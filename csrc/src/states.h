@@ -25,20 +25,20 @@ struct RoundState final : State {
   int button;
   bool auction;
   std::array<std::optional<int>, 2> bids;
-  std::array<int, 2> pips;
+  std::array<int, 2> bets;
   std::array<int, 2> stacks;
-  std::array<std::array<std::string, 3>, 2> hands;
+  std::array<std::string, 2> hands;
   std::vector<card_t> board_cards;
   StatePtr previous_state;
 
   RoundState(int button, bool auction, const std::array<std::optional<int>, 2>& bids,
-             const std::array<int, 2>& pips, const std::array<int, 2>& stacks,
-             const std::array<std::array<std::string, 3>, 2>& hands,
-             const std::vector<card_t>& board_cards = {}, StatePtr previous_state = nullptr)
+             const std::array<int, 2>& bets, const std::array<int, 2>& stacks,
+             const std::array<std::string, 2>& hands, const std::vector<card_t>& board_cards = {},
+             StatePtr previous_state = nullptr)
       : button(button),
         auction(auction),
         bids(bids),
-        pips(pips),
+        bets(bets),
         stacks(stacks),
         hands(hands),
         board_cards(board_cards),
@@ -48,16 +48,26 @@ struct RoundState final : State {
 
   std::vector<Action::Type> legal_actions() const;
 
-  auto min_stack() const { return std::min(stacks[0], stacks[1]); }
+  auto effective_stack() const { return std::min(stacks[0], stacks[1]); }
+
+  auto effective_stack_start_round() const {
+    return std::min(stacks[0] + bets[0], stacks[1] + bets[1]);
+  }
 
   auto pot() const { return 2 * STARTING_STACK - stacks[0] - stacks[1]; }
+
+  // Chips in the middle at start of the round
+  auto pot_start_round() const { return pot() - bets[0] - bets[1]; }
+
+  // Amount invested so far during the hand - across all rounds
+  auto spent_total(int player) const { return STARTING_STACK - stacks[player]; }
 
   // the smallest and largest numbers of chips for a legal bet/raise
   std::array<int, 2> raise_bounds() const;
 
   StatePtr proceed_to_next_round() const;
 
-  StatePtr proceed(Action action) const;
+  StatePtr proceed(const Action& action) const;
 
   std::string to_string() const;
 

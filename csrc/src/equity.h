@@ -9,7 +9,6 @@ namespace pokerbot {
 
 struct Payoff {
   float win;
-  float tie = 0;  // Not zero-sum in the case of a bid
   float lose;
 };
 
@@ -22,6 +21,10 @@ template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
 void compute_cfvs_river(const Game& game, const Range& hero_range, const Range& opponent_range,
                         const PokerHand& board, std::vector<T>& cfvs, const Payoff& payoff,
                         bool is_river_equity = false);
+
+template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
+void compute_fold_cfvs(const Game& game, const Range& hero_range, const Range& opponent_range,
+                       std::vector<T>& cfvs, float payoff);
 
 /// Computes the equities of the hero range against the opponent range.
 /// @return A vector of size `hero_range.num_hands()`.

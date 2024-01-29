@@ -34,18 +34,18 @@ TEST(PreflopEquityTest, TestIntegrityValues) {
   ASSERT_NEAR(PREFLOP_EQUITIES[idx_32 * NUM_HANDS_PREFLOP + idx_22], 0.3342, 1e-4);
   ASSERT_NEAR(PREFLOP_EQUITIES[idx_32 * NUM_HANDS_PREFLOP + idx_aa], 0.1279, 1e-4);
   ASSERT_NEAR(PREFLOP_EQUITIES[idx_aa * NUM_HANDS_PREFLOP + idx_32], 0.8721, 1e-4);
+
+  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_22 * NUM_HANDS_PREFLOP + idx_22], 0, 1e-4);
+  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_32 * NUM_HANDS_PREFLOP + idx_32], 0, 1e-4);
+  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_aa * NUM_HANDS_PREFLOP + idx_aa], 0, 1e-4);
+  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_22 * NUM_HANDS_PREFLOP + idx_32], 0.5 * (0.6352 - 0.3036), 1e-4);
+  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_aa * NUM_HANDS_PREFLOP + idx_32], 0.8695 - 0.1253, 1e-4);
 }
 
 TEST(PreflopEquityTest, TestComputeCFVs) {
   Range opponent_range;
 
-  auto& range = opponent_range.range;
-  auto sum = ranges::sum(range);
-  for (auto& v : range) {
-    v /= sum;
-  }
-
-  Payoff payoff{1.0, 0, -1.0};
+  Payoff payoff{1.0, -1.0};
   std::vector<float> cfvs(NUM_HANDS_POSTFLOP_2CARDS, 0);
   compute_cfvs_preflop(opponent_range, payoff, cfvs);
 
