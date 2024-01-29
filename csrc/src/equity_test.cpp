@@ -274,19 +274,16 @@ TEST_F(EquityTest, TestComputeCFVsFoldNode) {
   hero_range.to_3_cards_range(game_, board_cards);
   opponent_range.to_3_cards_range(game_, board_cards);
 
-  std::vector<double> cfvs(NUM_HANDS_POSTFLOP_3CARDS, 0);
-  Payoff payoff{-1.0, -1.0};
+  std::vector<double> cfvs(NUM_HANDS_POSTFLOP_3CARDS);
   PokerHand board(board_cards);
-  compute_cfvs_river(game_, hero_range, opponent_range, board, cfvs, payoff, false);
+  compute_cfvs_fixed_payoff(game_, hero_range, opponent_range, cfvs, -1.0);
 
   const auto& hands = game_.hands(hero_range.num_cards);
   for (unsigned i = 0; i < cfvs.size(); ++i) {
     if (hands[i].collides_with(board_cards)) {
-      ASSERT_NEAR(cfvs[i], 0, 1e-6);
+      ASSERT_EQ(cfvs[i], 0);
     } else {
-      // Uniform random range, each hand has same CFVs
-      // FIXME - Why it doesn't give exactly same result?
-      ASSERT_NEAR(cfvs[i], cfvs[0], std::abs(0.1 * cfvs[i]));
+      ASSERT_EQ(cfvs[i], cfvs[0]);
     }
   }
 }

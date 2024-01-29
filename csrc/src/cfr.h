@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include "equity.h"
 #include "game.h"
 #include "range.h"
 #include "states.h"
@@ -53,10 +52,10 @@ class CFR {
 
   void precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges);
 
-  void compute_fold_cfvs(const Range& traverser_range, const Range& opponent_range,
-                         const Payoff& payoff, std::vector<float>& cfvs) const;
+  void compute_fold_cfvs(const Range& traverser_range, const Range& opponent_range, float payoff,
+                         std::vector<float>& cfvs) const;
   void compute_showdown_cfvs(const Range& traverser_range, const Range& opponent_range,
-                             const Payoff& payoff, std::vector<float>& cfvs) const;
+                             float payoff, std::vector<float>& cfvs) const;
 
   void update_opponent_cfvs_vs_bet();
   void update_opponent_regrets();
