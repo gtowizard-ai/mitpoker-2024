@@ -17,8 +17,7 @@ struct Auctioneer {
               const std::vector<card_t>& board_cards, const Hand& hand, int pot,
               float time_budget_ms);
 
-  float mean_equity(const Range& range_one, const Range& range_two, const Game& game,
-                    const std::vector<card_t>& board);
+  float get_avg_equity_third_card(const std::vector<card_t>& board_cards);
 
   void receive_bid(Range& hero_range, Range& villain_range, int hero_bid, int villain_bid,
                    const Game& game, const std::vector<card_t>& board_cards, int pot,

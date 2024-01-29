@@ -1,7 +1,8 @@
 #include "auction.h"
-#include <numeric>
+#include "../scripts/avg_equity_third_card.h"
 #include "definitions.h"
 #include "equity.h"
+#include "isomorphic_flop_encoder.h"
 
 namespace pokerbot {
 
@@ -19,32 +20,28 @@ Auctioneer::Auctioneer() {
   v_pot_percentage_min_max[1] = -1;
 };
 
-float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, const Game& game,
-                              const std::vector<card_t>& board) {
-  std::vector<float> eq = compute_equities(game, range_one, range_two, board);
-  double sum = std::accumulate(eq.begin(), eq.end(), 0.0);
-  return eq.empty() ? 0.0 : sum / eq.size();
+float Auctioneer::get_avg_equity_third_card(const std::vector<card_t>& board_cards) {
+  auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board_cards);
+  auto equity_lost = AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
+  return -equity_lost;
 }
 
 int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
-                        const std::vector<card_t>& board, const Hand& hand, const int pot,
+                        const std::vector<card_t>& board_cards, const Hand& hand, const int pot,
                         float time_budget_ms) {
   //TODO: Implement exploitative bidding based on previous received values
-  Range hero_three_card = hero_range;
-  hero_three_card.to_3_cards_range(game, board);
-
-  Range villain_three_card = villain_range;
-  villain_three_card.to_3_cards_range(game, board);
+  // Range hero_three_card = hero_range;
+  // hero_three_card.to_3_cards_range(game, board_cards);
+  //
+  // Range villain_three_card = villain_range;
+  // villain_three_card.to_3_cards_range(game, board_cards);
   //TODO: Implement time efficient way for calculating equity
   //TODO: Add cohesive get_bid test to testing
-  /*float heroThreeEq = mean_equity(hero_three_card, villain_range, game, board);
-  float heroTwoCard = mean_equity(hero_range, villain_three_card, game, board);
-  float equity_difference = heroThreeEq - heroTwoCard;*/
-  float equity_difference = .2;
 
+  float equity_difference = get_avg_equity_third_card(board_cards);
   float equity_bid = ((1 / (1 - equity_difference)) - 1) * pot;
 
-  return equity_bid;
+  return std::ceil(equity_bid);
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
@@ -72,7 +69,7 @@ void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int 
                              const int villain_bid, const Game& game,
                              const std::vector<card_t>& board_cards, const int pot,
                              float time_budget_ms) {
-  if (villain_range.num_cards == NumCards::Three) {
+  if (villain_range.num_cards == NumCards::Three || hero_range.num_cards == NumCards::Three) {
     return;  // We've already been here on the same hand
   }
 

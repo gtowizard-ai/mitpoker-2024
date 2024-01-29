@@ -18,7 +18,7 @@ TEST_F(AuctionTest, TestGetBid) {
   float time = 2.0;
   int pot = 100;
   const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
-  ASSERT_EQ(bid, 25);
+  ASSERT_EQ(bid, 36);
 }
 
 TEST_F(AuctionTest, TestReceiveBid) {
@@ -51,13 +51,9 @@ TEST_F(AuctionTest, TestUpdateExploits) {
   ASSERT_NEAR(auctioneer.v_pot_percentage_min_max[1], 39.0, TOLERANCE);
 }
 
-TEST_F(AuctionTest, TestMeanEquity) {
+TEST_F(AuctionTest, TestMeanEquityStrategy) {
   Auctioneer auctioneer;
-  Range r1;
-  Range r2;
   auto board = Card::to_vector("Tc7d2s");
-  r1.to_3_cards_range(game_, board);
-  float eq1 = auctioneer.mean_equity(r1, r2, game_, board);
-  float eq2 = auctioneer.mean_equity(r2, r1, game_, board);
-  ASSERT_GT(eq1, eq2);
+  float eq = auctioneer.get_avg_equity_third_card(board);
+  ASSERT_NEAR(eq, 0.352, 0.01);
 }
