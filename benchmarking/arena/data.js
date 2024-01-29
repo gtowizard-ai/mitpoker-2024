@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706563392172,
+  "lastUpdate": 1706567387026,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "becf1c7f8fbba5ae92157a2fa301106f550922c5",
-          "message": "CFR two limited steps",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/32/commits/becf1c7f8fbba5ae92157a2fa301106f550922c5"
-        },
-        "date": 1706529589805,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": -0.232,
-            "unit": "bb/hand",
-            "range": 0.0426
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -47.716,
-            "unit": "bb/hand",
-            "range": 5.2221
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -434,6 +402,54 @@ window.BENCHMARK_DATA = {
             "value": -3.761,
             "unit": "bb/hand",
             "range": 4.1689
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "46653792+GrahamZugPitt@users.noreply.github.com",
+            "name": "GrahamZugPitt",
+            "username": "GrahamZugPitt"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0278a0f926eb2023ae747db66bf0cbc79074e05d",
+          "message": "Get bid (#28)\n\n* initial get_bid commit\r\n\r\n* Added equity based bidding\r\n\r\n* snake to camel\r\n\r\n* Fixed arithmetic mistake\r\n\r\n* checkpoint\r\n\r\n* Removed old slow bidding\r\n\r\n* snakkkkeeee",
+          "timestamp": "2024-01-29T17:23:32-05:00",
+          "tree_id": "7f65a837c60bd39c38773f02f59f761d4db2776d",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/0278a0f926eb2023ae747db66bf0cbc79074e05d"
+        },
+        "date": 1706567386126,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.157,
+            "unit": "bb/hand",
+            "range": 0.0784
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -72.4,
+            "unit": "bb/hand",
+            "range": 5.782
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 10.682,
+            "unit": "bb/hand",
+            "range": 3.3026
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": -0.554,
+            "unit": "bb/hand",
+            "range": 4.1569
           }
         ]
       }
