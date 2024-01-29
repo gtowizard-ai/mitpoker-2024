@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "equity.h"
 #include "game.h"
 #include "range.h"
 #include "states.h"
@@ -99,6 +100,8 @@ class CFR {
   Range opponent_range_raise_call_;
   std::vector<float> raise_fold_cfvs_;
   std::vector<float> raise_call_cfvs_;
+
+  mutable BoardDataCache board_data_cache_;
 };
 
 }  // namespace pokerbot

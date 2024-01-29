@@ -275,8 +275,8 @@ TEST_F(EquityTest, TestComputeCFVsFoldNode) {
   opponent_range.to_3_cards_range(game_, board_cards);
 
   std::vector<double> cfvs(NUM_HANDS_POSTFLOP_3CARDS);
-  PokerHand board(board_cards);
-  compute_cfvs_fixed_payoff(game_, hero_range, opponent_range, cfvs, -1.0);
+  BoardDataCache cache(game_);
+  compute_cfvs_fixed_payoff(game_, hero_range, opponent_range, board_cards, cfvs, -1.0, cache);
 
   const auto& hands = game_.hands(hero_range.num_cards);
   for (unsigned i = 0; i < cfvs.size(); ++i) {

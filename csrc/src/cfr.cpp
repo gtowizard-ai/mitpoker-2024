@@ -3,7 +3,6 @@
 #include <chrono>
 
 #include "equity.h"
-#include "poker_hand.h"
 #include "preflop_equity.h"
 #include "states.h"
 
@@ -13,7 +12,7 @@ HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned nu
                                      float value)
     : data(num_hands * num_actions, value), num_hands_(num_hands), num_actions_(num_actions) {}
 
-CFR::CFR(const Game& game) : game_(game) {
+CFR::CFR(const Game& game) : game_(game), board_data_cache_(game) {
   for (auto& child_values : children_cfvs_) {
     child_values.resize(NUM_HANDS_POSTFLOP_3CARDS);
   }
@@ -54,15 +53,11 @@ void CFR::build_tree() {
 
 void CFR::compute_fold_cfvs(const Range& traverser_range, const Range& opponent_range, float payoff,
                             std::vector<float>& cfvs) const {
-
   std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
-  if (root_->round() == round::PREFLOP) {
-    pokerbot::compute_cfvs_fixed_payoff(game_, traverser_range, opponent_range, cfvs, payoff);
-  } else {
-    // FIXME Once compute fold CFVs is complete for 2vs3, 3vs2, 3vs3
-    compute_cfvs_showdown<float>(game_, traverser_range, opponent_range,
-                                 PokerHand(root_->board_cards), cfvs, payoff, false);
-  }
+  compute_cfvs_fixed_payoff(game_, traverser_range, opponent_range, root_->board_cards, cfvs,
+                            payoff, board_data_cache_);
+  pokerbot::compute_cfvs_fixed_payoff(game_, traverser_range, opponent_range, root_->board_cards,
+                                      cfvs, payoff, board_data_cache_);
 }
 
 void CFR::compute_showdown_cfvs(const Range& traverser_range, const Range& opponent_range,
@@ -72,8 +67,8 @@ void CFR::compute_showdown_cfvs(const Range& traverser_range, const Range& oppon
   if (root_->round() == round::PREFLOP) {
     compute_cfvs_preflop(opponent_range, payoff, cfvs);
   } else {
-    compute_cfvs_showdown<float>(game_, traverser_range, opponent_range,
-                                 PokerHand(root_->board_cards), cfvs, payoff, false);
+    compute_cfvs_showdown<float>(game_, traverser_range, opponent_range, root_->board_cards, cfvs,
+                                 payoff, board_data_cache_);
   }
 }
 
