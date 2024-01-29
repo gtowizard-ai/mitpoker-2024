@@ -108,7 +108,7 @@ TEST_F(CFRTest, TestPreflopOpenRaiseStrategy) {
   const auto& strategy = cfr.strategy();
 
   for (std::string hand_str : {"AcAs", "AcKc", "AcKd", "AcTh", "Ac2d", "6c6d", "2c2d", "JdTh",
-                               "9s8s", "9h8s", "3c2c", "3c2d"}) {
+                               "Tc9h", "Tc8d", "9s8s", "9h8s", "6c5c", "3c2c", "3c2d"}) {
     Hand hand(hand_str);
     fmt::print("{} Fold = {} / Call = {} / Raise = {} \n", hand.to_string(),
                strategy(hand.index(), 0), strategy(hand.index(), 1), strategy(hand.index(), 2));

@@ -52,12 +52,24 @@ void CFR::build_tree() {
   }
 }
 
-void CFR::compute_node_cfvs(const Range& traverser_range, const Range& opponent_range,
+void CFR::compute_fold_cfvs(const Range& traverser_range, const Range& opponent_range,
                             const Payoff& payoff, std::vector<float>& cfvs) const {
+
+  std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
+  if (root_->round() == round::PREFLOP) {
+    pokerbot::compute_fold_cfvs(game_, traverser_range, opponent_range, cfvs, payoff.win);
+  } else {
+    // FIXME Once compute fold CFVs is complete for 2vs3, 3vs2, 3vs3
+    compute_cfvs_river<float>(game_, traverser_range, opponent_range, PokerHand(root_->board_cards),
+                              cfvs, payoff, false);
+  }
+}
+
+void CFR::compute_showdown_cfvs(const Range& traverser_range, const Range& opponent_range,
+                                const Payoff& payoff, std::vector<float>& cfvs) const {
   // FIXME - HANDLE ALL CASES (preflop/flop/turn/river..)
   std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
   if (root_->round() == round::PREFLOP) {
-    // FIXME -> This doesn't work for preflop fold nodes!
     compute_cfvs_preflop(opponent_range, payoff, cfvs);
   } else {
     compute_cfvs_river<float>(game_, traverser_range, opponent_range, PokerHand(root_->board_cards),
@@ -77,14 +89,15 @@ void CFR::update_opponent_cfvs_vs_bet() {
   fold_payoff.win = -(half_pot + root_->bets[1 - player_id_]);
   fold_payoff.lose = fold_payoff.win;
 
-  compute_node_cfvs(opponent_range_raise_fold_, hero_range_raise_, fold_payoff, raise_fold_cfvs_);
+  compute_fold_cfvs(opponent_range_raise_fold_, hero_range_raise_, fold_payoff, raise_fold_cfvs_);
 
   // Call
   Payoff call_payoff{};
   call_payoff.win = half_pot + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
 
-  compute_node_cfvs(opponent_range_raise_call_, hero_range_raise_, call_payoff, raise_call_cfvs_);
+  compute_showdown_cfvs(opponent_range_raise_call_, hero_range_raise_, call_payoff,
+                        raise_call_cfvs_);
 }
 
 void CFR::update_hero_cfvs_bet_node() {
@@ -99,14 +112,15 @@ void CFR::update_hero_cfvs_bet_node() {
   fold_payoff.win = half_pot + root_->bets[1 - player_id_];
   fold_payoff.lose = fold_payoff.win;
 
-  compute_node_cfvs(hero_range_raise_, opponent_range_raise_fold_, fold_payoff, raise_fold_cfvs_);
+  compute_fold_cfvs(hero_range_raise_, opponent_range_raise_fold_, fold_payoff, raise_fold_cfvs_);
 
   // Call
   Payoff call_payoff{};
   call_payoff.win = half_pot + raise_action.amount;
   call_payoff.lose = -call_payoff.win;
 
-  compute_node_cfvs(hero_range_raise_, opponent_range_raise_call_, call_payoff, raise_call_cfvs_);
+  compute_showdown_cfvs(hero_range_raise_, opponent_range_raise_call_, call_payoff,
+                        raise_call_cfvs_);
 
   auto& cfvs = children_cfvs_[num_actions() - 1];
   for (hand_t hand = 0; hand < hero_range_raise_.num_hands(); ++hand) {
@@ -126,23 +140,19 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges) {
       continue;
     }
 
-    const Payoff payoff = [&] {
-      const auto half_pot = root_->pot_start_round() / 2;
-      if (actions_[a].type == Action::Type::FOLD) {
-        Payoff fold_payoff{};
-        fold_payoff.win = -(half_pot + root_->bets[player_id_]);
-        fold_payoff.lose = fold_payoff.win;
-        return fold_payoff;
-      } else {
-        // Call or Check
-        Payoff call_payoff{};
-        call_payoff.win = half_pot + root_->bets[1 - player_id_];
-        call_payoff.lose = -call_payoff.win;
-        return call_payoff;
-      }
-    }();
-
-    compute_node_cfvs(ranges[player_id_], ranges[1 - player_id_], payoff, children_cfvs_[a]);
+    const auto half_pot = root_->pot_start_round() / 2;
+    if (actions_[a].type == Action::Type::FOLD) {
+      Payoff payoff{};
+      payoff.win = -(half_pot + root_->bets[player_id_]);
+      payoff.lose = payoff.win;
+      compute_fold_cfvs(ranges[player_id_], ranges[1 - player_id_], payoff, children_cfvs_[a]);
+    } else {
+      // Call or Check
+      Payoff payoff{};
+      payoff.win = half_pot + root_->bets[1 - player_id_];
+      payoff.lose = -payoff.win;
+      compute_showdown_cfvs(ranges[player_id_], ranges[1 - player_id_], payoff, children_cfvs_[a]);
+    }
   }
 }
 
