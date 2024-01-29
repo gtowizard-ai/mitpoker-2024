@@ -1,56 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706570365438,
+  "lastUpdate": 1706570605754,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "philbeardsell@gmail.com",
-            "name": "Philippe Beardsell",
-            "username": "philqc"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "319badc98f449903a7162bb0210d4abca0fec676",
-          "message": "Add computation for fold cfvs preflop (#33)\n\n* Add computation for fold cfvs preflop\r\n\r\n* add cushion time manager\r\n\r\n* add cushion time manager",
-          "timestamp": "2024-01-29T09:26:08-05:00",
-          "tree_id": "7fa27b63646d9937ab2033c61a917f59e26fc0ae",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/319badc98f449903a7162bb0210d4abca0fec676"
-        },
-        "date": 1706538792006,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": -0.186,
-            "unit": "bb/hand",
-            "range": 0.0796
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -63.2,
-            "unit": "bb/hand",
-            "range": 5.9094
-          },
-          {
-            "name": "Results vs. Uniform Random Bot",
-            "value": 7.0455,
-            "unit": "bb/hand",
-            "range": 3.2488
-          },
-          {
-            "name": "Results vs. Ourselves",
-            "value": 0.808,
-            "unit": "bb/hand",
-            "range": 4.2335
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -452,6 +404,54 @@ window.BENCHMARK_DATA = {
             "value": -3.0465,
             "unit": "bb/hand",
             "range": 3.3486
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "oinari17@gmail.com",
+            "name": "Wataru Inariba",
+            "username": "b-inary"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "39c7665e831076344dc8e03ffe450d14f80586cc",
+          "message": "Equity optimization (#35)\n\n* Add fold CFV calculators (2v3, 3v2, 3v3)\r\n\r\n* WIP\r\n\r\n* Tests passed\r\n\r\n* Fix",
+          "timestamp": "2024-01-30T08:19:42+09:00",
+          "tree_id": "8af987a826e8abbd50e53c2a685367df686b7567",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/39c7665e831076344dc8e03ffe450d14f80586cc"
+        },
+        "date": 1706570604866,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 0.552,
+            "unit": "bb/hand",
+            "range": 0.1142
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -62.4495,
+            "unit": "bb/hand",
+            "range": 5.8995
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 16.89,
+            "unit": "bb/hand",
+            "range": 3.3218
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": -0.188,
+            "unit": "bb/hand",
+            "range": 3.4856
           }
         ]
       }
