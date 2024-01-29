@@ -107,11 +107,28 @@ def run_match_vs_uniform_random_bot():
         "range": round(results.stddev, 4),
     }
 
+def run_match_vs_main_bot():
+    """ 
+    Match against ourselves, mostly as an end-to-end test and make sure we don't crash
+    when reaching some parts of the game tree that won't be reached with "dumb" bots
+    """
+    main_bot = Player(name="main_vs_main", path="./csrc/main_bot")
+    main_bot_mirror = Player(name="main_vs_main_mirror", path="./csrc/main_bot")
+    results = _run_match(main_bot, main_bot_mirror)
+
+    return {
+        "name": "Results vs. Ourselves",
+        "unit": "bb/hand",
+        "value": round(results.winrate, 4),
+        "range": round(results.stddev, 4),
+    }
+
 def main():
     results = [
         run_match_vs_check_call_bot(),
         run_match_vs_bid_everything_bot(),
         run_match_vs_uniform_random_bot(),
+        run_match_vs_main_bot(),
     ]
 
     with open("arena_results.json", "w") as f:

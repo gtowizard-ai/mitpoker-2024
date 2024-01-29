@@ -28,7 +28,8 @@ struct UniformRandomBot {
       return {Action::Type::BID, bid_distribution(gen)};
     } else if (sampled_action == Action::Type::RAISE) {
       // random bet between 0 and my stack
-      std::uniform_int_distribution<int> bet_distribution(0, my_stack);
+      const auto raise_bounds = round_state->raise_bounds();
+      std::uniform_int_distribution<int> bet_distribution(raise_bounds[0], raise_bounds[1]);
       return {Action::Type::RAISE, bet_distribution(gen)};
     } else {
       return {sampled_action};
