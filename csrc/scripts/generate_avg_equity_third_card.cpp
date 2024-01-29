@@ -51,7 +51,7 @@ class IsomorphicFlopEncoding {
 
 void generate_equities() {
   std::unordered_set<std::string> seen_flops;
-  std::ofstream output_file("flop_values.txt");
+  std::ofstream output_file("avg_equity_third_card.txt");
   Game game;
   const auto& two_cards_hands = game.hands(NumCards::Two);
   int count = 0;
