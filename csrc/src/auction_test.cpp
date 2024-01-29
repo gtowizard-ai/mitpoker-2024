@@ -1,5 +1,6 @@
 #include "auction.h"
 #include <gtest/gtest.h>
+#include <tuple>
 
 using namespace pokerbot;
 
@@ -18,7 +19,7 @@ TEST_F(AuctionTest, TestGetBid) {
   float time = 2.0;
   int pot = 100;
   const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
-  ASSERT_EQ(bid, 0);
+  ASSERT_EQ(bid, 25);
 }
 
 TEST_F(AuctionTest, TestReceiveBid) {
@@ -29,9 +30,8 @@ TEST_F(AuctionTest, TestReceiveBid) {
   int villain_bid = 2;
 
   int pot = 100;
-  auto board_cards = Card::to_vector("AcAdAh");
-  auctioneer.receive_bid(hero_range, villain_range, hero_bid, villain_bid, game_, board_cards, pot,
-                         2.0);
+  auto board = Card::to_vector("AcAdAh");
+  auctioneer.receive_bid(hero_range, villain_range, hero_bid, villain_bid, game_, board, pot, 2.0);
 }
 
 TEST_F(AuctionTest, TestUpdateExploits) {

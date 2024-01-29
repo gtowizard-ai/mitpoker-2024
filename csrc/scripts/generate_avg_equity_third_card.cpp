@@ -54,7 +54,6 @@ void generate_equities() {
   std::ofstream output_file("flop_values.txt");
   Game game;
   const auto& two_cards_hands = game.hands(NumCards::Two);
-  const auto& three_cards_hands = game.hands(NumCards::Three);
   int count = 0;
 
   if (!output_file.is_open()) {
