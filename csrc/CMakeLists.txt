@@ -69,6 +69,9 @@ target_link_libraries(check_or_call_bot dependencies gtowizardai)
 add_executable(bid_everything_bot bid_everything_bot/bid_everything_bot.cpp)
 target_link_libraries(bid_everything_bot dependencies gtowizardai)
 
+add_executable(uniform_random_bot uniform_random_bot/uniform_random_bot.cpp)
+target_link_libraries(uniform_random_bot dependencies gtowizardai)
+
 add_executable(pokerbot main_bot/main.cpp)
 target_link_libraries(pokerbot dependencies gtowizardai)
 

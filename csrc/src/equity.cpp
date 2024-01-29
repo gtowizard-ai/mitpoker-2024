@@ -530,6 +530,10 @@ template <typename T, typename>
 void compute_cfvs_river(const Game& game, const Range& hero_range, const Range& opponent_range,
                         const PokerHand& board, std::vector<T>& cfvs, const Payoff& payoff,
                         bool is_river_equity) {
+  if (hero_range.num_cards == NumCards::Two && opponent_range.num_cards == NumCards::Two) {
+    throw std::invalid_argument("CFV - 2 vs. 2 cards computations are not supported");
+  }
+
   if (hero_range.num_cards == NumCards::Two) {
     compute_cfvs_river_2_vs_3(game, opponent_range, board, cfvs, payoff, is_river_equity);
   } else if (opponent_range.num_cards == NumCards::Two) {
@@ -546,7 +550,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
     throw std::invalid_argument("Board must have at least 3 cards");
   }
   if (hero_range.num_cards == NumCards::Two && opponent_range.num_cards == NumCards::Two) {
-    throw std::invalid_argument("2 vs. 2 cards computations are not supported");
+    throw std::invalid_argument("Equities - 2 vs. 2 cards computations are not supported");
   }
 
   unsigned total_num_hole_cards = 5;
@@ -556,7 +560,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
 
   PokerHand board(board_cards);
 
-  Payoff payoff{0.5, 0, -0.5};
+  Payoff payoff{0.5, -0.5};
 
   // River
   if (board.size() == 5) {
@@ -599,7 +603,7 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
   std::vector<float> equities;
   equities.reserve(hero_range.num_hands());
 
-  for (int i = 0; i < hero_range.num_hands(); ++i) {
+  for (hand_t i = 0; i < hero_range.num_hands(); ++i) {
     if (weights[i] > 0.0) {
       equities.push_back(cfvs[i] / weights[i] + 0.5);
     } else {

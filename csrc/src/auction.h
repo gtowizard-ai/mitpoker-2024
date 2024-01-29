@@ -1,15 +1,9 @@
 #pragma once
-#include <tuple>
-#include "card.h"
 #include "game.h"
 #include "hand.h"
 #include "range.h"
 
 namespace pokerbot {
-
-inline constexpr int ABS_BIDDING_EPSILON = 2;
-inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
-inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
 
 struct Auctioneer {
 
@@ -23,8 +17,9 @@ struct Auctioneer {
               const std::vector<card_t>& board_cards, const Hand& hand, int pot,
               float time_budget_ms);
 
-  void receive_bid(Range& villain_range, int villain_bid, int hero_bid, const Game& game,
-                   const std::vector<card_t>& board_cards, int pot, float time_budget_ms);
+  void receive_bid(Range& hero_range, Range& villain_range, int hero_bid, int villain_bid,
+                   const Game& game, const std::vector<card_t>& board_cards, int pot,
+                   float time_budget_ms);
 
   void update_exploits(int bid, int pot);
 };

@@ -9,7 +9,6 @@ namespace pokerbot {
 
 struct Payoff {
   float win;
-  float tie = 0;  // Not zero-sum in the case of a bid
   float lose;
 };
 

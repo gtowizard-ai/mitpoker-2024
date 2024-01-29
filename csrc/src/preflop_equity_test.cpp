@@ -39,13 +39,7 @@ TEST(PreflopEquityTest, TestIntegrityValues) {
 TEST(PreflopEquityTest, TestComputeCFVs) {
   Range opponent_range;
 
-  auto& range = opponent_range.range;
-  auto sum = ranges::sum(range);
-  for (auto& v : range) {
-    v /= sum;
-  }
-
-  Payoff payoff{1.0, 0, -1.0};
+  Payoff payoff{1.0, -1.0};
   std::vector<float> cfvs(NUM_HANDS_POSTFLOP_2CARDS, 0);
   compute_cfvs_preflop(opponent_range, payoff, cfvs);
 

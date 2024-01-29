@@ -88,7 +88,7 @@ class EquityTest : public ::testing::Test {
     const auto eval_board = PokerHand(board_cards);
 
     auto hero_hand = eval_board + to_poker_hand(hand);
-    for (int i = 0; i < opponent_range.num_hands(); ++i) {
+    for (hand_t i = 0; i < opponent_range.num_hands(); ++i) {
       if (hand.collides_with(opponent_hands[i]) || opponent_hands[i].collides_with(board_cards)) {
         continue;
       }
@@ -275,7 +275,7 @@ TEST_F(EquityTest, TestComputeCFVsFoldNode) {
   opponent_range.to_3_cards_range(game_, board_cards);
 
   std::vector<double> cfvs(NUM_HANDS_POSTFLOP_3CARDS, 0);
-  Payoff payoff{-1.0, 0, -1.0};
+  Payoff payoff{-1.0, -1.0};
   PokerHand board(board_cards);
   compute_cfvs_river(game_, hero_range, opponent_range, board, cfvs, payoff, false);
 
