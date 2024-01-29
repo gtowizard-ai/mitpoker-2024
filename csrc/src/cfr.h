@@ -53,8 +53,10 @@ class CFR {
 
   void precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges);
 
-  void compute_node_cfvs(const Range& traverser_range, const Range& opponent_range,
+  void compute_fold_cfvs(const Range& traverser_range, const Range& opponent_range,
                          const Payoff& payoff, std::vector<float>& cfvs) const;
+  void compute_showdown_cfvs(const Range& traverser_range, const Range& opponent_range,
+                             const Payoff& payoff, std::vector<float>& cfvs) const;
 
   void update_opponent_cfvs_vs_bet();
   void update_opponent_regrets();
