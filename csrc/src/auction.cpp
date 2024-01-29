@@ -1,11 +1,9 @@
 #include "auction.h"
+#include <numeric>
 #include "definitions.h"
+#include "equity.h"
 
 namespace pokerbot {
-
-inline constexpr int ABS_BIDDING_EPSILON = 2;
-inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
-inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
 
 Auctioneer::Auctioneer() {
   v_is_excessive_bidder = true;
@@ -15,18 +13,33 @@ Auctioneer::Auctioneer() {
   v_pot_percentage_min_max[1] = -1;
 };
 
-int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range,
-                        const std::vector<card_t>& board_cards, const Hand& hand, const int pot,
+float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, const Game& game,
+                              const std::vector<card_t>& board) {
+
+  std::vector<float> eq = compute_equities(game, range_one, range_two, board);
+  float sum = std::accumulate(eq.begin(), eq.end(), 0.0);
+  return eq.empty() ? 0.0 : sum / eq.size();
+}
+
+int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
+                        const std::vector<card_t>& board, const Hand& hand, const int pot,
                         float time_budget_ms) {
-  /*TODO: Implement a "slow, fast, very_fast" bidding method as follows:
-  	If we are making good time, do a CFR calculation and bid 1/(1-EVdiff) - 1
-  	If we are not making good time, do an equity calculation and bid 1/(1-EQdiff) - 1
-  	If we are making extremely bad time, bid a constant value (3/4ths of the pot, perhaps)
-  	
-  	We may want to pass this function what hand we're on (e.g. being on hand 750 with 10s to go isn't a big deal but being on hand 100 with 10s is)
-  */
   //TODO: Implement exploitative bidding based on previous received values
-  return 0;
+  Range hero_three_card = hero_range;
+  hero_three_card.to_3_cards_range(game, board);
+
+  Range villain_three_card = villain_range;
+  villain_three_card.to_3_cards_range(game, board);
+  //TODO: Implement time efficient way for calculating equity
+  //TODO: Add cohesive get_bid test to testing
+  /*float heroThreeEq = mean_equity(hero_three_card, villain_range, game, board);
+  float heroTwoCard = mean_equity(hero_range, villain_three_card, game, board);
+  float equity_difference = heroThreeEq - heroTwoCard;*/
+  float equity_difference = .2;
+
+  float equity_bid = ((1 / (1 - equity_difference)) - 1) * pot;
+
+  return equity_bid;
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
