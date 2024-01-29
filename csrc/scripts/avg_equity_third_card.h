@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 
-std::unordered_map<std::string, float> AVG_EQUITY_LOSS_THIRD_CARD = {
+inline static std::unordered_map<std::string, float> AVG_EQUITY_LOSS_THIRD_CARD = {
     {"222r", -0.2659820291692024},    {"223s", -0.31379211569033866},
     {"223r", -0.3105759667612764},    {"224s", -0.31586430245712654},
     {"224r", -0.312788975808364},     {"225s", -0.31774028798812354},
