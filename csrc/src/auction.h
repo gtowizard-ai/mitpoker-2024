@@ -21,17 +21,17 @@ struct Auctioneer {
   float v_pot_percentage_min_max[2];
   bool v_is_excessive_bidder;
 
-  int get_bid(const std::vector<Range>& ranges, const Game& game, const std::vector<card_t>& board,
-              const Hand& hand, const int pot, float time_budget);
+  int get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
+              const std::vector<card_t>& board_cards, const Hand& hand, int pot,
+              float time_budget_ms);
 
   float mean_equity(const Range& range_one, const Range& range_two, const Game& game,
                     const std::vector<card_t>& board);
 
-  void receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
-                   const Game& game, const std::vector<card_t>& board_cards, const int pot,
-                   float time_budget);
+  void receive_bid(Range& villain_range, int villain_bid, int hero_bid, const Game& game,
+                   const std::vector<card_t>& board_cards, int pot, float time_budget_ms);
 
-  void update_exploits(const int bid, const int pot);
+  void update_exploits(int bid, int pot);
 };
 
 }  // namespace pokerbot

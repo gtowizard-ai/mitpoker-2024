@@ -21,9 +21,9 @@ float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, co
   return eq.empty() ? 0.0 : sum / eq.size();
 }
 
-int Auctioneer::get_bid(const std::vector<Range>& ranges, const Game& game,
-                        const std::vector<card_t>& board, const Hand& hand, const int pot,
-                        float time_budget) {
+int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range,
+                        const std::vector<card_t>& board_cards, const Hand& hand, const int pot,
+                        float time_budget_ms) {
   /*TODO: Implement a "slow, fast, very_fast" bidding method as follows:
   	If we are making good time, do a CFR calculation and bid 1/(1-EVdiff) - 1
   	If we are not making good time, do an equity calculation and bid 1/(1-EQdiff) - 1
@@ -69,15 +69,18 @@ void Auctioneer::update_exploits(const int bid, const int pot) {
 }
 
 void Auctioneer::receive_bid(Range& villain_range, const int villain_bid, const int hero_bid,
-                             const Game& game, const std::vector<card_t>& board, const int pot,
-                             float time_budget) {
+                             const Game& game, const std::vector<card_t>& board_cards,
+                             const int pot, float time_budget_ms) {
+  if (villain_range.num_cards == NumCards::Three) {
+    return;  // We've already been here on the same hand
+  }
+
   update_exploits(villain_bid, pot);
   if (hero_bid > villain_bid) {
     return;
   }
 
-  villain_range.to_3_cards_range(game, board);
-  return;
+  villain_range.to_3_cards_range(game, board_cards);
 }
 
 }  // namespace pokerbot

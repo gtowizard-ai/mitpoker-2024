@@ -6,6 +6,8 @@
 #include <optional>
 #include <sstream>
 
+#include "card.h"
+
 namespace pokerbot {
 
 StatePtr RoundState::showdown() const {
@@ -43,12 +45,12 @@ std::array<int, 2> RoundState::raise_bounds() const {
 }
 
 StatePtr RoundState::proceed_to_next_round() const {
-  if (round == round::RIVER) {
+  if (round() == round::RIVER) {
     return this->showdown();
   }
-  bool auction = round == round::PREFLOP;
-  return std::make_shared<RoundState>(1, round.next_round(), auction, bids,
-                                      std::array<int, 2>{0, 0}, stacks, hands, deck, get_shared());
+  bool auction = round() == round::PREFLOP;
+  return std::make_shared<RoundState>(1, auction, bids, std::array<int, 2>{0, 0}, stacks, hands,
+                                      board_cards, get_shared());
 }
 
 StatePtr RoundState::proceed(Action action) const {
@@ -63,9 +65,9 @@ StatePtr RoundState::proceed(Action action) const {
       if (button == 0) {
         // sb calls bb
         return std::make_shared<RoundState>(
-            1, round::PREFLOP, auction, bids, std::array<int, 2>{BIG_BLIND, BIG_BLIND},
-            std::array<int, 2>{STARTING_STACK - BIG_BLIND, STARTING_STACK - BIG_BLIND}, hands, deck,
-            get_shared());
+            1, auction, bids, std::array<int, 2>{BIG_BLIND, BIG_BLIND},
+            std::array<int, 2>{STARTING_STACK - BIG_BLIND, STARTING_STACK - BIG_BLIND}, hands,
+            board_cards, get_shared());
       }
       // both players acted
       auto new_pips = pips;
@@ -73,29 +75,29 @@ StatePtr RoundState::proceed(Action action) const {
       auto contribution = new_pips[1 - active] - new_pips[active];
       new_stacks[active] = new_stacks[active] - contribution;
       new_pips[active] = new_pips[active] + contribution;
-      auto state = std::make_shared<RoundState>(button + 1, round, auction, bids, new_pips,
-                                                new_stacks, hands, deck, get_shared());
+      auto state = std::make_shared<RoundState>(button + 1, auction, bids, new_pips, new_stacks,
+                                                hands, board_cards, get_shared());
       return state->proceed_to_next_round();
     }
     case Action::Type::CHECK: {
-      if ((round == round::PREFLOP && button > 0) || button > 1) {
+      if ((round() == round::PREFLOP && button > 0) || button > 1) {
         return this->proceed_to_next_round();
       }
       // let opponent act
-      return std::make_shared<RoundState>(button + 1, round, auction, bids, pips, stacks, hands,
-                                          deck, get_shared());
+      return std::make_shared<RoundState>(button + 1, auction, bids, pips, stacks, hands,
+                                          board_cards, get_shared());
     }
     case Action::Type::BID: {
       auto new_bids = bids;
       new_bids[active] = -1;
       if (new_bids[1 - active].has_value()) {
         // both players have submitted bids
-        auto state = std::make_shared<RoundState>(1, round::FLOP, false, new_bids, pips, stacks,
-                                                  hands, deck, get_shared());
+        auto state = std::make_shared<RoundState>(1, false, new_bids, pips, stacks, hands,
+                                                  board_cards, get_shared());
         return state;
       } else {
-        return std::make_shared<RoundState>(button + 1, round::FLOP, true, new_bids, pips, stacks,
-                                            hands, deck, get_shared());
+        return std::make_shared<RoundState>(button + 1, true, new_bids, pips, stacks, hands,
+                                            board_cards, get_shared());
       }
     }
     default: {
@@ -105,8 +107,8 @@ StatePtr RoundState::proceed(Action action) const {
       auto contribution = action.amount - new_pips[active];
       new_stacks[active] = new_stacks[active] - contribution;
       new_pips[active] = new_pips[active] + contribution;
-      return std::make_shared<RoundState>(button + 1, round, auction, bids, new_pips, new_stacks,
-                                          hands, deck, get_shared());
+      return std::make_shared<RoundState>(button + 1, auction, bids, new_pips, new_stacks, hands,
+                                          board_cards, get_shared());
     }
   }
 }
@@ -132,9 +134,9 @@ std::string RoundState::to_string() const {
                                                 fmt::format(FMT_STRING("{}"), join(hands[1], ""))};
 
   return fmt::format(FMT_STRING("round(button={}, round={}, pips=[{}], stacks=[{}], hands=[{}], "
-                                "deck=[{}])"),
-                     button, round.to_string(), join(pips, ", "), join(stacks, ", "),
-                     join(formatted_hands, ","), join(deck, ", "));
+                                "cards=[{}])"),
+                     button, round().to_string(), join(pips, ", "), join(stacks, ", "),
+                     join(formatted_hands, ","), Card::to_string(board_cards));
 }
 
 std::string TerminalState::to_string() const {
