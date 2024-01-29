@@ -68,7 +68,7 @@ def _run_match(player_1: Player, player_2: Player):
     return results
 
 
-def run_benchmark_vs_check_call_bot():
+def run_match_vs_check_call_bot():
     main_bot = Player(name="main_vs_check_or_call", path="./csrc/main_bot")
     check_call_bot = Player(name="check_or_call", path="./csrc/check_or_call_bot")
     results = _run_match(main_bot, check_call_bot)
@@ -95,11 +95,23 @@ def run_match_vs_bid_everything_bot():
         "range": round(results.stddev, 4),
     }
 
+def run_match_vs_uniform_random_bot():
+    main_bot = Player(name="main_vs_uniform_random", path="./csrc/main_bot")
+    uniform_random_bot = Player(name="uniform_random", path="./csrc/uniform_random_bot")
+    results = _run_match(main_bot, uniform_random_bot)
+
+    return {
+        "name": "Results vs. Uniform Random Bot",
+        "unit": "bb/hand",
+        "value": round(results.winrate, 4),
+        "range": round(results.stddev, 4),
+    }
 
 def main():
     results = [
-        run_benchmark_vs_check_call_bot(),
+        run_match_vs_check_call_bot(),
         run_match_vs_bid_everything_bot(),
+        run_match_vs_uniform_random_bot(),
     ]
 
     with open("arena_results.json", "w") as f:
