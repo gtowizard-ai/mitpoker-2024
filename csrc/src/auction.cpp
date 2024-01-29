@@ -25,21 +25,21 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
                         const std::vector<card_t>& board, const Hand& hand, const int pot,
                         float time_budget_ms) {
   //TODO: Implement exploitative bidding based on previous received values
-  Range heroThreeCard = hero_range;
-  heroThreeCard.to_3_cards_range(game, board);
+  Range hero_three_card = hero_range;
+  hero_three_card.to_3_cards_range(game, board);
 
-  Range villainThreeCard = villain_range;
-  villainThreeCard.to_3_cards_range(game, board);
+  Range villain_three_card = villain_range;
+  villain_three_card.to_3_cards_range(game, board);
   //TODO: Implement time efficient way for calculating equity
   //TODO: Add cohesive get_bid test to testing
-  /*float heroThreeEq = mean_equity(heroThreeCard, villain_range, game, board);
-  float heroTwoCard = mean_equity(hero_range, villainThreeCard, game, board);
-  float equityDifference = heroThreeEq - heroTwoCard;*/
-  float equityDifference = .2;
+  /*float heroThreeEq = mean_equity(hero_three_card, villain_range, game, board);
+  float heroTwoCard = mean_equity(hero_range, villain_three_card, game, board);
+  float equity_difference = heroThreeEq - heroTwoCard;*/
+  float equity_difference = .2;
 
-  float equityBid = ((1 / (1 - equityDifference)) - 1) * pot;
+  float equity_bid = ((1 / (1 - equity_difference)) - 1) * pot;
 
-  return equityBid;
+  return equity_bid;
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
