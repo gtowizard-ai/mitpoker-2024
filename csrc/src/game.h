@@ -8,16 +8,18 @@ struct GameInfo {
   int bankroll;
   // Total number of seconds your bot has left to play this game
   double game_clock;
-  // Hand from 1 to `num_hands_in_match`
+  // Hand from [0, `num_hands_in_match`)
   int hand_num;
   // Number of total hands that we get to play against our opponent
-  int num_hands_in_match;
+  const int num_hands_in_match;
 
-  GameInfo(int bankroll, double game_clock, int hand_num, int num_hands_in_match)
+  GameInfo(int bankroll, double game_clock, int num_hands_in_match)
       : bankroll(bankroll),
         game_clock(game_clock),
-        hand_num(hand_num),
+        hand_num(0),
         num_hands_in_match(num_hands_in_match) {}
+
+  int num_hands_left_in_match() const { return num_hands_in_match - hand_num; }
 };
 
 // Number of private cards that is supported

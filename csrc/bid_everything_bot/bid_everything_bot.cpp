@@ -6,19 +6,13 @@
 using namespace pokerbot;
 
 struct BidEverythingBot {
-  void handle_new_hand(const GameInfo& /*game_state*/, const RoundStatePtr& /*round_state*/,
+  void handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*round_state*/,
                        int /*active*/) {}
 
-  void handle_hand_over(const GameInfo& /*game_state*/, const TerminalStatePtr& /*terminal_state*/,
+  void handle_hand_over(const GameInfo& /*game_info*/, const TerminalStatePtr& /*terminal_state*/,
                         int /*active*/) {}
 
-  /*
-    @param game_state The GameState object.
-    @param round_state The RoundState object.
-    @param active Your player's index.
-    @return Your action.
-  */
-  Action get_action(const GameInfo& /*game_state*/, const RoundStatePtr& round_state,
+  Action get_action(const GameInfo& /*game_info*/, const RoundStatePtr& round_state,
                     int /*active*/) {
     auto legal_actions = round_state->legal_actions();
     auto min_stack = round_state->effective_stack();

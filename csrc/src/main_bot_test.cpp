@@ -9,7 +9,7 @@ std::array<std::optional<int>, 2> NO_BIDS = {std::nullopt, std::nullopt};
 
 TEST(MainBotTest, TestPreflopState) {
   MainBot bot;
-  GameInfo game_info(0, 0.0, 1);
+  GameInfo game_info(0, 10.0, 1000);
 
   for (auto hand : std::vector<std::string>{"AcAd", "9s8s", "2c3c", "2d7c"}) {
     std::array<std::string, 2> hands = {hand, ""};
@@ -29,7 +29,7 @@ TEST(MainBotTest, TestPreflopState) {
 TEST(MainBotTest, TestFlopState) {
   MainBot bot;
 
-  GameInfo game_info(0, 0.0, 1);
+  GameInfo game_info(0, 10.0, 1000);
   std::array<std::string, 2> empty_hand = {"4c4d", ""};
   const auto board_cards = Card::to_vector("2c2d2h");
   StatePtr round_state = std::make_shared<RoundState>(0, false, NO_BIDS, NO_BETS, STARTING_STACKS,
@@ -44,7 +44,7 @@ TEST(MainBotTest, TestFlopState) {
 TEST(MainBotTest, TestTurnState) {
   MainBot bot;
 
-  GameInfo game_info(0, 0.0, 1);
+  GameInfo game_info(0, 10.0, 1000);
   std::array<std::string, 2> empty_hand = {"4c4d", ""};
   const auto board_cards = Card::to_vector("2c2d2h2s");
   StatePtr round_state = std::make_shared<RoundState>(0, false, NO_BIDS, NO_BETS, STARTING_STACKS,
@@ -59,7 +59,7 @@ TEST(MainBotTest, TestTurnState) {
 TEST(MainBotTest, TestRiverState) {
   MainBot bot;
 
-  GameInfo game_info(0, 0.0, 1);
+  GameInfo game_info(0, 10.0, 1000);
   std::array<std::string, 2> empty_hand = {"4c4d5c", ""};
 
   std::array<std::optional<int>, 2> bids = {0, 0};

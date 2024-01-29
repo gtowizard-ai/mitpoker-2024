@@ -4,11 +4,8 @@
 
 namespace pokerbot {
 
-// class TimeManager {
-//   void time_allowed_
-// };
-
-MainBot::MainBot() : game_(), auctioneer_(), cfr_(game_), gen_(std::random_device{}()) {}
+MainBot::MainBot()
+    : game_(), auctioneer_(), cfr_(game_), time_manager_(), gen_(std::random_device{}()) {}
 
 Action MainBot::sample_action_and_update_range(const RoundState& state, const Hand& hand,
                                                const int hero_id, const float min_prob_sampling) {
@@ -55,7 +52,7 @@ void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
   // auto opp_cards = previous_state->hands[1-active];  // opponent's cards or "" if not revealed
 }
 
-Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& state, int active) {
+Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state, int active) {
   const auto legal_actions = state->legal_actions();
 
   if (legal_actions.size() == 1) {
@@ -63,6 +60,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
     // Don't waste any time and return
     return Action{state->legal_actions().front()};
   }
+
+  time_manager_.update_on_get_action(game_info);
 
   const Hand hero_hand(state->hands[active]);
 
@@ -95,7 +94,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
   }
 
   // Solve..
-  const float time_budget_ms = 5;  // FIXME
+  const auto time_budget_ms = time_manager_.time_ms_allowed_for_cfr(game_info);
+  fmt::print("{:.2f} ms allocated for solving with CFR \n", time_budget_ms);
   cfr_.solve(ranges_, state, active, time_budget_ms);
   const auto sampled_action = sample_action_and_update_range(*state, hero_hand, active);
 

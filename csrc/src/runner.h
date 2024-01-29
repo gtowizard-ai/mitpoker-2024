@@ -51,7 +51,7 @@ class Runner {
   ~Runner() { stream.close(); }
 
   void run() {
-    GameInfo game_info(0, 0.0, 1, NUM_HANDS_MATCH);
+    GameInfo game_info(0, 0.0, NUM_HANDS_MATCH);
     std::array<std::string, 2> empty_hand = {"", ""};
     StatePtr round_state = std::make_shared<RoundState>(
         0, false, std::array<std::optional<int>, 2>{std::nullopt, std::nullopt},
@@ -64,8 +64,7 @@ class Runner {
         auto leftover = clause.substr(1);
         switch (clause[0]) {
           case 'T': {
-            game_info = GameInfo(game_info.bankroll, std::stof(leftover), game_info.hand_num,
-                                 game_info.num_hands_in_match);
+            game_info.game_clock = std::stof(leftover);
             break;
           }
           case 'P': {
@@ -183,12 +182,10 @@ class Runner {
             round_state = std::make_shared<TerminalState>(
                 deltas, std::array<std::optional<int>, 2>{0, 0},
                 std::static_pointer_cast<const TerminalState>(round_state)->previous_state);
-            game_info = GameInfo(game_info.bankroll + delta, game_info.game_clock,
-                                 game_info.hand_num, game_info.num_hands_in_match);
+            game_info.bankroll += delta;
             pokerbot.handle_hand_over(
                 game_info, std::static_pointer_cast<const TerminalState>(round_state), active);
-            game_info = GameInfo(game_info.bankroll, game_info.game_clock, game_info.hand_num + 1,
-                                 game_info.num_hands_in_match);
+            game_info.hand_num++;
             round_flag = true;
             break;
           }
