@@ -87,7 +87,6 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
   // TODO cant afford to do CFR on flop/turn for now
   if (state->round() == round::FLOP || state->round() == round::TURN) {
     if (ranges::contains(legal_actions, Action::Type::CHECK)) {
-      // check-call
       return {Action::Type::CHECK};
     }
     return {Action::Type::CALL};
