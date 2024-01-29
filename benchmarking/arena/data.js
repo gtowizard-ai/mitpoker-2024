@@ -1,40 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706531842381,
+  "lastUpdate": 1706532114534,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "fa3daa51b2e4bc04d5f9a416a79a52a029c4652a",
-          "message": "CFR two limited steps",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/32/commits/fa3daa51b2e4bc04d5f9a416a79a52a029c4652a"
-        },
-        "date": 1706472237026,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": -0.248,
-            "unit": "bb/hand",
-            "range": 0.0499
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": -35.1335,
-            "unit": "bb/hand",
-            "range": 5.2415
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -338,6 +306,54 @@ window.BENCHMARK_DATA = {
             "value": -1.664,
             "unit": "bb/hand",
             "range": 0.662
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "50bc9e2f4decb9c0b408ef555fc90d27a269f948",
+          "message": "CFR two limited steps (#32)\n\n* wip\r\n\r\n* wip\r\n\r\n* fixes\r\n\r\n* optimization\r\n\r\n* optimizations\r\n\r\n* wip - adding some states functionatlity + tests\r\n\r\n* cleaning + tests\r\n\r\n* wip\r\n\r\n* wip\r\n\r\n* wip\r\n\r\n* cleaning\r\n\r\n* cleaning\r\n\r\n* comments\r\n\r\n* suspicious preflop strategy\r\n\r\n* wip\r\n\r\n* change internal hadn definition in runner\r\n\r\n* add skeleton for time manager to use as much time allocated as possible\r\n\r\n* comment\r\n\r\n* Add uniform random bot for a more complete end-to-end test\r\n\r\n* add main vs main match",
+          "timestamp": "2024-01-29T07:38:20-05:00",
+          "tree_id": "418846c242636e79d18826856b53033b243ff561",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/50bc9e2f4decb9c0b408ef555fc90d27a269f948"
+        },
+        "date": 1706532113666,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": -0.261,
+            "unit": "bb/hand",
+            "range": 0.0415
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": -38.721,
+            "unit": "bb/hand",
+            "range": 5.2923
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 2.4465,
+            "unit": "bb/hand",
+            "range": 3.3088
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": -0.2015,
+            "unit": "bb/hand",
+            "range": 0.8371
           }
         ]
       }
