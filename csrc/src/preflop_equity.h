@@ -2,7 +2,6 @@
 #include <array>
 #include <vector>
 #include "definitions.h"
-#include "equity.h"
 #include "range.h"
 
 namespace pokerbot {
@@ -32730,7 +32729,7 @@ inline std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> PREFLOP_PAYOFFS{
     0,
 };
 
-void compute_cfvs_preflop(const Range& opponent_range, const Payoff& payoff,
+void compute_cfvs_preflop(const Range& opponent_range, float payoff,
                           std::vector<float>& postflop_cfvs);
 
 }  // namespace pokerbot

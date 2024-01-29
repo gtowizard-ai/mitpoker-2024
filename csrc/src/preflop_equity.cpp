@@ -2,15 +2,11 @@
 
 namespace pokerbot {
 
-void compute_cfvs_preflop(const Range& opponent_range, const Payoff& payoff,
+void compute_cfvs_preflop(const Range& opponent_range, float payoff,
                           std::vector<float>& postflop_cfvs) {
   if (opponent_range.num_cards != NumCards::Two) {
     throw std::invalid_argument("Can't call compute_cfvs_preflop with 3-cards range");
   }
-  // FIXME
-  // if (std::abs(payoff.win + payoff.lose) > 1e-4) {
-  //   throw std::invalid_argument("Preflop - Only support zero-sum payoffs of lose=-win");
-  // }
   if (postflop_cfvs.size() < NUM_HANDS_POSTFLOP_2CARDS) {
     throw std::invalid_argument("Preflop CFVs have wrong size");
   }
@@ -24,7 +20,7 @@ void compute_cfvs_preflop(const Range& opponent_range, const Payoff& payoff,
 
   for (hand_t i = 0; i < NUM_HANDS_PREFLOP; ++i) {
     for (hand_t j = 0; j < NUM_HANDS_PREFLOP; ++j) {
-      pf_cfvs[i] += PREFLOP_PAYOFFS[i * NUM_HANDS_PREFLOP + j] * pf_range[j] * payoff.win;
+      pf_cfvs[i] += PREFLOP_PAYOFFS[i * NUM_HANDS_PREFLOP + j] * pf_range[j] * payoff;
     }
   }
 
