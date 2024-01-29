@@ -55,12 +55,6 @@ void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
 Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state, int active) {
   const auto legal_actions = state->legal_actions();
 
-  if (legal_actions.size() == 1) {
-    // Engine keeps asking to take an action even when both players are all-in..
-    // Don't waste any time and return
-    return Action{state->legal_actions().front()};
-  }
-
   time_manager_.update_on_get_action(game_info);
 
   const Hand hero_hand(state->hands[active]);
@@ -69,11 +63,12 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
 
   if (ranges::contains(legal_actions, Action::Type::BID)) {
     /// Auction
-    fmt::print("Bidding.. \n");
+    fmt::print("Auction TIME!!\n");
     const float time_budget_ms = 1;  // FIXME
     const auto bid =
         auctioneer_.get_bid(ranges_[active], ranges_[1 - active], game_, state->board_cards,
                             hero_hand, state->pot(), time_budget_ms);
+    fmt::print("Bidding {} in {}\n", bid, state->pot());
     return {Action::Type::BID, bid};
   }
   if (state->bids[active].has_value() && state->bids[1 - active].has_value()) {
@@ -83,6 +78,13 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
     auctioneer_.receive_bid(ranges_[active], ranges_[1 - active], *state->bids[active],
                             *state->bids[1 - active], game_, state->board_cards, state->pot(),
                             time_budget_ms);
+  }
+
+  // NB: Put this constraint after checking if only legal action is bid!
+  if (legal_actions.size() == 1) {
+    // Engine keeps asking to take an action even when both players are all-in..
+    // Don't waste any time and return
+    return Action{state->legal_actions().front()};
   }
 
   // TODO cant afford to do CFR on flop/turn for now
