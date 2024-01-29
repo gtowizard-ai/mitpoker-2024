@@ -264,7 +264,7 @@ static void compute_cfvs_fixed_payoff_3_vs_3(const Game& game, const Range& oppo
   }
 }
 
-// Assume that probs of hands that are blocked by board cards are properly set to zerotemplate <typename T, typename>
+// Assume that probs of hands that are blocked by board cards are properly set to zero
 template <typename T, typename>
 void compute_cfvs_fixed_payoff(const Game& game, const Range& hero_range,
                                const Range& opponent_range, const std::vector<card_t>& board_cards,

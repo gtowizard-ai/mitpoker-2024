@@ -56,8 +56,6 @@ void CFR::compute_fold_cfvs(const Range& traverser_range, const Range& opponent_
   std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
   compute_cfvs_fixed_payoff(game_, traverser_range, opponent_range, root_->board_cards, cfvs,
                             payoff, board_data_cache_);
-  pokerbot::compute_cfvs_fixed_payoff(game_, traverser_range, opponent_range, root_->board_cards,
-                                      cfvs, payoff, board_data_cache_);
 }
 
 void CFR::compute_showdown_cfvs(const Range& traverser_range, const Range& opponent_range,
