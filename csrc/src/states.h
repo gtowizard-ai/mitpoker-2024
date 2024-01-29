@@ -27,14 +27,14 @@ struct RoundState final : State {
   std::array<std::optional<int>, 2> bids;
   std::array<int, 2> bets;
   std::array<int, 2> stacks;
-  std::array<std::array<std::string, 3>, 2> hands;
+  std::array<std::string, 2> hands;
   std::vector<card_t> board_cards;
   StatePtr previous_state;
 
   RoundState(int button, bool auction, const std::array<std::optional<int>, 2>& bids,
              const std::array<int, 2>& bets, const std::array<int, 2>& stacks,
-             const std::array<std::array<std::string, 3>, 2>& hands,
-             const std::vector<card_t>& board_cards = {}, StatePtr previous_state = nullptr)
+             const std::array<std::string, 2>& hands, const std::vector<card_t>& board_cards = {},
+             StatePtr previous_state = nullptr)
       : button(button),
         auction(auction),
         bids(bids),

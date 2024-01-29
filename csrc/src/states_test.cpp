@@ -8,10 +8,7 @@ using namespace pokerbot;
 
 class StatesTest : public ::testing::Test {
  protected:
-  std::array<std::array<std::string, 3>, 2> dummy_hands = {
-      std::array<std::string, 3>{"Ac", "Ad", "As"},
-      std::array<std::string, 3>{"Kc", "Kh", ""},
-  };
+  std::array<std::string, 2> dummy_hands = {"AcAdAs", "KcKh"};
 
   static void assert_fold_call_raise_allowed(const std::vector<Action::Type>& actions) {
     ASSERT_EQ(actions.size(), 3);

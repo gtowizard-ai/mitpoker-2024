@@ -1,7 +1,6 @@
 #include "cfr.h"
 
 #include <chrono>
-#include <csignal>
 
 #include "equity.h"
 #include "poker_hand.h"
@@ -48,7 +47,7 @@ void CFR::build_tree() {
     }
   }
 
-  if (actions_.size() > max_available_actions_) {
+  if (actions_.size() > MAX_LEGAL_ACTIONS) {
     throw std::runtime_error("Tree too big");
   }
 }

@@ -4,6 +4,10 @@
 
 namespace pokerbot {
 
+// class TimeManager {
+//   void time_allowed_
+// };
+
 MainBot::MainBot() : game_(), auctioneer_(), cfr_(game_), gen_(std::random_device{}()) {}
 
 Action MainBot::sample_action_and_update_range(const RoundState& state, const Hand& hand,
@@ -41,11 +45,6 @@ Action MainBot::sample_action_and_update_range(const RoundState& state, const Ha
 void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*state*/,
                               int /*active*/) {
   std::fill(ranges_.begin(), ranges_.end(), Range());
-  // int my_bankroll = game_state->bankroll;  // the total number of chips you've gained or lost from the beginning of the game to the start of this round
-  // float game_clock = game_state->game_clock;  // the total number of seconds your bot has left to play this game
-  // int hand_num = game_state->hand_num;  // the hand from 1 to State.NUM_HANDS
-  // auto my_cards = state->hands[active];  // your cards
-  // bool big_blind = (active == 1);  // true if you are the big blind
 }
 
 void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
@@ -65,8 +64,7 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
     return Action{state->legal_actions().front()};
   }
 
-  const auto& my_cards = state->hands[active];
-  Hand hero_hand(my_cards[0] + my_cards[1] + my_cards[2]);
+  const Hand hero_hand(state->hands[active]);
 
   // TODO - Need to update ranges on new board cards
 
@@ -74,9 +72,8 @@ Action MainBot::get_action(const GameInfo& /*game_info*/, const RoundStatePtr& s
     /// Auction
     fmt::print("Bidding.. \n");
     const float time_budget_ms = 1;  // FIXME
-    const auto bid =
-        auctioneer_.get_bid(ranges_[active], ranges_[1 - active], state->board_cards,
-                            Hand(my_cards[0] + my_cards[1]), state->pot(), time_budget_ms);
+    const auto bid = auctioneer_.get_bid(ranges_[active], ranges_[1 - active], state->board_cards,
+                                         hero_hand, state->pot(), time_budget_ms);
     return {Action::Type::BID, bid};
   }
   if (state->bids[active].has_value() && state->bids[1 - active].has_value()) {

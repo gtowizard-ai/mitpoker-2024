@@ -66,12 +66,12 @@ class CFR {
   void update_hero_cfvs_bet_node();
   void update_hero_strategy();
 
-  static constexpr unsigned max_available_actions_ = 3;
+  static constexpr unsigned MAX_LEGAL_ACTIONS = 3;
 
   const Game& game_;
 
   // CFVs for each action at root node
-  std::array<std::vector<float>, max_available_actions_> children_cfvs_{};
+  std::array<std::vector<float>, MAX_LEGAL_ACTIONS> children_cfvs_{};
 
   RoundStatePtr root_;
   // Number of hands of each player, based on whether they have 2 or 3 cards

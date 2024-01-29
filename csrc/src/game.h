@@ -4,12 +4,20 @@
 namespace pokerbot {
 
 struct GameInfo {
+  // Total number of chips you've gained or lost from the beginning of the match to the start of this round
   int bankroll;
+  // Total number of seconds your bot has left to play this game
   double game_clock;
+  // Hand from 1 to `num_hands_in_match`
   int hand_num;
+  // Number of total hands that we get to play against our opponent
+  int num_hands_in_match;
 
-  GameInfo(int bankroll, double game_clock, int hand_num)
-      : bankroll(bankroll), game_clock(game_clock), hand_num(hand_num) {}
+  GameInfo(int bankroll, double game_clock, int hand_num, int num_hands_in_match)
+      : bankroll(bankroll),
+        game_clock(game_clock),
+        hand_num(hand_num),
+        num_hands_in_match(num_hands_in_match) {}
 };
 
 // Number of private cards that is supported

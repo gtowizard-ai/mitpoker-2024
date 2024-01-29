@@ -18,6 +18,8 @@
 
 namespace pokerbot {
 
+static constexpr int NUM_HANDS_MATCH = 1000;
+
 template <typename BotType>
 class Runner {
  private:
@@ -49,8 +51,8 @@ class Runner {
   ~Runner() { stream.close(); }
 
   void run() {
-    GameInfo game_info(0, 0.0, 1);
-    std::array<std::array<std::string, 3>, 2> empty_hand = {{{"", "", ""}, {"", "", ""}}};
+    GameInfo game_info(0, 0.0, 1, NUM_HANDS_MATCH);
+    std::array<std::string, 2> empty_hand = {"", ""};
     StatePtr round_state = std::make_shared<RoundState>(
         0, false, std::array<std::optional<int>, 2>{std::nullopt, std::nullopt},
         std::array<int, 2>{0, 0}, std::array<int, 2>{0, 0}, empty_hand);
@@ -62,7 +64,8 @@ class Runner {
         auto leftover = clause.substr(1);
         switch (clause[0]) {
           case 'T': {
-            game_info = GameInfo(game_info.bankroll, std::stof(leftover), game_info.hand_num);
+            game_info = GameInfo(game_info.bankroll, std::stof(leftover), game_info.hand_num,
+                                 game_info.num_hands_in_match);
             break;
           }
           case 'P': {
@@ -73,9 +76,8 @@ class Runner {
             std::vector<std::string> cards;
             boost::split(cards, leftover, boost::is_any_of(","));
 
-            std::array<std::array<std::string, 3>, 2> hands;
-            hands[active][0] = cards[0];
-            hands[active][1] = cards[1];
+            std::array<std::string, 2> hands;
+            hands[active] = cards[0] + cards[1];
 
             round_state = std::make_shared<RoundState>(0, false, EMPTY_BIDS, BLINDS,
                                                        STARTING_STACKS, std::move(hands));
@@ -129,14 +131,12 @@ class Runner {
               stacks_int[i] = std::stoi(stacks[i]);
             }
 
-            std::array<std::array<std::string, 3>, 2> hands;
+            std::array<std::string, 2> hands = {"", ""};
             if (cards.size() == 3) {
-              hands[active] = {cards[0], cards[1], cards[2]};
+              hands[active] = cards[0] + cards[1] + cards[2];
             } else {
-              hands[active] = {cards[0], cards[1]};
+              hands[active] = cards[0] + cards[1];
             }
-
-            hands[1 - active] = {"", ""};
 
             // Assuming RoundState constructor and member variables are defined
             auto maker = std::static_pointer_cast<const RoundState>(round_state);
@@ -166,7 +166,7 @@ class Runner {
                 std::static_pointer_cast<const TerminalState>(round_state)->previous_state;
             auto maker = std::static_pointer_cast<const RoundState>(round_state);
             auto revisedHands = maker->hands;
-            revisedHands[1 - active] = {cards[0], cards[1]};
+            revisedHands[1 - active] = cards[0] + cards[1];
             // rebuild history
             round_state = std::make_shared<RoundState>(maker->button, maker->auction, maker->bids,
                                                        maker->bets, maker->stacks, revisedHands,
@@ -183,11 +183,12 @@ class Runner {
             round_state = std::make_shared<TerminalState>(
                 deltas, std::array<std::optional<int>, 2>{0, 0},
                 std::static_pointer_cast<const TerminalState>(round_state)->previous_state);
-            game_info =
-                GameInfo(game_info.bankroll + delta, game_info.game_clock, game_info.hand_num);
+            game_info = GameInfo(game_info.bankroll + delta, game_info.game_clock,
+                                 game_info.hand_num, game_info.num_hands_in_match);
             pokerbot.handle_hand_over(
                 game_info, std::static_pointer_cast<const TerminalState>(round_state), active);
-            game_info = GameInfo(game_info.bankroll, game_info.game_clock, game_info.hand_num + 1);
+            game_info = GameInfo(game_info.bankroll, game_info.game_clock, game_info.hand_num + 1,
+                                 game_info.num_hands_in_match);
             round_flag = true;
             break;
           }

@@ -19,9 +19,7 @@ TEST_F(CFRTest, TestNoErrorThreeVsThreeCards) {
   ranges[0].to_3_cards_range(game_, board_cards);
   ranges[1] = ranges[0];
 
-  std::array<std::array<std::string, 3>, 2> hands;
-  hands[0] = {"2h", "2d", "2s"};
-  hands[1] = {"8h", "8d", "8s"};
+  std::array<std::string, 2> hands = {"2h2d2s", "8h8d8s"};
 
   auto round_state = std::make_shared<RoundState>(BB_POS, false, EMPTY_BIDS, BLINDS,
                                                   STARTING_STACKS, hands, board_cards, nullptr);
@@ -62,8 +60,8 @@ TEST_F(CFRTest, TestRiverNutAirToyGame) {
   std::array<std::optional<int>, 2> bids = {10, 5};
   std::array<int, 2> bets = {0, 0};
   std::array<int, 2> stacks = {STARTING_STACK - 100, STARTING_STACK - 95};
-  std::array<std::array<std::string, 3>, 2> hands;
-  hands[hero_id] = {"4h", "4c", ""};
+  std::array<std::string, 2> hands;
+  hands[hero_id] = "4h4c";
 
   auto round_state =
       std::make_shared<RoundState>(BB_POS, false, bids, bets, stacks, hands, board_cards, nullptr);
@@ -100,8 +98,7 @@ TEST_F(CFRTest, TestPreflopOpenRaiseStrategy) {
   const auto board_cards = Card::to_vector("");
   std::array<Range, 2> ranges{Range(), Range()};
 
-  std::array<std::array<std::string, 3>, 2> hands;
-  hands[1] = {"8h", "8d"};
+  std::array<std::string, 2> hands = {"", "8h8d"};
 
   auto round_state = std::make_shared<RoundState>(SB_POS, false, EMPTY_BIDS, BLINDS,
                                                   STARTING_STACKS, hands, board_cards, nullptr);
