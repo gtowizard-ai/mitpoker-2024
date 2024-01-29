@@ -1,6 +1,5 @@
 #include "auction.h"
 #include <gtest/gtest.h>
-#include <tuple>
 
 using namespace pokerbot;
 

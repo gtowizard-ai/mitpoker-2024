@@ -105,8 +105,17 @@ void generate_equities() {
           fmt::print("EQ difference for {} on {} is {:.4f} \n", hand_str, board_str,
                      two_card_eq[Hand(hand_str).index()]);
         }
-        double avg_eq_diff =
-            std::accumulate(two_card_eq.begin(), two_card_eq.end(), 0.0) / two_card_eq.size();
+
+        unsigned count_hand = 0;
+        double avg_eq_diff = 0;
+        for (hand_t h = 0; h < two_cards_hands.size(); ++h) {
+          if (!two_cards_hands[h].collides_with(cards)) {
+            count_hand++;
+            avg_eq_diff += two_card_eq[h];
+          }
+        }
+        avg_eq_diff /= static_cast<double>(count_hand);
+
         fmt::print("{} - Average EQ difference = {} \n", board_str, avg_eq_diff);
 
         std::string output_string =
