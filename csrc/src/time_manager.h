@@ -16,7 +16,7 @@ class TimeManager {
     const auto round = state->round().id;
     if (last_hand_in_round_[round] != game_info.hand_num) {
       last_hand_in_round_[round] = game_info.hand_num;
-      games_played_per_round_[round]++;
+      hands_played_per_round_[round]++;
     }
     total_actions_per_round_[state->round().id]++;
   }
@@ -31,7 +31,7 @@ class TimeManager {
     const float game_time =
         (std::max(game_info.game_clock - 0.5, 0.0) * 1000.0) / game_info.num_hands_left_in_match();
 
-    return std::max(game_time * ratio_[round] * static_cast<float>(games_played_per_round_[round]) /
+    return std::max(game_time * ratio_[round] * static_cast<float>(hands_played_per_round_[round]) /
                         (static_cast<float>(total_actions_per_round_[round])),
                     1.0f);
   }
@@ -40,7 +40,7 @@ class TimeManager {
   std::array<unsigned, ROUNDS> total_actions_per_round_{};
   std::array<float, ROUNDS> ratio_;
 
-  std::array<int, ROUNDS> games_played_per_round_{};
+  std::array<int, ROUNDS> hands_played_per_round_{};
   std::array<int, ROUNDS> last_hand_in_round_;
 };
 
