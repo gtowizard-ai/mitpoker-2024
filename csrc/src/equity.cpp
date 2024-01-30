@@ -1,6 +1,8 @@
 #include "equity.h"
 #include "poker_hand.h"
 
+#include <pdqsort.h>
+
 #include <numeric>
 #include <stdexcept>
 
@@ -127,8 +129,8 @@ void BoardDataCache::check_board(const std::vector<card_t>& board_cards) {
 }
 
 void BoardDataCache::sort_hands(std::vector<uint32_t>& hands) {
-  // TODO: replace with faster sorting library
-  std::sort(hands.begin(), hands.end());
+  // std::sort(hands.begin(), hands.end());
+  pdqsort(hands.begin(), hands.end());
 }
 
 template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
