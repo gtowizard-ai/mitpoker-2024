@@ -1,7 +1,7 @@
 #include "auction.h"
-#include "../scripts/avg_equity_third_card.h"
 #include "definitions.h"
 #include "equity.h"
+#include "equity_third_card.h"
 #include "isomorphic_flop_encoder.h"
 
 namespace pokerbot {

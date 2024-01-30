@@ -59,17 +59,3 @@ TEST_F(AuctionTest, TestMeanEquityStrategy) {
   float eq = auctioneer.get_avg_equity_third_card(board);
   ASSERT_NEAR(eq, 0.352, 0.01);
 }
-
-TEST_F(AuctionTest, TestAvgEquityThirdCardTableIntegrity) {
-  ASSERT_EQ(AVG_EQUITY_LOSS_THIRD_CARD.size(), 1755);
-  for (card_t i = 0; i < MAX_DECK_SIZE; ++i) {
-    for (card_t j = i + 1; j < MAX_DECK_SIZE; ++j) {
-      for (card_t k = j + 1; k < MAX_DECK_SIZE; ++k) {
-        std::vector cards = {i, j, k};
-        auto board = IsomorphicFlopEncoder::to_isomorphic_flop(cards);
-        ASSERT_GE(AVG_EQUITY_LOSS_THIRD_CARD.at(board), -1.0);
-        ASSERT_LT(AVG_EQUITY_LOSS_THIRD_CARD.at(board), 0);
-      }
-    }
-  }
-}

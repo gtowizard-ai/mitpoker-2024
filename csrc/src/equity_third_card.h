@@ -1,7 +1,211 @@
 /// Generated with `generate_avg_equity_third_card`
 #pragma once
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <unordered_map>
+#include "hand.h"
+#include "isomorphic_flop_encoder.h"
+
+namespace pokerbot {
+
+inline static std::array<std::string, 1755> ISOMORPHIC_FLOPS = {
+    "222r",   "223s",   "223r",   "224s",   "224r",   "225s",   "225r",   "226s",   "226r",
+    "227s",   "227r",   "228s",   "228r",   "229s",   "229r",   "22Ts",   "22Tr",   "22Js",
+    "22Jr",   "22Qs",   "22Qr",   "22Ks",   "22Kr",   "22As",   "22Ar",   "233s",   "234m",
+    "234slm", "235m",   "235slm", "236m",   "236slm", "237m",   "237slm", "238m",   "238slm",
+    "239m",   "239slm", "23Tm",   "23Tslm", "23Jm",   "23Jslm", "23Qm",   "23Qslm", "23Km",
+    "23Kslm", "23Am",   "23Aslm", "233r",   "234slh", "234smh", "234r",   "235slh", "235smh",
+    "235r",   "236slh", "236smh", "236r",   "237slh", "237smh", "237r",   "238slh", "238smh",
+    "238r",   "239slh", "239smh", "239r",   "23Tslh", "23Tsmh", "23Tr",   "23Jslh", "23Jsmh",
+    "23Jr",   "23Qslh", "23Qsmh", "23Qr",   "23Kslh", "23Ksmh", "23Kr",   "23Aslh", "23Asmh",
+    "23Ar",   "244s",   "245m",   "245slm", "246m",   "246slm", "247m",   "247slm", "248m",
+    "248slm", "249m",   "249slm", "24Tm",   "24Tslm", "24Jm",   "24Jslm", "24Qm",   "24Qslm",
+    "24Km",   "24Kslm", "24Am",   "24Aslm", "244r",   "245slh", "245smh", "245r",   "246slh",
+    "246smh", "246r",   "247slh", "247smh", "247r",   "248slh", "248smh", "248r",   "249slh",
+    "249smh", "249r",   "24Tslh", "24Tsmh", "24Tr",   "24Jslh", "24Jsmh", "24Jr",   "24Qslh",
+    "24Qsmh", "24Qr",   "24Kslh", "24Ksmh", "24Kr",   "24Aslh", "24Asmh", "24Ar",   "255s",
+    "256m",   "256slm", "257m",   "257slm", "258m",   "258slm", "259m",   "259slm", "25Tm",
+    "25Tslm", "25Jm",   "25Jslm", "25Qm",   "25Qslm", "25Km",   "25Kslm", "25Am",   "25Aslm",
+    "255r",   "256slh", "256smh", "256r",   "257slh", "257smh", "257r",   "258slh", "258smh",
+    "258r",   "259slh", "259smh", "259r",   "25Tslh", "25Tsmh", "25Tr",   "25Jslh", "25Jsmh",
+    "25Jr",   "25Qslh", "25Qsmh", "25Qr",   "25Kslh", "25Ksmh", "25Kr",   "25Aslh", "25Asmh",
+    "25Ar",   "266s",   "267m",   "267slm", "268m",   "268slm", "269m",   "269slm", "26Tm",
+    "26Tslm", "26Jm",   "26Jslm", "26Qm",   "26Qslm", "26Km",   "26Kslm", "26Am",   "26Aslm",
+    "266r",   "267slh", "267smh", "267r",   "268slh", "268smh", "268r",   "269slh", "269smh",
+    "269r",   "26Tslh", "26Tsmh", "26Tr",   "26Jslh", "26Jsmh", "26Jr",   "26Qslh", "26Qsmh",
+    "26Qr",   "26Kslh", "26Ksmh", "26Kr",   "26Aslh", "26Asmh", "26Ar",   "277s",   "278m",
+    "278slm", "279m",   "279slm", "27Tm",   "27Tslm", "27Jm",   "27Jslm", "27Qm",   "27Qslm",
+    "27Km",   "27Kslm", "27Am",   "27Aslm", "277r",   "278slh", "278smh", "278r",   "279slh",
+    "279smh", "279r",   "27Tslh", "27Tsmh", "27Tr",   "27Jslh", "27Jsmh", "27Jr",   "27Qslh",
+    "27Qsmh", "27Qr",   "27Kslh", "27Ksmh", "27Kr",   "27Aslh", "27Asmh", "27Ar",   "288s",
+    "289m",   "289slm", "28Tm",   "28Tslm", "28Jm",   "28Jslm", "28Qm",   "28Qslm", "28Km",
+    "28Kslm", "28Am",   "28Aslm", "288r",   "289slh", "289smh", "289r",   "28Tslh", "28Tsmh",
+    "28Tr",   "28Jslh", "28Jsmh", "28Jr",   "28Qslh", "28Qsmh", "28Qr",   "28Kslh", "28Ksmh",
+    "28Kr",   "28Aslh", "28Asmh", "28Ar",   "299s",   "29Tm",   "29Tslm", "29Jm",   "29Jslm",
+    "29Qm",   "29Qslm", "29Km",   "29Kslm", "29Am",   "29Aslm", "299r",   "29Tslh", "29Tsmh",
+    "29Tr",   "29Jslh", "29Jsmh", "29Jr",   "29Qslh", "29Qsmh", "29Qr",   "29Kslh", "29Ksmh",
+    "29Kr",   "29Aslh", "29Asmh", "29Ar",   "2TTs",   "2TJm",   "2TJslm", "2TQm",   "2TQslm",
+    "2TKm",   "2TKslm", "2TAm",   "2TAslm", "2TTr",   "2TJslh", "2TJsmh", "2TJr",   "2TQslh",
+    "2TQsmh", "2TQr",   "2TKslh", "2TKsmh", "2TKr",   "2TAslh", "2TAsmh", "2TAr",   "2JJs",
+    "2JQm",   "2JQslm", "2JKm",   "2JKslm", "2JAm",   "2JAslm", "2JJr",   "2JQslh", "2JQsmh",
+    "2JQr",   "2JKslh", "2JKsmh", "2JKr",   "2JAslh", "2JAsmh", "2JAr",   "2QQs",   "2QKm",
+    "2QKslm", "2QAm",   "2QAslm", "2QQr",   "2QKslh", "2QKsmh", "2QKr",   "2QAslh", "2QAsmh",
+    "2QAr",   "2KKs",   "2KAm",   "2KAslm", "2KKr",   "2KAslh", "2KAsmh", "2KAr",   "2AAs",
+    "2AAr",   "333r",   "334s",   "334r",   "335s",   "335r",   "336s",   "336r",   "337s",
+    "337r",   "338s",   "338r",   "339s",   "339r",   "33Ts",   "33Tr",   "33Js",   "33Jr",
+    "33Qs",   "33Qr",   "33Ks",   "33Kr",   "33As",   "33Ar",   "344s",   "345m",   "345slm",
+    "346m",   "346slm", "347m",   "347slm", "348m",   "348slm", "349m",   "349slm", "34Tm",
+    "34Tslm", "34Jm",   "34Jslm", "34Qm",   "34Qslm", "34Km",   "34Kslm", "34Am",   "34Aslm",
+    "344r",   "345slh", "345smh", "345r",   "346slh", "346smh", "346r",   "347slh", "347smh",
+    "347r",   "348slh", "348smh", "348r",   "349slh", "349smh", "349r",   "34Tslh", "34Tsmh",
+    "34Tr",   "34Jslh", "34Jsmh", "34Jr",   "34Qslh", "34Qsmh", "34Qr",   "34Kslh", "34Ksmh",
+    "34Kr",   "34Aslh", "34Asmh", "34Ar",   "355s",   "356m",   "356slm", "357m",   "357slm",
+    "358m",   "358slm", "359m",   "359slm", "35Tm",   "35Tslm", "35Jm",   "35Jslm", "35Qm",
+    "35Qslm", "35Km",   "35Kslm", "35Am",   "35Aslm", "355r",   "356slh", "356smh", "356r",
+    "357slh", "357smh", "357r",   "358slh", "358smh", "358r",   "359slh", "359smh", "359r",
+    "35Tslh", "35Tsmh", "35Tr",   "35Jslh", "35Jsmh", "35Jr",   "35Qslh", "35Qsmh", "35Qr",
+    "35Kslh", "35Ksmh", "35Kr",   "35Aslh", "35Asmh", "35Ar",   "366s",   "367m",   "367slm",
+    "368m",   "368slm", "369m",   "369slm", "36Tm",   "36Tslm", "36Jm",   "36Jslm", "36Qm",
+    "36Qslm", "36Km",   "36Kslm", "36Am",   "36Aslm", "366r",   "367slh", "367smh", "367r",
+    "368slh", "368smh", "368r",   "369slh", "369smh", "369r",   "36Tslh", "36Tsmh", "36Tr",
+    "36Jslh", "36Jsmh", "36Jr",   "36Qslh", "36Qsmh", "36Qr",   "36Kslh", "36Ksmh", "36Kr",
+    "36Aslh", "36Asmh", "36Ar",   "377s",   "378m",   "378slm", "379m",   "379slm", "37Tm",
+    "37Tslm", "37Jm",   "37Jslm", "37Qm",   "37Qslm", "37Km",   "37Kslm", "37Am",   "37Aslm",
+    "377r",   "378slh", "378smh", "378r",   "379slh", "379smh", "379r",   "37Tslh", "37Tsmh",
+    "37Tr",   "37Jslh", "37Jsmh", "37Jr",   "37Qslh", "37Qsmh", "37Qr",   "37Kslh", "37Ksmh",
+    "37Kr",   "37Aslh", "37Asmh", "37Ar",   "388s",   "389m",   "389slm", "38Tm",   "38Tslm",
+    "38Jm",   "38Jslm", "38Qm",   "38Qslm", "38Km",   "38Kslm", "38Am",   "38Aslm", "388r",
+    "389slh", "389smh", "389r",   "38Tslh", "38Tsmh", "38Tr",   "38Jslh", "38Jsmh", "38Jr",
+    "38Qslh", "38Qsmh", "38Qr",   "38Kslh", "38Ksmh", "38Kr",   "38Aslh", "38Asmh", "38Ar",
+    "399s",   "39Tm",   "39Tslm", "39Jm",   "39Jslm", "39Qm",   "39Qslm", "39Km",   "39Kslm",
+    "39Am",   "39Aslm", "399r",   "39Tslh", "39Tsmh", "39Tr",   "39Jslh", "39Jsmh", "39Jr",
+    "39Qslh", "39Qsmh", "39Qr",   "39Kslh", "39Ksmh", "39Kr",   "39Aslh", "39Asmh", "39Ar",
+    "3TTs",   "3TJm",   "3TJslm", "3TQm",   "3TQslm", "3TKm",   "3TKslm", "3TAm",   "3TAslm",
+    "3TTr",   "3TJslh", "3TJsmh", "3TJr",   "3TQslh", "3TQsmh", "3TQr",   "3TKslh", "3TKsmh",
+    "3TKr",   "3TAslh", "3TAsmh", "3TAr",   "3JJs",   "3JQm",   "3JQslm", "3JKm",   "3JKslm",
+    "3JAm",   "3JAslm", "3JJr",   "3JQslh", "3JQsmh", "3JQr",   "3JKslh", "3JKsmh", "3JKr",
+    "3JAslh", "3JAsmh", "3JAr",   "3QQs",   "3QKm",   "3QKslm", "3QAm",   "3QAslm", "3QQr",
+    "3QKslh", "3QKsmh", "3QKr",   "3QAslh", "3QAsmh", "3QAr",   "3KKs",   "3KAm",   "3KAslm",
+    "3KKr",   "3KAslh", "3KAsmh", "3KAr",   "3AAs",   "3AAr",   "444r",   "445s",   "445r",
+    "446s",   "446r",   "447s",   "447r",   "448s",   "448r",   "449s",   "449r",   "44Ts",
+    "44Tr",   "44Js",   "44Jr",   "44Qs",   "44Qr",   "44Ks",   "44Kr",   "44As",   "44Ar",
+    "455s",   "456m",   "456slm", "457m",   "457slm", "458m",   "458slm", "459m",   "459slm",
+    "45Tm",   "45Tslm", "45Jm",   "45Jslm", "45Qm",   "45Qslm", "45Km",   "45Kslm", "45Am",
+    "45Aslm", "455r",   "456slh", "456smh", "456r",   "457slh", "457smh", "457r",   "458slh",
+    "458smh", "458r",   "459slh", "459smh", "459r",   "45Tslh", "45Tsmh", "45Tr",   "45Jslh",
+    "45Jsmh", "45Jr",   "45Qslh", "45Qsmh", "45Qr",   "45Kslh", "45Ksmh", "45Kr",   "45Aslh",
+    "45Asmh", "45Ar",   "466s",   "467m",   "467slm", "468m",   "468slm", "469m",   "469slm",
+    "46Tm",   "46Tslm", "46Jm",   "46Jslm", "46Qm",   "46Qslm", "46Km",   "46Kslm", "46Am",
+    "46Aslm", "466r",   "467slh", "467smh", "467r",   "468slh", "468smh", "468r",   "469slh",
+    "469smh", "469r",   "46Tslh", "46Tsmh", "46Tr",   "46Jslh", "46Jsmh", "46Jr",   "46Qslh",
+    "46Qsmh", "46Qr",   "46Kslh", "46Ksmh", "46Kr",   "46Aslh", "46Asmh", "46Ar",   "477s",
+    "478m",   "478slm", "479m",   "479slm", "47Tm",   "47Tslm", "47Jm",   "47Jslm", "47Qm",
+    "47Qslm", "47Km",   "47Kslm", "47Am",   "47Aslm", "477r",   "478slh", "478smh", "478r",
+    "479slh", "479smh", "479r",   "47Tslh", "47Tsmh", "47Tr",   "47Jslh", "47Jsmh", "47Jr",
+    "47Qslh", "47Qsmh", "47Qr",   "47Kslh", "47Ksmh", "47Kr",   "47Aslh", "47Asmh", "47Ar",
+    "488s",   "489m",   "489slm", "48Tm",   "48Tslm", "48Jm",   "48Jslm", "48Qm",   "48Qslm",
+    "48Km",   "48Kslm", "48Am",   "48Aslm", "488r",   "489slh", "489smh", "489r",   "48Tslh",
+    "48Tsmh", "48Tr",   "48Jslh", "48Jsmh", "48Jr",   "48Qslh", "48Qsmh", "48Qr",   "48Kslh",
+    "48Ksmh", "48Kr",   "48Aslh", "48Asmh", "48Ar",   "499s",   "49Tm",   "49Tslm", "49Jm",
+    "49Jslm", "49Qm",   "49Qslm", "49Km",   "49Kslm", "49Am",   "49Aslm", "499r",   "49Tslh",
+    "49Tsmh", "49Tr",   "49Jslh", "49Jsmh", "49Jr",   "49Qslh", "49Qsmh", "49Qr",   "49Kslh",
+    "49Ksmh", "49Kr",   "49Aslh", "49Asmh", "49Ar",   "4TTs",   "4TJm",   "4TJslm", "4TQm",
+    "4TQslm", "4TKm",   "4TKslm", "4TAm",   "4TAslm", "4TTr",   "4TJslh", "4TJsmh", "4TJr",
+    "4TQslh", "4TQsmh", "4TQr",   "4TKslh", "4TKsmh", "4TKr",   "4TAslh", "4TAsmh", "4TAr",
+    "4JJs",   "4JQm",   "4JQslm", "4JKm",   "4JKslm", "4JAm",   "4JAslm", "4JJr",   "4JQslh",
+    "4JQsmh", "4JQr",   "4JKslh", "4JKsmh", "4JKr",   "4JAslh", "4JAsmh", "4JAr",   "4QQs",
+    "4QKm",   "4QKslm", "4QAm",   "4QAslm", "4QQr",   "4QKslh", "4QKsmh", "4QKr",   "4QAslh",
+    "4QAsmh", "4QAr",   "4KKs",   "4KAm",   "4KAslm", "4KKr",   "4KAslh", "4KAsmh", "4KAr",
+    "4AAs",   "4AAr",   "555r",   "556s",   "556r",   "557s",   "557r",   "558s",   "558r",
+    "559s",   "559r",   "55Ts",   "55Tr",   "55Js",   "55Jr",   "55Qs",   "55Qr",   "55Ks",
+    "55Kr",   "55As",   "55Ar",   "566s",   "567m",   "567slm", "568m",   "568slm", "569m",
+    "569slm", "56Tm",   "56Tslm", "56Jm",   "56Jslm", "56Qm",   "56Qslm", "56Km",   "56Kslm",
+    "56Am",   "56Aslm", "566r",   "567slh", "567smh", "567r",   "568slh", "568smh", "568r",
+    "569slh", "569smh", "569r",   "56Tslh", "56Tsmh", "56Tr",   "56Jslh", "56Jsmh", "56Jr",
+    "56Qslh", "56Qsmh", "56Qr",   "56Kslh", "56Ksmh", "56Kr",   "56Aslh", "56Asmh", "56Ar",
+    "577s",   "578m",   "578slm", "579m",   "579slm", "57Tm",   "57Tslm", "57Jm",   "57Jslm",
+    "57Qm",   "57Qslm", "57Km",   "57Kslm", "57Am",   "57Aslm", "577r",   "578slh", "578smh",
+    "578r",   "579slh", "579smh", "579r",   "57Tslh", "57Tsmh", "57Tr",   "57Jslh", "57Jsmh",
+    "57Jr",   "57Qslh", "57Qsmh", "57Qr",   "57Kslh", "57Ksmh", "57Kr",   "57Aslh", "57Asmh",
+    "57Ar",   "588s",   "589m",   "589slm", "58Tm",   "58Tslm", "58Jm",   "58Jslm", "58Qm",
+    "58Qslm", "58Km",   "58Kslm", "58Am",   "58Aslm", "588r",   "589slh", "589smh", "589r",
+    "58Tslh", "58Tsmh", "58Tr",   "58Jslh", "58Jsmh", "58Jr",   "58Qslh", "58Qsmh", "58Qr",
+    "58Kslh", "58Ksmh", "58Kr",   "58Aslh", "58Asmh", "58Ar",   "599s",   "59Tm",   "59Tslm",
+    "59Jm",   "59Jslm", "59Qm",   "59Qslm", "59Km",   "59Kslm", "59Am",   "59Aslm", "599r",
+    "59Tslh", "59Tsmh", "59Tr",   "59Jslh", "59Jsmh", "59Jr",   "59Qslh", "59Qsmh", "59Qr",
+    "59Kslh", "59Ksmh", "59Kr",   "59Aslh", "59Asmh", "59Ar",   "5TTs",   "5TJm",   "5TJslm",
+    "5TQm",   "5TQslm", "5TKm",   "5TKslm", "5TAm",   "5TAslm", "5TTr",   "5TJslh", "5TJsmh",
+    "5TJr",   "5TQslh", "5TQsmh", "5TQr",   "5TKslh", "5TKsmh", "5TKr",   "5TAslh", "5TAsmh",
+    "5TAr",   "5JJs",   "5JQm",   "5JQslm", "5JKm",   "5JKslm", "5JAm",   "5JAslm", "5JJr",
+    "5JQslh", "5JQsmh", "5JQr",   "5JKslh", "5JKsmh", "5JKr",   "5JAslh", "5JAsmh", "5JAr",
+    "5QQs",   "5QKm",   "5QKslm", "5QAm",   "5QAslm", "5QQr",   "5QKslh", "5QKsmh", "5QKr",
+    "5QAslh", "5QAsmh", "5QAr",   "5KKs",   "5KAm",   "5KAslm", "5KKr",   "5KAslh", "5KAsmh",
+    "5KAr",   "5AAs",   "5AAr",   "666r",   "667s",   "667r",   "668s",   "668r",   "669s",
+    "669r",   "66Ts",   "66Tr",   "66Js",   "66Jr",   "66Qs",   "66Qr",   "66Ks",   "66Kr",
+    "66As",   "66Ar",   "677s",   "678m",   "678slm", "679m",   "679slm", "67Tm",   "67Tslm",
+    "67Jm",   "67Jslm", "67Qm",   "67Qslm", "67Km",   "67Kslm", "67Am",   "67Aslm", "677r",
+    "678slh", "678smh", "678r",   "679slh", "679smh", "679r",   "67Tslh", "67Tsmh", "67Tr",
+    "67Jslh", "67Jsmh", "67Jr",   "67Qslh", "67Qsmh", "67Qr",   "67Kslh", "67Ksmh", "67Kr",
+    "67Aslh", "67Asmh", "67Ar",   "688s",   "689m",   "689slm", "68Tm",   "68Tslm", "68Jm",
+    "68Jslm", "68Qm",   "68Qslm", "68Km",   "68Kslm", "68Am",   "68Aslm", "688r",   "689slh",
+    "689smh", "689r",   "68Tslh", "68Tsmh", "68Tr",   "68Jslh", "68Jsmh", "68Jr",   "68Qslh",
+    "68Qsmh", "68Qr",   "68Kslh", "68Ksmh", "68Kr",   "68Aslh", "68Asmh", "68Ar",   "699s",
+    "69Tm",   "69Tslm", "69Jm",   "69Jslm", "69Qm",   "69Qslm", "69Km",   "69Kslm", "69Am",
+    "69Aslm", "699r",   "69Tslh", "69Tsmh", "69Tr",   "69Jslh", "69Jsmh", "69Jr",   "69Qslh",
+    "69Qsmh", "69Qr",   "69Kslh", "69Ksmh", "69Kr",   "69Aslh", "69Asmh", "69Ar",   "6TTs",
+    "6TJm",   "6TJslm", "6TQm",   "6TQslm", "6TKm",   "6TKslm", "6TAm",   "6TAslm", "6TTr",
+    "6TJslh", "6TJsmh", "6TJr",   "6TQslh", "6TQsmh", "6TQr",   "6TKslh", "6TKsmh", "6TKr",
+    "6TAslh", "6TAsmh", "6TAr",   "6JJs",   "6JQm",   "6JQslm", "6JKm",   "6JKslm", "6JAm",
+    "6JAslm", "6JJr",   "6JQslh", "6JQsmh", "6JQr",   "6JKslh", "6JKsmh", "6JKr",   "6JAslh",
+    "6JAsmh", "6JAr",   "6QQs",   "6QKm",   "6QKslm", "6QAm",   "6QAslm", "6QQr",   "6QKslh",
+    "6QKsmh", "6QKr",   "6QAslh", "6QAsmh", "6QAr",   "6KKs",   "6KAm",   "6KAslm", "6KKr",
+    "6KAslh", "6KAsmh", "6KAr",   "6AAs",   "6AAr",   "777r",   "778s",   "778r",   "779s",
+    "779r",   "77Ts",   "77Tr",   "77Js",   "77Jr",   "77Qs",   "77Qr",   "77Ks",   "77Kr",
+    "77As",   "77Ar",   "788s",   "789m",   "789slm", "78Tm",   "78Tslm", "78Jm",   "78Jslm",
+    "78Qm",   "78Qslm", "78Km",   "78Kslm", "78Am",   "78Aslm", "788r",   "789slh", "789smh",
+    "789r",   "78Tslh", "78Tsmh", "78Tr",   "78Jslh", "78Jsmh", "78Jr",   "78Qslh", "78Qsmh",
+    "78Qr",   "78Kslh", "78Ksmh", "78Kr",   "78Aslh", "78Asmh", "78Ar",   "799s",   "79Tm",
+    "79Tslm", "79Jm",   "79Jslm", "79Qm",   "79Qslm", "79Km",   "79Kslm", "79Am",   "79Aslm",
+    "799r",   "79Tslh", "79Tsmh", "79Tr",   "79Jslh", "79Jsmh", "79Jr",   "79Qslh", "79Qsmh",
+    "79Qr",   "79Kslh", "79Ksmh", "79Kr",   "79Aslh", "79Asmh", "79Ar",   "7TTs",   "7TJm",
+    "7TJslm", "7TQm",   "7TQslm", "7TKm",   "7TKslm", "7TAm",   "7TAslm", "7TTr",   "7TJslh",
+    "7TJsmh", "7TJr",   "7TQslh", "7TQsmh", "7TQr",   "7TKslh", "7TKsmh", "7TKr",   "7TAslh",
+    "7TAsmh", "7TAr",   "7JJs",   "7JQm",   "7JQslm", "7JKm",   "7JKslm", "7JAm",   "7JAslm",
+    "7JJr",   "7JQslh", "7JQsmh", "7JQr",   "7JKslh", "7JKsmh", "7JKr",   "7JAslh", "7JAsmh",
+    "7JAr",   "7QQs",   "7QKm",   "7QKslm", "7QAm",   "7QAslm", "7QQr",   "7QKslh", "7QKsmh",
+    "7QKr",   "7QAslh", "7QAsmh", "7QAr",   "7KKs",   "7KAm",   "7KAslm", "7KKr",   "7KAslh",
+    "7KAsmh", "7KAr",   "7AAs",   "7AAr",   "888r",   "889s",   "889r",   "88Ts",   "88Tr",
+    "88Js",   "88Jr",   "88Qs",   "88Qr",   "88Ks",   "88Kr",   "88As",   "88Ar",   "899s",
+    "89Tm",   "89Tslm", "89Jm",   "89Jslm", "89Qm",   "89Qslm", "89Km",   "89Kslm", "89Am",
+    "89Aslm", "899r",   "89Tslh", "89Tsmh", "89Tr",   "89Jslh", "89Jsmh", "89Jr",   "89Qslh",
+    "89Qsmh", "89Qr",   "89Kslh", "89Ksmh", "89Kr",   "89Aslh", "89Asmh", "89Ar",   "8TTs",
+    "8TJm",   "8TJslm", "8TQm",   "8TQslm", "8TKm",   "8TKslm", "8TAm",   "8TAslm", "8TTr",
+    "8TJslh", "8TJsmh", "8TJr",   "8TQslh", "8TQsmh", "8TQr",   "8TKslh", "8TKsmh", "8TKr",
+    "8TAslh", "8TAsmh", "8TAr",   "8JJs",   "8JQm",   "8JQslm", "8JKm",   "8JKslm", "8JAm",
+    "8JAslm", "8JJr",   "8JQslh", "8JQsmh", "8JQr",   "8JKslh", "8JKsmh", "8JKr",   "8JAslh",
+    "8JAsmh", "8JAr",   "8QQs",   "8QKm",   "8QKslm", "8QAm",   "8QAslm", "8QQr",   "8QKslh",
+    "8QKsmh", "8QKr",   "8QAslh", "8QAsmh", "8QAr",   "8KKs",   "8KAm",   "8KAslm", "8KKr",
+    "8KAslh", "8KAsmh", "8KAr",   "8AAs",   "8AAr",   "999r",   "99Ts",   "99Tr",   "99Js",
+    "99Jr",   "99Qs",   "99Qr",   "99Ks",   "99Kr",   "99As",   "99Ar",   "9TTs",   "9TJm",
+    "9TJslm", "9TQm",   "9TQslm", "9TKm",   "9TKslm", "9TAm",   "9TAslm", "9TTr",   "9TJslh",
+    "9TJsmh", "9TJr",   "9TQslh", "9TQsmh", "9TQr",   "9TKslh", "9TKsmh", "9TKr",   "9TAslh",
+    "9TAsmh", "9TAr",   "9JJs",   "9JQm",   "9JQslm", "9JKm",   "9JKslm", "9JAm",   "9JAslm",
+    "9JJr",   "9JQslh", "9JQsmh", "9JQr",   "9JKslh", "9JKsmh", "9JKr",   "9JAslh", "9JAsmh",
+    "9JAr",   "9QQs",   "9QKm",   "9QKslm", "9QAm",   "9QAslm", "9QQr",   "9QKslh", "9QKsmh",
+    "9QKr",   "9QAslh", "9QAsmh", "9QAr",   "9KKs",   "9KAm",   "9KAslm", "9KKr",   "9KAslh",
+    "9KAsmh", "9KAr",   "9AAs",   "9AAr",   "TTTr",   "TTJs",   "TTJr",   "TTQs",   "TTQr",
+    "TTKs",   "TTKr",   "TTAs",   "TTAr",   "TJJs",   "TJQm",   "TJQslm", "TJKm",   "TJKslm",
+    "TJAm",   "TJAslm", "TJJr",   "TJQslh", "TJQsmh", "TJQr",   "TJKslh", "TJKsmh", "TJKr",
+    "TJAslh", "TJAsmh", "TJAr",   "TQQs",   "TQKm",   "TQKslm", "TQAm",   "TQAslm", "TQQr",
+    "TQKslh", "TQKsmh", "TQKr",   "TQAslh", "TQAsmh", "TQAr",   "TKKs",   "TKAm",   "TKAslm",
+    "TKKr",   "TKAslh", "TKAsmh", "TKAr",   "TAAs",   "TAAr",   "JJJr",   "JJQs",   "JJQr",
+    "JJKs",   "JJKr",   "JJAs",   "JJAr",   "JQQs",   "JQKm",   "JQKslm", "JQAm",   "JQAslm",
+    "JQQr",   "JQKslh", "JQKsmh", "JQKr",   "JQAslh", "JQAsmh", "JQAr",   "JKKs",   "JKAm",
+    "JKAslm", "JKKr",   "JKAslh", "JKAsmh", "JKAr",   "JAAs",   "JAAr",   "QQQr",   "QQKs",
+    "QQKr",   "QQAs",   "QQAr",   "QKKs",   "QKAm",   "QKAslm", "QKKr",   "QKAslh", "QKAsmh",
+    "QKAr",   "QAAs",   "QAAr",   "KKKr",   "KKAs",   "KKAr",   "KAAs",   "KAAr",   "AAAr",
+};
 
 inline static std::unordered_map<std::string, float> AVG_EQUITY_LOSS_THIRD_CARD = {
     {"222r", -0.2659820291692024},    {"223s", -0.31379211569033866},
@@ -883,3 +1087,56 @@ inline static std::unordered_map<std::string, float> AVG_EQUITY_LOSS_THIRD_CARD 
     {"KAAs", -0.2750611493021858},    {"KAAr", -0.2678482230629164},
     {"AAAr", -0.2617777013473314},
 };
+
+class HandEquitiesThirdCard {
+ public:
+  HandEquitiesThirdCard() {
+    std::ifstream file;
+    file.open(resolve_path("data/equity_third_card.bin"), std::ios::in | std::ios::binary);
+
+    if (!file) {
+      throw std::runtime_error("Exception opening/reading equity_third_card.bin");
+    }
+
+    const size_t size = ISOMORPHIC_FLOPS.size() * NUM_HANDS_POSTFLOP_2CARDS;
+    hand_equities_ = std::vector<float>(size);
+    file.read(reinterpret_cast<char*>(&hand_equities_[0]), sizeof(float) * size);
+    file.close();
+  }
+
+  float get_hand_equity(const std::vector<card_t>& board_cards, const Hand& hand) {
+    if (hand.num_cards() != 2) {
+      throw std::invalid_argument("Only 2-cards hands accepted");
+    }
+    auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board_cards);
+    auto flop_idx = std::distance(
+        ISOMORPHIC_FLOPS.begin(),
+        std::find(ISOMORPHIC_FLOPS.begin(), ISOMORPHIC_FLOPS.end(), isomorphic_board));
+    return hand_equities_[flop_idx * ISOMORPHIC_FLOPS.size() + hand.index()];
+  }
+
+ private:
+  std::string resolve_path(const std::string& rel_path) const {
+    if (std::filesystem::exists(rel_path)) {
+      return std::string{rel_path};
+    }
+    auto base_dir = std::filesystem::current_path();
+    while (base_dir.has_parent_path()) {
+      auto combine_path = base_dir / rel_path;
+      if (std::filesystem::exists(combine_path)) {
+        return combine_path.string();
+      }
+      base_dir = base_dir.parent_path();
+
+      // Stop on root folder of filesystem,
+      // otherwise .parent_path() causes an infinite loop!
+      if (std::strcmp(base_dir.c_str(), "/") == 0) {
+        break;
+      }
+    }
+    throw std::runtime_error(fmt::format("File not found!: {}", rel_path));
+  }
+  std::vector<float> hand_equities_;
+};
+
+}  // namespace pokerbot
