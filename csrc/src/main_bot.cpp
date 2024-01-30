@@ -1,5 +1,4 @@
 #include "main_bot.h"
-#include <fmt/ranges.h>
 #include "ranges_utils.h"
 
 namespace pokerbot {
@@ -26,9 +25,13 @@ Action MainBot::sample_action_and_update_range(const RoundState& state, const Ha
   std::discrete_distribution<> dis(probs.begin(), probs.end());
   const int sampled_idx = dis(gen_);
   const auto sampled_action = cfr_.legal_actions()[sampled_idx];
+  std::string strategy_str = "";
+  for (auto val : probs) {
+    strategy_str += std::to_string(val) + ",";
+  }
   fmt::print("{} - {} - Sampled Action {} on {} based on strategy = {} \n",
              state.round().to_string(), hand.to_string(), sampled_action.to_string(),
-             Card::to_string(state.board_cards), probs);
+             Card::to_string(state.board_cards), strategy_str);
 
   for (hand_t i = 0; i < ranges_[hero_id].num_hands(); ++i) {
     const auto action_prob = strategy(i, sampled_idx);
