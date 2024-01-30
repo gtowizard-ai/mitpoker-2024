@@ -1,7 +1,9 @@
 /// Generated with `generate_avg_equity_third_card`
 #pragma once
+#include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include "hand.h"
@@ -9,7 +11,36 @@
 
 namespace pokerbot {
 
-inline static std::array<std::string, 1755> ISOMORPHIC_FLOPS = {
+class FlopString {
+ public:
+  FlopString(const char* s) : data_{s[0], s[1], s[2], s[3], s[4], s[5], 0, 0} {}
+  FlopString(const std::string& s) : FlopString(s.c_str()) {}
+
+  bool operator==(const FlopString& other) const { return data_.hash == other.data_.hash; }
+
+  std::size_t std_hash() const { return std::hash<uint64_t>{}(data_.hash); }
+
+ private:
+  union {
+    const std::array<char, 8> chars;
+    const uint64_t hash;
+  } data_;
+};
+
+}  // namespace pokerbot
+
+namespace std {
+
+template <>
+struct hash<pokerbot::FlopString> {
+  std::size_t operator()(const pokerbot::FlopString& flop) const { return flop.std_hash(); }
+};
+
+}  // namespace std
+
+namespace pokerbot {
+
+inline std::array<std::array<char, 7>, 1755> ISOMORPHIC_FLOPS = {
     "2c2d2h", "2c2d3c", "2c2d3h", "2c2d4c", "2c2d4h", "2c2d5c", "2c2d5h", "2c2d6c", "2c2d6h",
     "2c2d7c", "2c2d7h", "2c2d8c", "2c2d8h", "2c2d9c", "2c2d9h", "2c2dTc", "2c2dTh", "2c2dJc",
     "2c2dJh", "2c2dQc", "2c2dQh", "2c2dKc", "2c2dKh", "2c2dAc", "2c2dAh", "2c3c3d", "2c3c4c",
@@ -207,7 +238,7 @@ inline static std::array<std::string, 1755> ISOMORPHIC_FLOPS = {
     "QcKdAh", "QcAcAd", "QcAdAh", "KcKdKh", "KcKdAc", "KcKdAh", "KcAcAd", "KcAdAh", "AcAdAh",
 };
 
-inline static std::unordered_map<std::string, float> AVG_EQUITY_LOSS_THIRD_CARD = {
+inline std::unordered_map<FlopString, float> AVG_EQUITY_LOSS_THIRD_CARD = {
     {"2c2d2h", -0.26598203417426924}, {"2c2d3c", -0.31379211893412884},
     {"2c2d3h", -0.3105759706893036},  {"2c2d4c", -0.31586430682864064},
     {"2c2d4h", -0.3127889800088189},  {"2c2d5c", -0.31774029278728577},
@@ -1086,7 +1117,6 @@ inline static std::unordered_map<std::string, float> AVG_EQUITY_LOSS_THIRD_CARD 
     {"KcKdAc", -0.27519800768354213}, {"KcKdAh", -0.2679850578523513},
     {"KcAcAd", -0.2750611527645517},  {"KcAdAh", -0.26784822707964095},
     {"AcAdAh", -0.26177770554145074},
-
 };
 
 class HandEquitiesThirdCard {
@@ -1116,9 +1146,12 @@ class HandEquitiesThirdCard {
     auto isomorphic_board_cards = Card::to_vector(isomorphic_board);
     auto mapping = IsomorphicFlopEncoder::find_mapping(isomorphic_board_cards, board_cards);
 
-    auto flop_idx = std::distance(
-        ISOMORPHIC_FLOPS.begin(),
-        std::find(ISOMORPHIC_FLOPS.begin(), ISOMORPHIC_FLOPS.end(), isomorphic_board));
+    auto flop_idx =
+        std::distance(ISOMORPHIC_FLOPS.cbegin(),
+                      std::find_if(ISOMORPHIC_FLOPS.cbegin(), ISOMORPHIC_FLOPS.cend(),
+                                   [&isomorphic_board](const auto& elem) {
+                                     return std::strcmp(elem.data(), isomorphic_board.c_str()) == 0;
+                                   }));
 
     Hand isomorphic_hand(
         make_card(rank_of_card(hand.cards[0]), mapping[suit_of_card(hand.cards[0])]),

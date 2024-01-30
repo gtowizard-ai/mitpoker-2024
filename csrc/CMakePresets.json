@@ -13,6 +13,14 @@
       "name": "unix-makefiles",
       "inherits": "default",
       "generator": "Unix Makefiles"
+    },
+    {
+      "name": "build-pokerbot",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF",
+        "IS_BUILDING_BOT": "ON"
+      }
     }
   ],
   "testPresets": [

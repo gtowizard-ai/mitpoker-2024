@@ -21,7 +21,7 @@ endif
 PREREQUISITES := $(shell find . -path './third_party/*/*' -prune -o -name CMakeLists.txt -print -o \
                    -name CMakePresets.json -print -o -path './third_party/*' -type d -print)
 
-.PHONY: all configure compile test clean
+.PHONY: all configure bot compile test clean
 
 all: compile
 
@@ -31,7 +31,8 @@ build/.timestamp: $(PREREQUISITES)
 configure:
 	cmake -S csrc --preset $(CONFIGURE_PRESET) --fresh
 
-bot: build/.timestamp
+bot:
+	cmake -S csrc --preset build-pokerbot --fresh
 	cmake --build build --target pokerbot -j $(j)
 
 compile: build/.timestamp

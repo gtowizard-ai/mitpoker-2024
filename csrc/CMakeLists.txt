@@ -30,9 +30,6 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(-march=native)
 endif()
 
-# Generate position-independent code (-fPIC / -fPIE)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
 # Enable colored diagnostics for Ninja
 if(CMAKE_GENERATOR STREQUAL "Ninja")
     set(CMAKE_COLOR_DIAGNOSTICS ON)
@@ -40,11 +37,12 @@ if(CMAKE_GENERATOR STREQUAL "Ninja")
 endif()
 
 # Add compiler warning flags
-add_compile_options(-Wfatal-errors -Wall -Wextra -Wnon-virtual-dtor -pedantic-errors)
-add_compile_options($<$<STREQUAL:$<CXX_COMPILER_ID>,Clang>:-Wno-gnu-zero-variadic-macro-arguments>)
+add_compile_options(-Wfatal-errors -Wall -Wextra -Wnon-virtual-dtor -pedantic-errors -Wno-missing-braces)
 
 # External libraries
-enable_testing()
+if(NOT IS_BUILDING_BOT)
+    enable_testing()
+endif()
 add_subdirectory(../third_party third_party EXCLUDE_FROM_ALL SYSTEM)
 add_library(dependencies INTERFACE)
 
@@ -76,16 +74,18 @@ add_executable(pokerbot main_bot/main.cpp)
 target_link_libraries(pokerbot dependencies gtowizardai)
 
 # Add tests
-add_custom_target(tests)
-file(GLOB_RECURSE tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" CONFIGURE_DEPENDS *_test.cpp)
-foreach(test_file IN LISTS tests)
-    get_filename_component(test_name ${test_file} NAME_WLE)
-    add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} third_party gtest_main gmock_main gtowizardai)
-    add_test(NAME ${test_name} COMMAND ${test_name})
-    set_tests_properties(${test_name} PROPERTIES LABELS tools)
-    add_dependencies(tests ${test_name})
-endforeach()
+if(NOT IS_BUILDING_BOT)
+    add_custom_target(tests)
+    file(GLOB_RECURSE tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" CONFIGURE_DEPENDS *_test.cpp)
+    foreach(test_file IN LISTS tests)
+        get_filename_component(test_name ${test_file} NAME_WLE)
+        add_executable(${test_name} ${test_file})
+        target_link_libraries(${test_name} third_party gtest_main gmock_main gtowizardai)
+        add_test(NAME ${test_name} COMMAND ${test_name})
+        set_tests_properties(${test_name} PROPERTIES LABELS tools)
+        add_dependencies(tests ${test_name})
+    endforeach()
+endif()
 
 # Add scripts
 add_subdirectory(scripts)
