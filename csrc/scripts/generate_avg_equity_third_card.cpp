@@ -10,8 +10,6 @@
 using namespace pokerbot;
 
 void generate_equities(bool output_average_value = false) {
-  std::unordered_set<std::string> seen_flops;
-
   std::ofstream output_file = [&] {
     if (output_average_value) {
       return std::ofstream("avg_equity_third_card.txt");
@@ -32,12 +30,14 @@ void generate_equities(bool output_average_value = false) {
     for (card_t j = i + 1; j < MAX_DECK_SIZE; ++j) {
       for (card_t k = j + 1; k < MAX_DECK_SIZE; ++k) {
         std::vector<card_t> cards = {i, j, k};
+        std::sort(cards.begin(), cards.end());
+
         const auto board_str = IsomorphicFlopEncoder::to_isomorphic_flop(cards);
 
-        if (seen_flops.find(board_str) != seen_flops.end()) {
+        if (board_str != Card::to_string(cards)) {
           continue;
         }
-        seen_flops.insert(board_str);
+        count++;
 
         Range two_card_range;
         Range three_card_range;
@@ -95,11 +95,14 @@ void generate_equities(bool output_average_value = false) {
                             sizeof(two_card_eq[0]) * two_card_eq.size());
         }
 
-        count++;
         fmt::print("{}/{} completed ({:.2f}%) \n", count, IsomorphicFlopEncoder::NUM_FLOPS,
                    100 * (double)count / IsomorphicFlopEncoder::NUM_FLOPS);
       }
     }
+  }
+  fmt::print("Total num of flops computed = {} \n", count);
+  if (count != IsomorphicFlopEncoder::NUM_FLOPS) {
+    throw std::runtime_error(fmt::format("Invalid num flops encountered = {}", count));
   }
   output_file.close();
 }

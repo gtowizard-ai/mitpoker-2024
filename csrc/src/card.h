@@ -54,6 +54,7 @@ class Card {
   static std::vector<card_t> to_vector(std::string_view card_string);
 
   auto operator<(const Card& rhs) const -> bool { return card() < rhs.card(); }
+  auto operator>(const Card& rhs) const -> bool { return card() > rhs.card(); }
 
  private:
   card_t card_;
