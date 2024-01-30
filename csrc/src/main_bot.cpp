@@ -8,9 +8,8 @@ MainBot::MainBot()
     : game_(), auctioneer_(), cfr_(game_), time_manager_(), gen_(std::random_device{}()) {}
 
 Action MainBot::sample_action_and_update_range(const RoundState& state, const Hand& hand,
-                                               const int hero_id, const float min_prob_sampling) {
-  const auto& strategy = cfr_.strategy();
-
+                                               const int hero_id, const HandActionsValues& strategy,
+                                               const float min_prob_sampling) {
   // Get strategy for hand
   std::vector<float> probs;
   probs.reserve(strategy.num_actions_);
@@ -96,13 +95,26 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
     return Action{Action::Type::CHECK};
   }
 
-  // Solve..
-  // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
-  // (i.e., no more chance cards are dealt)
-  const auto time_budget_ms = time_manager_.time_ms_allowed_for_cfr(game_info);
-  fmt::print("{:.2f} ms allocated for solving with CFR \n", time_budget_ms);
-  cfr_.solve(ranges_, state, active, time_budget_ms);
-  const auto sampled_action = sample_action_and_update_range(*state, hero_hand, active);
+  Action sampled_action;
+  if (state->round() == round::PREFLOP && active == SB_POS &&
+      state->bets[1 - active] == BIG_BLIND) {
+    if (!preflop_sb_cached_strategy_.has_value()) {
+      // Solve with a larger time limit (computed once)
+      fmt::print("Solving root preflop node for 100ms \n");
+      cfr_.solve(ranges_, state, active, 100);
+      preflop_sb_cached_strategy_ = cfr_.strategy();
+    }
+    sampled_action =
+        sample_action_and_update_range(*state, hero_hand, active, *preflop_sb_cached_strategy_);
+  } else {
+    // Solve..
+    // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
+    // (i.e., no more chance cards are dealt)
+    const auto time_budget_ms = time_manager_.time_ms_allowed_for_cfr(game_info);
+    fmt::print("{:.2f} ms allocated for solving with CFR \n", time_budget_ms);
+    cfr_.solve(ranges_, state, active, time_budget_ms);
+    sampled_action = sample_action_and_update_range(*state, hero_hand, active, cfr_.strategy());
+  }
 
   // TODO - Update Villain range somehow..
 

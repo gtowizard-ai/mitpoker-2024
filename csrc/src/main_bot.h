@@ -33,13 +33,13 @@ class MainBot {
   CFR cfr_;
   TimeManager time_manager_;
   mutable std::mt19937 gen_;
-  // TODO Cache preflop strategies
-  // HandActionsValues preflop_sb_cached_strategy_;
+  std::optional<HandActionsValues> preflop_sb_cached_strategy_;
 
   // Sample action based on strategy in `cfr_`
   // Won't sample any action with prob < `min_prob_sampling`
   // Then update hero's range based on sampled action
   Action sample_action_and_update_range(const RoundState& state, const Hand& hand, int hero_id,
+                                        const HandActionsValues& strategy,
                                         float min_prob_sampling = 0.01);
 };
 
