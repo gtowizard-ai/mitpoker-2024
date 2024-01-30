@@ -1,56 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706653368209,
+  "lastUpdate": 1706653732269,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "93880894+alikhasi@users.noreply.github.com",
-            "name": "alikhasi",
-            "username": "alikhasi"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "e37968e5f186ca5f515851252651e10aa903f82e",
-          "message": "Timer (#40)\n\n* add timer\r\n\r\n* remove time budget from the auction",
-          "timestamp": "2024-01-30T14:20:48-05:00",
-          "tree_id": "183d14f4c45baf31a151b28d9c44b64c70b604aa",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/e37968e5f186ca5f515851252651e10aa903f82e"
-        },
-        "date": 1706642684894,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 1.4095,
-            "unit": "bb/hand",
-            "range": 1.1573
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 59.921,
-            "unit": "bb/hand",
-            "range": 3.0061
-          },
-          {
-            "name": "Results vs. Uniform Random Bot",
-            "value": 18.7085,
-            "unit": "bb/hand",
-            "range": 2.8848
-          },
-          {
-            "name": "Results vs. Ourselves",
-            "value": -10.8255,
-            "unit": "bb/hand",
-            "range": 4.3714
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -448,6 +400,54 @@ window.BENCHMARK_DATA = {
             "value": -0.747,
             "unit": "bb/hand",
             "range": 3.9742
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "oinari17@gmail.com",
+            "name": "Wataru Inariba",
+            "username": "b-inary"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2afe6096ee51c22b2364a1f2c78eb336063b42cd",
+          "message": "Attempt to reduce compile load of `equity_third_card.h` (#43)\n\n* Attempt to reduce compile load of `equity_third_card.h`\r\n\r\n* Fix `build.sh`\r\n\r\n* Do not use `ninja` when building the bot\r\n\r\n* Add `configure_bot` target\r\n\r\n* Add comment",
+          "timestamp": "2024-01-31T07:23:33+09:00",
+          "tree_id": "8260992e2b2125775c0d532a8db25992f47c9843",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/2afe6096ee51c22b2364a1f2c78eb336063b42cd"
+        },
+        "date": 1706653731362,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 2.5965,
+            "unit": "bb/hand",
+            "range": 0.8614
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 54.053,
+            "unit": "bb/hand",
+            "range": 2.925
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 17.758,
+            "unit": "bb/hand",
+            "range": 2.6523
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": -6.4955,
+            "unit": "bb/hand",
+            "range": 3.851
           }
         ]
       }
