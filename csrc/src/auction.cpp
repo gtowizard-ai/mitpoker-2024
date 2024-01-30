@@ -45,7 +45,7 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
   int default_bid = std::ceil(equity_with_bid) + 1;
 
   if (SIGNIFICANT_BID_COUNT > bid_count) {
-    return default_bid + 1;
+    return default_bid;
   }
   if (v_is_excessive_bidder) {
     int stack = STARTING_STACK - (pot / 2);
