@@ -89,3 +89,14 @@ endif()
 
 # Add scripts
 add_subdirectory(scripts)
+
+# Update timestamp when successfully configured
+if(NOT IS_BUILDING_BOT)
+    message(STATUS "Updating .timestamp")
+    file(TOUCH "${CMAKE_BINARY_DIR}/.timestamp")
+    file(REMOVE "${CMAKE_BINARY_DIR}/.timestamp-bot")
+else()
+    message(STATUS "Updating .timestamp-bot")
+    file(TOUCH "${CMAKE_BINARY_DIR}/.timestamp-bot")
+    file(REMOVE "${CMAKE_BINARY_DIR}/.timestamp")
+endif()
