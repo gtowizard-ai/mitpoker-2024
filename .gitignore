@@ -4,10 +4,12 @@ __pycache__/
 .metadata/
 build/
 data/
+!data/equity_third_card.bin
 
 *.txt
 !CMakeLists.txt
 arena_results.json
+
 
 # IDEs
 .vscode/
