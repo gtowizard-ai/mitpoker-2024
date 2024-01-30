@@ -1,5 +1,4 @@
 #include "auction.h"
-#include <cmath>
 #include <numeric>
 #include "../scripts/avg_equity_third_card.h"
 #include "definitions.h"
