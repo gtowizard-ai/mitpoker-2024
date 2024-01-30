@@ -16,7 +16,7 @@ class TimeManager {
     double num_actions_left_match = avg_num_actions_per_hand * game_info.num_hands_left_in_match();
 
     // Add epsilon to make sure we don't bust the limit
-    double time_left_seconds = std::max(game_info.game_clock - 1.0, 0.0);
+    double time_left_seconds = std::max(game_info.game_clock - 0.5, 0.0);
     return (1000.0 * time_left_seconds) / num_actions_left_match;
   }
 

@@ -63,7 +63,6 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
 
   if (ranges::contains(legal_actions, Action::Type::BID)) {
     /// Auction
-    fmt::print("Auction TIME!!\n");
     const float time_budget_ms = 1;  // FIXME
     const auto bid =
         auctioneer_.get_bid(ranges_[active], ranges_[1 - active], game_, state->board_cards,
@@ -85,6 +84,12 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
     // Engine keeps asking to take an action even when both players are all-in..
     // Don't waste any time and return
     return Action{state->legal_actions().front()};
+  }
+
+  if (state->round() == round::FLOP && state->bets[1 - active] == 0 && active == BB_POS) {
+    // Check 100% of the time OOP on the flop
+    fmt::print("OOP Flop - Checking 100% of the time");
+    return Action{Action::Type::CHECK};
   }
 
   // Solve..
