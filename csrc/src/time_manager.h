@@ -1,27 +1,49 @@
 #pragma once
+#include <array>
 #include "game.h"
 
 namespace pokerbot {
 
 class TimeManager {
  public:
-  TimeManager() : num_actions_taken_(0) {}
+  TimeManager() = default;
 
-  void update_on_get_action(const GameInfo& /*game_info*/) { num_actions_taken_++; }
+  void update_action(const RoundStatePtr& state, const bool bidding_round) {
+    bidding_round ? total_actions_per_round_[ROUNDS - 1]++
+                  : total_actions_per_round_[state->round().id]++;
+  }
 
-  double time_ms_allowed_for_cfr(const GameInfo& game_info) const {
-    // Estimate the number of actions we have to take per hand before having a good enough sample
-    double avg_num_actions_per_hand =
-        num_actions_taken_ < 50 ? 6 : static_cast<double>(num_actions_taken_) / game_info.hand_num;
-    double num_actions_left_match = avg_num_actions_per_hand * game_info.num_hands_left_in_match();
+  void update_time(const RoundStatePtr& state, const bool bidding_round,
+                   const float time_elapsed_ms) {
+    bidding_round ? total_time_ms_per_round_[ROUNDS - 1] += time_elapsed_ms
+                  : total_time_ms_per_round_[state->round().id] += time_elapsed_ms;
+  }
 
-    // Add epsilon to make sure we don't bust the limit
-    double time_left_seconds = std::max(game_info.game_clock - 1.0, 0.0);
-    return (1000.0 * time_left_seconds) / num_actions_left_match;
+  [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info, const RoundStatePtr& state,
+                                         const bool bidding_round) const {
+    const unsigned round = bidding_round ? ROUNDS - 1 : state->round().id;
+    if (game_info.hand_num < 50) {
+      return 6;
+    }
+
+    float passed_time = 0;
+    for (const auto time_ms : total_time_ms_per_round_) {
+      passed_time += time_ms;
+    }
+
+    const float game_time =
+        (std::max(game_info.game_clock - 0.5, 0.0) * 1000.0) / game_info.num_hands_left_in_match();
+    return std::max(game_time * total_time_ms_per_round_[round] *
+                        static_cast<float>(game_info.hand_num) /
+                        (total_actions_per_round_[round] * passed_time),
+                    1.0f);
   }
 
  private:
-  unsigned num_actions_taken_;
+  static constexpr unsigned ROUNDS = 5;
+  static constexpr int WARM_UP_TIME = 6;
+  std::array<float, ROUNDS> total_time_ms_per_round_{};
+  std::array<unsigned, ROUNDS> total_actions_per_round_{};
 };
 
 }  // namespace pokerbot

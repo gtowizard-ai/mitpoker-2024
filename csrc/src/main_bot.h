@@ -41,6 +41,9 @@ class MainBot {
   // Then update hero's range based on sampled action
   Action sample_action_and_update_range(const RoundState& state, const Hand& hand, int hero_id,
                                         float min_prob_sampling = 0.01);
+
+  // Get the action with time budget
+  Action get_action(const RoundStatePtr& state, int active, float time_budget_ms);
 };
 
 }  // namespace pokerbot
