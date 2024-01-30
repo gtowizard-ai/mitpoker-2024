@@ -1,6 +1,5 @@
 #include "auction.h"
 #include <gtest/gtest.h>
-#include "../scripts/avg_equity_third_card.h"
 #include "isomorphic_flop_encoder.h"
 
 using namespace pokerbot;
@@ -16,11 +15,24 @@ TEST_F(AuctionTest, TestGetBid) {
   Range hero_range;
   Range villain_range;
   auto board = Card::to_vector("AcAdAh");
-  Hand hand = Hand("KsKd");
+  Hand hand("KsKd");
   float time = 2.0;
   int pot = 100;
   const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
   ASSERT_EQ(bid, 36);
+}
+
+TEST_F(AuctionTest, TestGetBidHighDrawingHand) {
+  Auctioneer auctioneer;
+  Range hero_range;
+  Range villain_range;
+  auto board = Card::to_vector("6c5c2d");
+  Hand hand("Tc8d");
+  float time = 2.0;
+  int pot = 100;
+  const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
+  // Bid higher because our hand really benefits from it
+  ASSERT_EQ(bid, 74);
 }
 
 TEST_F(AuctionTest, TestReceiveBid) {
@@ -51,11 +63,4 @@ TEST_F(AuctionTest, TestUpdateExploits) {
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[1], 390);
   ASSERT_NEAR(auctioneer.v_pot_percentage_min_max[0], 1.0, TOLERANCE);
   ASSERT_NEAR(auctioneer.v_pot_percentage_min_max[1], 39.0, TOLERANCE);
-}
-
-TEST_F(AuctionTest, TestMeanEquityStrategy) {
-  Auctioneer auctioneer;
-  auto board = Card::to_vector("Tc7d2s");
-  float eq = auctioneer.get_avg_equity_third_card(board);
-  ASSERT_NEAR(eq, 0.352, 0.01);
 }

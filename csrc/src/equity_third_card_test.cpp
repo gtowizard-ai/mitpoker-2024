@@ -1,5 +1,7 @@
 #include "equity_third_card.h"
 #include <gtest/gtest.h>
+
+#include "game.h"
 #include "isomorphic_flop_encoder.h"
 #include "ranges_utils.h"
 
@@ -23,6 +25,13 @@ TEST(EquityThirdCardTest, TestAvgEquityThirdCardTableIntegrity) {
 
 TEST(EquityThirdCardTest, TestHandEquitiesThirdCard) {
   HandEquitiesThirdCard hand_eqs;
+
+  ASSERT_EQ(hand_eqs.raw_equities().size(),
+            IsomorphicFlopEncoder::NUM_FLOPS * NUM_HANDS_POSTFLOP_2CARDS);
+  for (auto equity : hand_eqs.raw_equities()) {
+    ASSERT_GE(equity, -1.0);
+    ASSERT_LE(equity, 0.0);
+  }
 
   ASSERT_LT(hand_eqs.get_hand_equity_loss_third_card(Card::to_vector("2c2d2h"), Hand("Ac2s")), 0);
   ASSERT_EQ(hand_eqs.get_hand_equity_loss_third_card(Card::to_vector("2h2s3c"), Hand("Ac2s")), 0);

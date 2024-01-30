@@ -1126,6 +1126,8 @@ class HandEquitiesThirdCard {
     return hand_equities_[flop_idx * NUM_HANDS_POSTFLOP_2CARDS + isomorphic_hand.index()];
   }
 
+  const auto& raw_equities() const { return hand_equities_; }
+
  private:
   static std::string resolve_path(const std::string& rel_path) {
     if (std::filesystem::exists(rel_path)) {
