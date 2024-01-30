@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.21)
 
 project(gto-wizard-ai LANGUAGES CXX)
 
@@ -43,7 +43,7 @@ add_compile_options(-Wfatal-errors -Wall -Wextra -Wnon-virtual-dtor -pedantic-er
 if(NOT IS_BUILDING_BOT)
     enable_testing()
 endif()
-add_subdirectory(../third_party third_party EXCLUDE_FROM_ALL SYSTEM)
+add_subdirectory(libs EXCLUDE_FROM_ALL SYSTEM)
 add_library(dependencies INTERFACE)
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -51,26 +51,18 @@ set(Boost_USE_MULTITHREAD OFF)
 find_package(Boost REQUIRED system)
 include_directories(${Boost_INCLUDE_DIR})
 
-target_link_libraries(dependencies INTERFACE third_party dependencies ${Boost_SYSTEM_LIBRARY})
+target_link_libraries(dependencies INTERFACE third_party ${Boost_SYSTEM_LIBRARY})
 
 # Main library
 add_library(gtowizardai OBJECT)
 file(GLOB_RECURSE sources ${PROJECT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(FILTER sources EXCLUDE REGEX .*_test\.cpp$)
 target_sources(gtowizardai PRIVATE ${sources})
 target_link_libraries(gtowizardai PRIVATE dependencies)
 
 # Executables
-add_executable(check_or_call_bot check_or_call_bot/check_or_call_bot.cpp)
-target_link_libraries(check_or_call_bot dependencies gtowizardai)
-
-add_executable(bid_everything_bot bid_everything_bot/bid_everything_bot.cpp)
-target_link_libraries(bid_everything_bot dependencies gtowizardai)
-
-add_executable(uniform_random_bot uniform_random_bot/uniform_random_bot.cpp)
-target_link_libraries(uniform_random_bot dependencies gtowizardai)
-
-add_executable(pokerbot main_bot/main.cpp)
+add_executable(pokerbot src/main.cpp)
 target_link_libraries(pokerbot dependencies gtowizardai)
 
 # Add tests
