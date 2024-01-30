@@ -87,15 +87,9 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
     return Action{state->legal_actions().front()};
   }
 
-  // TODO cant afford to do CFR on flop/turn for now
-  if (state->round() == round::FLOP || state->round() == round::TURN) {
-    if (ranges::contains(legal_actions, Action::Type::CHECK)) {
-      return {Action::Type::CHECK};
-    }
-    return {Action::Type::CALL};
-  }
-
   // Solve..
+  // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
+  // (i.e., no more chance cards are dealt)
   const auto time_budget_ms = time_manager_.time_ms_allowed_for_cfr(game_info);
   fmt::print("{:.2f} ms allocated for solving with CFR \n", time_budget_ms);
   cfr_.solve(ranges_, state, active, time_budget_ms);
