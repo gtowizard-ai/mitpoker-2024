@@ -40,6 +40,7 @@ struct hash<pokerbot::FlopString> {
 
 namespace pokerbot {
 
+// `std::array<char, 7>` is used just to reduce compile time
 inline std::array<std::array<char, 7>, 1755> ISOMORPHIC_FLOPS = {
     "2c2d2h", "2c2d3c", "2c2d3h", "2c2d4c", "2c2d4h", "2c2d5c", "2c2d5h", "2c2d6c", "2c2d6h",
     "2c2d7c", "2c2d7h", "2c2d8c", "2c2d8h", "2c2d9c", "2c2d9h", "2c2dTc", "2c2dTh", "2c2dJc",
