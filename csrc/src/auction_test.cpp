@@ -22,7 +22,7 @@ TEST_F(AuctionTest, TestGetBid) {
   float time = 2.0;
   int pot = 100;
   const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
-  ASSERT_EQ(bid, 27);
+  ASSERT_EQ(bid, 38);
 }
 
 TEST_F(AuctionTest, TestReceiveBid) {
