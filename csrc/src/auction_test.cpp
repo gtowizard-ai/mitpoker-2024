@@ -1,6 +1,5 @@
 #include "auction.h"
 #include <gtest/gtest.h>
-#include <tuple>
 #include "../scripts/avg_equity_third_card.h"
 #include "isomorphic_flop_encoder.h"
 
