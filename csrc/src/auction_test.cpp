@@ -2,7 +2,6 @@
 #include <gtest/gtest.h>
 #include <tuple>
 #include "../scripts/avg_equity_third_card.h"
-#include "flop_value_generator.h"
 #include "isomorphic_flop_encoder.h"
 
 using namespace pokerbot;
