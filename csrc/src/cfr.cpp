@@ -35,14 +35,18 @@ void CFR::build_tree() {
 
   // NB: We need to put the raise option as the last one since some functions depend on it
   if (raise_is_legal) {
-    // Add pot-sized bet if it's less than going all-in by `pot`
+    // Prefer to go all-in when it's less than X * pot-sized-bet
+    // Otherwise always choose a pot-sized-bet
     const auto raise_bounds = root_->raise_bounds();
-    auto pot_sized_bet = std::max(raise_bounds[0], root_->pot());
-    if (raise_bounds[1] - pot_sized_bet > root_->pot()) {
-      actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
-    } else {
+    auto amount_call = std::max(root_->bets[0], root_->bets[1]);
+    auto pot_plus_call = root_->pot() + std::abs(root_->bets[1] - root_->bets[0]);
+    auto pot_sized_bet = amount_call + pot_plus_call;
+
+    if (raise_bounds[1] < 3 * pot_sized_bet) {
       // All-in
       actions_.emplace_back(Action::Type::RAISE, raise_bounds[1]);
+    } else {
+      actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
     }
   }
 
@@ -60,7 +64,6 @@ void CFR::compute_fold_cfvs(const Range& traverser_range, const Range& opponent_
 
 void CFR::compute_showdown_cfvs(const Range& traverser_range, const Range& opponent_range,
                                 float payoff, std::vector<float>& cfvs) const {
-  // FIXME - HANDLE ALL CASES (preflop/flop/turn/river..)
   std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
   if (root_->round() == round::PREFLOP) {
     compute_cfvs_preflop(opponent_range, payoff, cfvs);
