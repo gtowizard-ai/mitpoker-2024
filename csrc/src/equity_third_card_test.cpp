@@ -1,9 +1,7 @@
 #include "equity_third_card.h"
 #include <gtest/gtest.h>
 
-#include "game.h"
 #include "isomorphic_flop_encoder.h"
-#include "ranges_utils.h"
 
 using namespace pokerbot;
 
@@ -15,7 +13,11 @@ TEST(EquityThirdCardTest, TestAvgEquityThirdCardTableIntegrity) {
       for (card_t k = j + 1; k < MAX_DECK_SIZE; ++k) {
         std::vector cards = {i, j, k};
         auto board = IsomorphicFlopEncoder::to_isomorphic_flop(cards);
-        ASSERT_TRUE(ranges::contains(ISOMORPHIC_FLOPS, board));
+        ASSERT_NE(std::find_if(ISOMORPHIC_FLOPS.cbegin(), ISOMORPHIC_FLOPS.cend(),
+                               [&board](const auto& flop) {
+                                 return std::strcmp(flop.data(), board.c_str()) == 0;
+                               }),
+                  ISOMORPHIC_FLOPS.cend());
         ASSERT_GE(AVG_EQUITY_LOSS_THIRD_CARD.at(board), -1.0);
         ASSERT_LT(AVG_EQUITY_LOSS_THIRD_CARD.at(board), 0);
       }

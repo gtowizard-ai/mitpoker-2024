@@ -3,13 +3,14 @@
 # message(STATUS "Updating git submodules")
 # execute_process(COMMAND git submodule update --init --recursive)
 
-# Add subdirectories
-foreach(subdirectory IN ITEMS fmt googletest)
-    add_subdirectory(${subdirectory})
-endforeach()
+# fmt
+add_subdirectory(fmt)
 
 # GoogleTest
-include(GoogleTest)
+if(NOT IS_BUILDING_BOT)
+    add_subdirectory(googletest)
+    include(GoogleTest)
+endif()
 
 # Export interface library
 add_library(third_party INTERFACE)
