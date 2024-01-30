@@ -16,9 +16,8 @@ TEST_F(AuctionTest, TestGetBid) {
   Range villain_range;
   auto board = Card::to_vector("AcAdAh");
   Hand hand("KsKd");
-  float time = 2.0;
   int pot = 100;
-  const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
+  const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot);
   ASSERT_EQ(bid, 37);
 }
 
@@ -28,9 +27,8 @@ TEST_F(AuctionTest, TestGetBidHighDrawingHand) {
   Range villain_range;
   auto board = Card::to_vector("6c5c2d");
   Hand hand("Tc8d");
-  float time = 2.0;
   int pot = 100;
-  const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot, time);
+  const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot);
   // Bid higher because our hand really benefits from it
   ASSERT_EQ(bid, 75);
 }
@@ -44,7 +42,7 @@ TEST_F(AuctionTest, TestReceiveBid) {
 
   int pot = 100;
   auto board = Card::to_vector("AcAdAh");
-  auctioneer.receive_bid(hero_range, villain_range, hero_bid, villain_bid, game_, board, pot, 2.0);
+  auctioneer.receive_bid(hero_range, villain_range, hero_bid, villain_bid, game_, board, pot);
 }
 
 TEST_F(AuctionTest, TestUpdateExploits) {

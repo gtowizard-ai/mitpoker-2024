@@ -39,9 +39,11 @@ Action MainBot::sample_action_and_update_range(const RoundState& state, const Ha
   return sampled_action;
 }
 
-void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*state*/,
+void MainBot::handle_new_hand(const GameInfo& game_info, const RoundStatePtr& /*state*/,
                               int /*active*/) {
   std::fill(ranges_.begin(), ranges_.end(), Range());
+  fmt::print("Time Remaining:: {}\n", game_info.game_clock);
+  // fmt::print("Time spent --> {}\n", time_manager_.total_actions_per_round_);
 }
 
 void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
@@ -55,16 +57,14 @@ void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
 Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state,
                            const int active) {
   const auto start_time = std::chrono::high_resolution_clock::now();
-  const bool bidding_round = ranges::contains(state->legal_actions(), Action::Type::BID);
-  time_manager_.update_action(state, bidding_round);
+  time_manager_.update_action(state);
 
-  const auto action =
-      get_action(state, active, time_manager_.get_time_budget_ms(game_info, state, bidding_round));
+  const auto action = get_action(state, active, time_manager_.get_time_budget_ms(game_info, state));
 
   const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                                std::chrono::high_resolution_clock::now() - start_time)
                                .count();
-  time_manager_.update_time(state, bidding_round, static_cast<float>(duration_ms));
+  time_manager_.update_time(state, static_cast<float>(duration_ms));
 
   return action;
 }
@@ -79,9 +79,8 @@ Action MainBot::get_action(const RoundStatePtr& state, const int active,
 
   if (ranges::contains(legal_actions, Action::Type::BID)) {
     /// Auction
-    const auto bid =
-        auctioneer_.get_bid(ranges_[active], ranges_[1 - active], game_, state->board_cards,
-                            hero_hand, state->pot(), time_budget_ms);
+    const auto bid = auctioneer_.get_bid(ranges_[active], ranges_[1 - active], game_,
+                                         state->board_cards, hero_hand, state->pot());
     fmt::print("Bidding {} in {}\n", bid, state->pot());
     return {Action::Type::BID, bid};
   }
@@ -90,11 +89,8 @@ Action MainBot::get_action(const RoundStatePtr& state, const int active,
     /// Right after auction
     /// NB - Careful this is called on *every action* after auction happened
 
-    // ToDo: How to calculate time for this part?
-    const float time_budget_ms = 1;  // FIXME
     auctioneer_.receive_bid(ranges_[active], ranges_[1 - active], *state->bids[active],
-                            *state->bids[1 - active], game_, state->board_cards, state->pot(),
-                            time_budget_ms);
+                            *state->bids[1 - active], game_, state->board_cards, state->pot());
   }
 
   // NB: Put this constraint after checking if only legal action is bid!

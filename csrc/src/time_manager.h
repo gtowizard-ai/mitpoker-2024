@@ -8,20 +8,15 @@ class TimeManager {
  public:
   TimeManager() = default;
 
-  void update_action(const RoundStatePtr& state, const bool bidding_round) {
-    bidding_round ? total_actions_per_round_[ROUNDS - 1]++
-                  : total_actions_per_round_[state->round().id]++;
+  void update_action(const RoundStatePtr& state) { total_actions_per_round_[state->round().id]++; }
+
+  void update_time(const RoundStatePtr& state, const float time_elapsed_ms) {
+    total_time_ms_per_round_[state->round().id] += time_elapsed_ms;
   }
 
-  void update_time(const RoundStatePtr& state, const bool bidding_round,
-                   const float time_elapsed_ms) {
-    bidding_round ? total_time_ms_per_round_[ROUNDS - 1] += time_elapsed_ms
-                  : total_time_ms_per_round_[state->round().id] += time_elapsed_ms;
-  }
-
-  [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info, const RoundStatePtr& state,
-                                         const bool bidding_round) const {
-    const unsigned round = bidding_round ? ROUNDS - 1 : state->round().id;
+  [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info,
+                                         const RoundStatePtr& state) const {
+    const unsigned round = state->round().id;
     if (game_info.hand_num < 50) {
       return 6;
     }
@@ -40,7 +35,7 @@ class TimeManager {
   }
 
  private:
-  static constexpr unsigned ROUNDS = 5;
+  static constexpr unsigned ROUNDS = 4;
   static constexpr int WARM_UP_TIME = 6;
   std::array<float, ROUNDS> total_time_ms_per_round_{};
   std::array<unsigned, ROUNDS> total_actions_per_round_{};
