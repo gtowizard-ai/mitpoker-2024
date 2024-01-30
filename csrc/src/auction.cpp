@@ -16,8 +16,7 @@ Auctioneer::Auctioneer() : hand_equities_third_card_(HandEquitiesThirdCard()) {
 }
 
 int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
-                        const std::vector<card_t>& board, const Hand& hand, const int pot,
-                        float time_budget_ms) {
+                        const std::vector<card_t>& board, const Hand& hand, const int pot) {
   auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board);
   float board_eq_difference = -AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
   float hand_eq_difference =
@@ -81,8 +80,7 @@ void Auctioneer::update_exploits(const int bid, const int pot) {
 
 void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int hero_bid,
                              const int villain_bid, const Game& game,
-                             const std::vector<card_t>& board_cards, const int pot,
-                             float time_budget_ms) {
+                             const std::vector<card_t>& board_cards, const int pot) {
   if (villain_range.num_cards == NumCards::Three || hero_range.num_cards == NumCards::Three) {
     return;  // We've already been here on the same hand
   }

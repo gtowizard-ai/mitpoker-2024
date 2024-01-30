@@ -41,9 +41,11 @@ Action MainBot::sample_action_and_update_range(const RoundState& state, const Ha
   return sampled_action;
 }
 
-void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*state*/,
+void MainBot::handle_new_hand(const GameInfo& game_info, const RoundStatePtr& /*state*/,
                               int /*active*/) {
   std::fill(ranges_.begin(), ranges_.end(), Range());
+  fmt::print("Time Remaining:: {}\n", game_info.game_clock);
+  // fmt::print("Time spent --> {}\n", time_manager_.total_actions_per_round_);
 }
 
 void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
@@ -54,10 +56,24 @@ void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
   // auto opp_cards = previous_state->hands[1-active];  // opponent's cards or "" if not revealed
 }
 
-Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state, int active) {
-  const auto legal_actions = state->legal_actions();
+Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state,
+                           const int active) {
+  const auto start_time = std::chrono::high_resolution_clock::now();
+  time_manager_.update_action(state);
 
-  time_manager_.update_on_get_action(game_info);
+  const auto action = get_action(state, active, time_manager_.get_time_budget_ms(game_info, state));
+
+  const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                               std::chrono::high_resolution_clock::now() - start_time)
+                               .count();
+  time_manager_.update_time(state, static_cast<float>(duration_ms));
+
+  return action;
+}
+
+Action MainBot::get_action(const RoundStatePtr& state, const int active,
+                           const float time_budget_ms) {
+  const auto legal_actions = state->legal_actions();
 
   const Hand hero_hand(state->hands[active]);
 
@@ -65,20 +81,18 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
 
   if (ranges::contains(legal_actions, Action::Type::BID)) {
     /// Auction
-    const float time_budget_ms = 1;  // FIXME
-    const auto bid =
-        auctioneer_.get_bid(ranges_[active], ranges_[1 - active], game_, state->board_cards,
-                            hero_hand, state->pot(), time_budget_ms);
+    const auto bid = auctioneer_.get_bid(ranges_[active], ranges_[1 - active], game_,
+                                         state->board_cards, hero_hand, state->pot());
     fmt::print("Bidding {} in {}\n", bid, state->pot());
     return {Action::Type::BID, bid};
   }
+
   if (state->bids[active].has_value() && state->bids[1 - active].has_value()) {
     /// Right after auction
     /// NB - Careful this is called on *every action* after auction happened
-    const float time_budget_ms = 1;  // FIXME
+
     auctioneer_.receive_bid(ranges_[active], ranges_[1 - active], *state->bids[active],
-                            *state->bids[1 - active], game_, state->board_cards, state->pot(),
-                            time_budget_ms);
+                            *state->bids[1 - active], game_, state->board_cards, state->pot());
   }
 
   // NB: Put this constraint after checking if only legal action is bid!
@@ -113,7 +127,6 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
     // Solve..
     // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
     // (i.e., no more chance cards are dealt)
-    const auto time_budget_ms = time_manager_.time_ms_allowed_for_cfr(game_info);
     fmt::print("{:.2f} ms allocated for solving with CFR \n", time_budget_ms);
     cfr_.solve(ranges_, state, active, time_budget_ms);
     sampled_action = sample_action_and_update_range(*state, hero_hand, active, cfr_.strategy());
