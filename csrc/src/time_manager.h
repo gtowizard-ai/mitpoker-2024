@@ -8,9 +8,16 @@ class TimeManager {
  public:
   TimeManager() = default;
 
-  void update_action(const RoundStatePtr& state) { total_actions_per_round_[state->round().id]++; }
+  void update_action(const RoundStatePtr& state) {
+    total_actions_per_round_[state->round().id]++;
+    total_actions_++;
+  }
 
   void update_time(const RoundStatePtr& state, const float time_elapsed_ms) {
+    if (total_actions_ < 50 && time_elapsed_ms > WARM_UP_TIME) {
+      total_time_ms_per_round_[state->round().id] += WARM_UP_TIME;
+      return;
+    }
     total_time_ms_per_round_[state->round().id] += time_elapsed_ms;
   }
 
@@ -18,7 +25,7 @@ class TimeManager {
                                          const RoundStatePtr& state) const {
     const unsigned round = state->round().id;
     if (game_info.hand_num < 50) {
-      return 6;
+      return WARM_UP_TIME;
     }
 
     float passed_time = 0;
@@ -37,6 +44,9 @@ class TimeManager {
  private:
   static constexpr unsigned ROUNDS = 4;
   static constexpr int WARM_UP_TIME = 6;
+  unsigned total_actions_ = 0;
+
+ public:
   std::array<float, ROUNDS> total_time_ms_per_round_{};
   std::array<unsigned, ROUNDS> total_actions_per_round_{};
 };

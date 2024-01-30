@@ -54,7 +54,8 @@ void MainBot::handle_new_hand(const GameInfo& game_info, const RoundStatePtr& /*
                               int /*active*/) {
   std::fill(ranges_.begin(), ranges_.end(), Range());
   fmt::print("Time Remaining:: {}\n", game_info.game_clock);
-  // fmt::print("Time spent --> {}\n", time_manager_.total_actions_per_round_);
+  const auto& log = time_manager_.total_time_ms_per_round_;
+  fmt::print("Time spent --> {} - {} - {} - {}\n", log[0], log[1], log[2], log[3]);
 }
 
 void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
