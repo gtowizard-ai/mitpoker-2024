@@ -31,8 +31,6 @@ class TimeManager {
     const float game_time =
         (std::max(game_info.game_clock - 0.5, 0.0) * 1000.0) / game_info.num_hands_left_in_match();
 
-    fmt::print("----- Game time :: {} ----- ratio {} ----- apr {}  \n", game_info.game_clock,
-               ratio_[round], total_actions_per_round_[round]);
     return std::max(game_time * ratio_[round] * static_cast<float>(games_played_per_round_[round]) /
                         (static_cast<float>(total_actions_per_round_[round])),
                     1.0f);
