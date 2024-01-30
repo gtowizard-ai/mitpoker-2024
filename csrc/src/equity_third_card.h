@@ -1112,7 +1112,9 @@ class HandEquitiesThirdCard {
     auto flop_idx = std::distance(
         ISOMORPHIC_FLOPS.begin(),
         std::find(ISOMORPHIC_FLOPS.begin(), ISOMORPHIC_FLOPS.end(), isomorphic_board));
-    return hand_equities_[flop_idx * ISOMORPHIC_FLOPS.size() + hand.index()];
+    fmt::print("flop idx = {} / hand_id = {}\n", flop_idx,
+               flop_idx * ISOMORPHIC_FLOPS.size() + hand.index());
+    return hand_equities_[flop_idx * NUM_HANDS_POSTFLOP_2CARDS + hand.index()];
   }
 
  private:

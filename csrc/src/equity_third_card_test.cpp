@@ -24,12 +24,19 @@ TEST(EquityThirdCardTest, TestAvgEquityThirdCardTableIntegrity) {
 TEST(EquityThirdCardTest, TestHandEquitiesThirdCard) {
   HandEquitiesThirdCard hand_eqs;
 
-  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("6c5d3h"), Hand("7c8d")));
-  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("6c5c2d"), Hand("Ac2c")));
-  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("6c5c2d"), Hand("Ac2d")));
-  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("6c5c2d"), Hand("Ac4d")));
-  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("6c5c2d"), Hand("7c8c")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("7c8d")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("Ac2d")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("Ac2c")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("Ad2c")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("Ah2s")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("Ah2h")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("2c2d")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("2c2h")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("2c2s")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("2d2h")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("2d2s")));
+  fmt::print("{} \n", hand_eqs.get_hand_equity(Card::to_vector("2h2s3c"), Hand("2h2s")));
 
-  auto eq = hand_eqs.get_hand_equity(Card::to_vector("6c5d3h"), Hand("7c8d"));
+  auto eq = hand_eqs.get_hand_equity(Card::to_vector("6c5c3h"), Hand("Ac2d"));
   ASSERT_EQ(eq, 1.0);
 }
