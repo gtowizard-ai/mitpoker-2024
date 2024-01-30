@@ -54,8 +54,6 @@ void MainBot::handle_new_hand(const GameInfo& game_info, const RoundStatePtr& /*
                               int /*active*/) {
   std::fill(ranges_.begin(), ranges_.end(), Range());
   fmt::print("Time Remaining:: {}\n", game_info.game_clock);
-  const auto& log = time_manager_.total_time_ms_per_round_;
-  fmt::print("Time spent --> {} - {} - {} - {}\n", log[0], log[1], log[2], log[3]);
 }
 
 void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
@@ -68,16 +66,10 @@ void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
 
 Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state,
                            const int active) {
-  const auto start_time = std::chrono::high_resolution_clock::now();
-  time_manager_.update_action(state);
+  time_manager_.update_action(game_info, state);
 
   const auto action =
       get_action(game_info, state, active, time_manager_.get_time_budget_ms(game_info, state));
-
-  const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                               std::chrono::high_resolution_clock::now() - start_time)
-                               .count();
-  time_manager_.update_time(state, static_cast<float>(duration_ms));
 
   return action;
 }
