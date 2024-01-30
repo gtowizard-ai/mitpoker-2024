@@ -1,11 +1,18 @@
 #include "auction.h"
 #include <cmath>
 #include <numeric>
-
+#include "../scripts/avg_equity_third_card.h"
 #include "definitions.h"
 #include "equity.h"
+#include "isomorphic_flop_encoder.h"
 
 namespace pokerbot {
+
+inline constexpr int ABS_BIDDING_EPSILON = 2;
+inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
+inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+inline constexpr float BID_MULTIPLIER_OOP = 1;
+inline constexpr float BID_MULTIPLIER_IP = 1;
 
 Auctioneer::Auctioneer() {
   v_is_excessive_bidder = true;
@@ -14,6 +21,12 @@ Auctioneer::Auctioneer() {
   v_pot_percentage_min_max[0] = static_cast<float>(STARTING_STACK);
   v_pot_percentage_min_max[1] = -1;
 };
+
+float Auctioneer::get_avg_equity_third_card(const std::vector<card_t>& board_cards) {
+  auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board_cards);
+  auto equity_lost = AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
+  return -equity_lost;
+}
 
 float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, const Game& game,
                               const std::vector<card_t>& board) {
@@ -32,12 +45,8 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
 
   Range villain_three_card = villain_range;
   villain_three_card.to_3_cards_range(game, board);
-  //TODO: Implement time efficient way for calculating equity
-  //TODO: Add cohesive get_bid test to testing
-  /*float heroThreeEq = mean_equity(hero_three_card, villain_range, game, board);
-  float heroTwoCard = mean_equity(hero_range, villain_three_card, game, board);
-  float equity_difference = heroThreeEq - heroTwoCard;*/
-  float equity_difference = .2;
+
+  float equity_difference = get_avg_equity_third_card(board);
   int abs_bid_diff = v_abs_bid_min_max[1] - v_abs_bid_min_max[0];
   float rel_bid_diff = v_pot_percentage_min_max[1] - v_pot_percentage_min_max[0];
 
@@ -93,7 +102,7 @@ void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int 
                              const int villain_bid, const Game& game,
                              const std::vector<card_t>& board_cards, const int pot,
                              float time_budget_ms) {
-  if (villain_range.num_cards == NumCards::Three) {
+  if (villain_range.num_cards == NumCards::Three || hero_range.num_cards == NumCards::Three) {
     return;  // We've already been here on the same hand
   }
 

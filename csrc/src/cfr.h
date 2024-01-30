@@ -53,10 +53,10 @@ class CFR {
 
   void precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges);
 
-  void compute_fold_cfvs(const Range& traverser_range, const Range& opponent_range,
-                         const Payoff& payoff, std::vector<float>& cfvs) const;
+  void compute_fold_cfvs(const Range& traverser_range, const Range& opponent_range, float payoff,
+                         std::vector<float>& cfvs) const;
   void compute_showdown_cfvs(const Range& traverser_range, const Range& opponent_range,
-                             const Payoff& payoff, std::vector<float>& cfvs) const;
+                             float payoff, std::vector<float>& cfvs) const;
 
   void update_opponent_cfvs_vs_bet();
   void update_opponent_regrets();
@@ -100,6 +100,8 @@ class CFR {
   Range opponent_range_raise_call_;
   std::vector<float> raise_fold_cfvs_;
   std::vector<float> raise_call_cfvs_;
+
+  mutable BoardDataCache board_data_cache_;
 };
 
 }  // namespace pokerbot
