@@ -3,8 +3,9 @@ __pycache__/
 .DS_Store
 .metadata/
 build/
-data/
-!data/equity_third_card.bin
+csrc/build/
+simple_bots/build/
+!csrc/data/equity_third_card.bin
 
 *.txt
 !CMakeLists.txt
