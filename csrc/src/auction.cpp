@@ -1,4 +1,5 @@
 #include "auction.h"
+#include <numeric>
 #include "definitions.h"
 #include "equity.h"
 #include "equity_third_card.h"
@@ -6,43 +7,54 @@
 
 namespace pokerbot {
 
-inline constexpr int ABS_BIDDING_EPSILON = 2;
-inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
-inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
-inline constexpr float BID_MULTIPLIER_OOP = 1;
-inline constexpr float BID_MULTIPLIER_IP = 1;
-
 Auctioneer::Auctioneer() : hand_equities_third_card_(HandEquitiesThirdCard()) {
   v_is_excessive_bidder = true;
   v_abs_bid_min_max[0] = STARTING_STACK;
   v_abs_bid_min_max[1] = -1;
   v_pot_percentage_min_max[0] = static_cast<float>(STARTING_STACK);
   v_pot_percentage_min_max[1] = -1;
-};
+}
 
 int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
-                        const std::vector<card_t>& board_cards, const Hand& hand, const int pot,
+                        const std::vector<card_t>& board, const Hand& hand, const int pot,
                         float time_budget_ms) {
-  //TODO: Implement exploitative bidding based on previous received values
-  // Range hero_three_card = hero_range;
-  // hero_three_card.to_3_cards_range(game, board_cards);
-  //
-  // Range villain_three_card = villain_range;
-  // villain_three_card.to_3_cards_range(game, board_cards);
-  //TODO: Implement time efficient way for calculating equity
-  //TODO: Add cohesive get_bid test to testing
-
-  auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board_cards);
+  auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board);
   float board_eq_difference = -AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
   float hand_eq_difference =
-      -hand_equities_third_card_.get_hand_equity_loss_third_card(board_cards, hand);
+      -hand_equities_third_card_.get_hand_equity_loss_third_card(board, hand);
   fmt::print("For 3rd cards: Hand EQ difference = {} / Board EQ difference = {} \n",
              hand_eq_difference, board_eq_difference);
 
   float equity_difference = std::max(board_eq_difference, hand_eq_difference);
   float equity_bid = ((1 / (1 - equity_difference)) - 1) * pot;
 
-  return std::ceil(equity_bid);
+  int abs_bid_diff = v_abs_bid_min_max[1] - v_abs_bid_min_max[0];
+  float rel_bid_diff = v_pot_percentage_min_max[1] - v_pot_percentage_min_max[0];
+
+  //This is the sum of the geometric series of of form
+  //x + x^2 + x^3..., which accounts for us getting the equity
+  //back from our bid itself
+  float equity_with_bid = ((1 / (1 - equity_difference)) - 1) * pot;
+  int default_bid = std::ceil(equity_with_bid) + 1;
+
+  if (SIGNIFICANT_BID_COUNT > bid_count) {
+    return default_bid;
+  }
+  if (v_is_excessive_bidder) {
+    int stack = STARTING_STACK - (pot / 2);
+    return stack - REASONABLE_DIST_FROM_MAX;
+  }
+  if (std::abs(abs_bid_diff) < ABS_BIDDING_EPSILON) {
+    std::vector<int> bids = {default_bid, v_abs_bid_min_max[0]};
+    return *std::max_element(bids.begin(), bids.end());
+  }
+  if (std::abs(abs_bid_diff) < POT_PERCENTAGE_BIDDING_EPSILON) {
+    //We floor here because we are trying to undercut villain
+    std::vector<int> bids = {default_bid,
+                             static_cast<int>(std::floor(v_pot_percentage_min_max[0] * pot))};
+    return *std::max_element(bids.begin(), bids.end());
+  }
+  return default_bid;
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
@@ -64,6 +76,7 @@ void Auctioneer::update_exploits(const int bid, const int pot) {
   if (bid_to_pot > v_pot_percentage_min_max[1]) {
     v_pot_percentage_min_max[1] = bid_to_pot;
   }
+  bid_count++;
 }
 
 void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int hero_bid,

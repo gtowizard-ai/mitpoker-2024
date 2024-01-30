@@ -6,6 +6,13 @@
 
 namespace pokerbot {
 
+inline constexpr int ABS_BIDDING_EPSILON = 2;
+inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
+inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+inline constexpr float BID_MULTIPLIER_OOP = 1;
+inline constexpr float BID_MULTIPLIER_IP = 1;
+inline constexpr int SIGNIFICANT_BID_COUNT = 5;
+
 class Auctioneer {
  public:
   Auctioneer();
@@ -13,6 +20,7 @@ class Auctioneer {
   int v_abs_bid_min_max[2]{};
   float v_pot_percentage_min_max[2]{};
   bool v_is_excessive_bidder;
+  int bid_count = 0;
 
   int get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
               const std::vector<card_t>& board_cards, const Hand& hand, int pot,

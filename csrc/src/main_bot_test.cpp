@@ -30,9 +30,11 @@ TEST(MainBotTest, TestFlopState) {
   MainBot bot;
 
   GameInfo game_info(0, 10.0, 1000);
-  std::array<std::string, 2> empty_hand = {"4c4d", ""};
+  std::array<std::string, 2> empty_hand = {"4c4d5c", ""};
+
+  std::array<std::optional<int>, 2> bids = {0, 0};
   const auto board_cards = Card::to_vector("2c2d2h");
-  StatePtr round_state = std::make_shared<RoundState>(0, false, NO_BIDS, NO_BETS, STARTING_STACKS,
+  StatePtr round_state = std::make_shared<RoundState>(0, false, bids, NO_BETS, STARTING_STACKS,
                                                       empty_hand, board_cards, nullptr);
 
   auto action =
@@ -45,9 +47,11 @@ TEST(MainBotTest, TestTurnState) {
   MainBot bot;
 
   GameInfo game_info(0, 10.0, 1000);
-  std::array<std::string, 2> empty_hand = {"4c4d", ""};
+  std::array<std::string, 2> empty_hand = {"4c4d5c", ""};
+
+  std::array<std::optional<int>, 2> bids = {0, 0};
   const auto board_cards = Card::to_vector("2c2d2h2s");
-  StatePtr round_state = std::make_shared<RoundState>(0, false, NO_BIDS, NO_BETS, STARTING_STACKS,
+  StatePtr round_state = std::make_shared<RoundState>(0, false, bids, NO_BETS, STARTING_STACKS,
                                                       empty_hand, board_cards, nullptr);
 
   auto action =
