@@ -32,14 +32,9 @@ float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, co
 int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
                         const std::vector<card_t>& board, const Hand& hand, const int pot,
                         float time_budget_ms) {
-  //TODO: Implement exploitative bidding based on previous received values
-  Range hero_three_card = hero_range;
-  hero_three_card.to_3_cards_range(game, board);
-
-  Range villain_three_card = villain_range;
-  villain_three_card.to_3_cards_range(game, board);
 
   float equity_difference = get_avg_equity_third_card(board);
+
   int abs_bid_diff = v_abs_bid_min_max[1] - v_abs_bid_min_max[0];
   float rel_bid_diff = v_pot_percentage_min_max[1] - v_pot_percentage_min_max[0];
 
