@@ -1,39 +1,32 @@
 #include "auction.h"
 #include <numeric>
-#include "../scripts/avg_equity_third_card.h"
 #include "definitions.h"
 #include "equity.h"
+#include "equity_third_card.h"
 #include "isomorphic_flop_encoder.h"
 
 namespace pokerbot {
 
-Auctioneer::Auctioneer() {
+Auctioneer::Auctioneer() : hand_equities_third_card_(HandEquitiesThirdCard()) {
   v_is_excessive_bidder = true;
   v_abs_bid_min_max[0] = STARTING_STACK;
   v_abs_bid_min_max[1] = -1;
   v_pot_percentage_min_max[0] = static_cast<float>(STARTING_STACK);
   v_pot_percentage_min_max[1] = -1;
-};
-
-float Auctioneer::get_avg_equity_third_card(const std::vector<card_t>& board_cards) {
-  auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board_cards);
-  auto equity_lost = AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
-  return -equity_lost;
-}
-
-float Auctioneer::mean_equity(const Range& range_one, const Range& range_two, const Game& game,
-                              const std::vector<card_t>& board) {
-
-  std::vector<float> eq = compute_equities(game, range_one, range_two, board);
-  float sum = std::accumulate(eq.begin(), eq.end(), 0.0);
-  return eq.empty() ? 0.0 : sum / eq.size();
 }
 
 int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
                         const std::vector<card_t>& board, const Hand& hand, const int pot,
                         float time_budget_ms) {
+  auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board);
+  float board_eq_difference = -AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
+  float hand_eq_difference =
+      -hand_equities_third_card_.get_hand_equity_loss_third_card(board, hand);
+  fmt::print("For 3rd cards: Hand EQ difference = {} / Board EQ difference = {} \n",
+             hand_eq_difference, board_eq_difference);
 
-  float equity_difference = get_avg_equity_third_card(board);
+  float equity_difference = std::max(board_eq_difference, hand_eq_difference);
+  float equity_bid = ((1 / (1 - equity_difference)) - 1) * pot;
 
   int abs_bid_diff = v_abs_bid_min_max[1] - v_abs_bid_min_max[0];
   float rel_bid_diff = v_pot_percentage_min_max[1] - v_pot_percentage_min_max[0];

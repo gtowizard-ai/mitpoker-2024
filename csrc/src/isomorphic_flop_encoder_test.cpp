@@ -17,3 +17,10 @@ TEST(IsomorphicFlopEncoderTest, TestEncodeAllFlops) {
   }
   ASSERT_EQ(seen_flops.size(), IsomorphicFlopEncoder::NUM_FLOPS);
 }
+
+TEST(IsomorphicFlopEncoderTest, TestFindMapping) {
+  std::vector<int> mapping{3, 0, 1, 2};  // c->s, d->c, h->d, s->h
+  ASSERT_EQ(
+      IsomorphicFlopEncoder::find_mapping(Card::to_vector("AcKdTh"), Card::to_vector("AsKcTd")),
+      mapping);
+}

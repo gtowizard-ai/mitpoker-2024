@@ -9,9 +9,15 @@
 
 using namespace pokerbot;
 
-void generate_equities() {
-  std::unordered_set<std::string> seen_flops;
-  std::ofstream output_file("avg_equity_third_card.txt");
+void generate_equities(bool output_average_value = false) {
+  std::ofstream output_file = [&] {
+    if (output_average_value) {
+      return std::ofstream("avg_equity_third_card.txt");
+    } else {
+      return std::ofstream("equity_third_card.bin", std::ios::out | std::ios::binary);
+    }
+  }();
+
   Game game;
   const auto& two_cards_hands = game.hands(NumCards::Two);
   int count = 0;
@@ -24,12 +30,14 @@ void generate_equities() {
     for (card_t j = i + 1; j < MAX_DECK_SIZE; ++j) {
       for (card_t k = j + 1; k < MAX_DECK_SIZE; ++k) {
         std::vector<card_t> cards = {i, j, k};
+        std::sort(cards.begin(), cards.end());
+
         const auto board_str = IsomorphicFlopEncoder::to_isomorphic_flop(cards);
 
-        if (seen_flops.find(board_str) != seen_flops.end()) {
+        if (board_str != Card::to_string(cards)) {
           continue;
         }
-        seen_flops.insert(board_str);
+        count++;
 
         Range two_card_range;
         Range three_card_range;
@@ -62,8 +70,8 @@ void generate_equities() {
         }
 
         for (const std::string hand_str : {"2c2d", "Tc9c", "AhAs"}) {
-          fmt::print("EQ difference for {} on {} is {:.4f} \n", hand_str, board_str,
-                     two_card_eq[Hand(hand_str).index()]);
+          fmt::print("EQ difference for {} on {}/{} is {:.4f} \n", hand_str, Card::to_string(cards),
+                     board_str, two_card_eq[Hand(hand_str).index()]);
         }
 
         unsigned count_hand = 0;
@@ -78,20 +86,28 @@ void generate_equities() {
 
         fmt::print("{} - Average EQ difference = {} \n", board_str, avg_eq_diff);
 
-        std::string output_string =
-            "{" + fmt::format("\"{}\", {}", board_str, avg_eq_diff) + "},\n";
-        output_file << output_string;
-        count++;
-        fmt::print("Ran over {} flops \n", count);
+        if (output_average_value) {
+          std::string output_string =
+              "{" + fmt::format("\"{}\", {}", board_str, avg_eq_diff) + "},\n";
+          output_file << output_string;
+        } else {
+          output_file.write(reinterpret_cast<const char*>(two_card_eq.data()),
+                            sizeof(two_card_eq[0]) * two_card_eq.size());
+        }
+
+        fmt::print("{}/{} completed ({:.2f}%) \n", count, IsomorphicFlopEncoder::NUM_FLOPS,
+                   100 * (double)count / IsomorphicFlopEncoder::NUM_FLOPS);
       }
     }
-    fmt::print("{}/{} completed ({:.2f}%) \n", count, IsomorphicFlopEncoder::NUM_FLOPS,
-               100 * (double)count / IsomorphicFlopEncoder::NUM_FLOPS);
+  }
+  fmt::print("Total num of flops computed = {} \n", count);
+  if (count != IsomorphicFlopEncoder::NUM_FLOPS) {
+    throw std::runtime_error(fmt::format("Invalid num flops encountered = {}", count));
   }
   output_file.close();
 }
 
 int main() {
-  generate_equities();
+  generate_equities(false);
   return 0;
 }
