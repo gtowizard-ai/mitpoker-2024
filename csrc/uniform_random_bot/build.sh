@@ -1,2 +1,2 @@
 #!/bin/bash
-cd ../../ && cmake --build build --target uniform_random_bot
+cd ../../ && make configure && cmake --build build --target uniform_random_bot
