@@ -33,17 +33,21 @@ class MainBot {
   CFR cfr_;
   TimeManager time_manager_;
   mutable std::mt19937 gen_;
-  // TODO Cache preflop strategies
-  // HandActionsValues preflop_sb_cached_strategy_;
+  std::optional<HandActionsValues> preflop_sb_cached_strategy_;
+  std::optional<std::vector<Action>> preflop_sb_cached_legal_actions_;
 
   // Sample action based on strategy in `cfr_`
   // Won't sample any action with prob < `min_prob_sampling`
   // Then update hero's range based on sampled action
-  Action sample_action_and_update_range(const RoundState& state, const Hand& hand, int hero_id,
+  Action sample_action_and_update_range(const GameInfo& game_info, const RoundState& state,
+                                        const Hand& hand, int hero_id,
+                                        const HandActionsValues& strategy,
+                                        const std::vector<Action>& legal_actions,
                                         float min_prob_sampling = 0.01);
 
   // Get the action with time budget
-  Action get_action(const RoundStatePtr& state, int active, float time_budget_ms);
+  Action get_action(const GameInfo& game_info, const RoundStatePtr& state, int active,
+                    float time_budget_ms);
 };
 
 }  // namespace pokerbot

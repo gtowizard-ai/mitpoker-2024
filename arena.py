@@ -51,7 +51,7 @@ def _run_match(player_1: Player, player_2: Player):
         print(
             f"Player {player.name} spent {game_clock - player.game_clock:.2f}s playing (used {100.0 * (game_clock - player.game_clock) / game_clock:.2f}% of his time)"
         )
-        if player.game_clock <= 1e-4:
+        if player.game_clock <= 1e-10:
             raise TimeoutError(f"Bot {player.name} ran out of time when playing")
 
     assert len(winnings_per_hand) == NUM_HANDS

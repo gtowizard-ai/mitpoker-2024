@@ -1,5 +1,4 @@
 #include "main_bot.h"
-#include <fmt/ranges.h>
 #include "ranges_utils.h"
 
 namespace pokerbot {
@@ -7,9 +6,14 @@ namespace pokerbot {
 MainBot::MainBot()
     : game_(), auctioneer_(), cfr_(game_), time_manager_(), gen_(std::random_device{}()) {}
 
-Action MainBot::sample_action_and_update_range(const RoundState& state, const Hand& hand,
-                                               const int hero_id, const float min_prob_sampling) {
-  const auto& strategy = cfr_.strategy();
+Action MainBot::sample_action_and_update_range(const GameInfo& game_info, const RoundState& state,
+                                               const Hand& hand, const int hero_id,
+                                               const HandActionsValues& strategy,
+                                               const std::vector<Action>& legal_actions,
+                                               const float min_prob_sampling) {
+  if (legal_actions.size() != strategy.num_actions_) {
+    throw std::runtime_error("Actions mistmatch");
+  }
 
   // Get strategy for hand
   std::vector<float> probs;
@@ -26,10 +30,17 @@ Action MainBot::sample_action_and_update_range(const RoundState& state, const Ha
 
   std::discrete_distribution<> dis(probs.begin(), probs.end());
   const int sampled_idx = dis(gen_);
-  const auto sampled_action = cfr_.legal_actions()[sampled_idx];
-  fmt::print("{} - {} - Sampled Action {} on {} based on strategy = {} \n",
-             state.round().to_string(), hand.to_string(), sampled_action.to_string(),
-             Card::to_string(state.board_cards), probs);
+  const auto sampled_action = legal_actions[sampled_idx];
+  std::string strategy_str;
+  for (auto val : probs) {
+    strategy_str += std::to_string(val) + ",";
+  }
+  fmt::print(
+      "#{} - {} - {} - (Hero={}, Pot={}, Bets={}/{}) Sampled Action {} on {} based on strategy = "
+      "{} \n",
+      game_info.hand_num, state.round().to_string(), hand.to_string(), hero_id, state.pot(),
+      state.bets[0], state.bets[1], sampled_action.to_string(), Card::to_string(state.board_cards),
+      strategy_str);
 
   for (hand_t i = 0; i < ranges_[hero_id].num_hands(); ++i) {
     const auto action_prob = strategy(i, sampled_idx);
@@ -59,7 +70,8 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
   const auto start_time = std::chrono::high_resolution_clock::now();
   time_manager_.update_action(state);
 
-  const auto action = get_action(state, active, time_manager_.get_time_budget_ms(game_info, state));
+  const auto action =
+      get_action(game_info, state, active, time_manager_.get_time_budget_ms(game_info, state));
 
   const auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                                std::chrono::high_resolution_clock::now() - start_time)
@@ -69,7 +81,7 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
   return action;
 }
 
-Action MainBot::get_action(const RoundStatePtr& state, const int active,
+Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state, const int active,
                            const float time_budget_ms) {
   const auto legal_actions = state->legal_actions();
 
@@ -110,12 +122,28 @@ Action MainBot::get_action(const RoundStatePtr& state, const int active,
     return Action{Action::Type::CHECK};
   }
 
-  // Solve..
-  // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
-  // (i.e., no more chance cards are dealt)
-  fmt::print("{:.2f} ms allocated for solving with CFR \n", time_budget_ms);
-  cfr_.solve(ranges_, state, active, time_budget_ms);
-  const auto sampled_action = sample_action_and_update_range(*state, hero_hand, active);
+  Action sampled_action;
+  if (state->round() == round::PREFLOP && active == SB_POS &&
+      state->bets[1 - active] == BIG_BLIND) {
+    if (!preflop_sb_cached_strategy_.has_value() || !preflop_sb_cached_legal_actions_.has_value()) {
+      // Solve with a larger time limit (computed once)
+      fmt::print("Solving root preflop node for 100ms \n");
+      cfr_.solve(ranges_, state, active, 100);
+      preflop_sb_cached_strategy_ = cfr_.strategy();
+      preflop_sb_cached_legal_actions_ = cfr_.legal_actions();
+    }
+    sampled_action = sample_action_and_update_range(game_info, *state, hero_hand, active,
+                                                    *preflop_sb_cached_strategy_,
+                                                    *preflop_sb_cached_legal_actions_);
+  } else {
+    // Solve..
+    // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
+    // (i.e., no more chance cards are dealt)
+    fmt::print("{:.2f} ms allocated for solving with CFR \n", time_budget_ms);
+    cfr_.solve(ranges_, state, active, time_budget_ms);
+    sampled_action = sample_action_and_update_range(game_info, *state, hero_hand, active,
+                                                    cfr_.strategy(), cfr_.legal_actions());
+  }
 
   // TODO - Update Villain range somehow..
 
