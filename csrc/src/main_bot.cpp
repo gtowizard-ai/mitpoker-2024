@@ -87,8 +87,12 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
   }
 
   if (state->round() == round::FLOP && state->bets[1 - active] == 0 && active == BB_POS) {
-    // Check 100% of the time OOP on the flop
     fmt::print("OOP Flop - Checking 100% of the time \n");
+    return Action{Action::Type::CHECK};
+  }
+  if (state->round() == round::TURN && state->bets[1 - active] == 0 && active == BB_POS &&
+      hero_hand.num_cards() == 2) {
+    fmt::print("OOP Turn with 2 cards - Checking 100% of the time \n");
     return Action{Action::Type::CHECK};
   }
 
