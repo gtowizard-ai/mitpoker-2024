@@ -1,8 +1,8 @@
 #include <random>
-#include "../src/actions.h"
-#include "../src/ranges_utils.h"
-#include "../src/runner.h"
-#include "../src/states.h"
+#include "src/actions.h"
+#include "src/ranges_utils.h"
+#include "src/runner.h"
+#include "src/states.h"
 
 using namespace pokerbot;
 
