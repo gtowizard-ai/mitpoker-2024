@@ -16,7 +16,7 @@
     },
     {
       "name": "build-pokerbot",
-      "inherits": "default",
+      "inherits": "unix-makefiles",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "OFF",
         "IS_BUILDING_BOT": "ON"
