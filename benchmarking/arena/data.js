@@ -1,56 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706645501073,
+  "lastUpdate": 1706645960042,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "email": "philbeardsell@gmail.com",
-            "name": "Philippe Beardsell",
-            "username": "philqc"
-          },
-          "committer": {
-            "email": "noreply@github.com",
-            "name": "GitHub",
-            "username": "web-flow"
-          },
-          "distinct": true,
-          "id": "7436b5ad7a2ac70245f66de953616c677288083f",
-          "message": "Check 100% flop OOP and fix psb (#39)\n\n* Check 100% flop OOP and fix psb\r\n\r\n* done\r\n\r\n* temp fix - increase build timeout\r\n\r\n* dont bet OOP turn with 2 cards",
-          "timestamp": "2024-01-30T12:17:17-05:00",
-          "tree_id": "541bb03a1034095f301094cb5678ee4a5f6b11ca",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/7436b5ad7a2ac70245f66de953616c677288083f"
-        },
-        "date": 1706635269973,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 2.0345,
-            "unit": "bb/hand",
-            "range": 0.7336
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 62.26,
-            "unit": "bb/hand",
-            "range": 3.0255
-          },
-          {
-            "name": "Results vs. Uniform Random Bot",
-            "value": 14.5005,
-            "unit": "bb/hand",
-            "range": 2.5654
-          },
-          {
-            "name": "Results vs. Ourselves",
-            "value": 1.851,
-            "unit": "bb/hand",
-            "range": 3.3156
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -452,6 +404,54 @@ window.BENCHMARK_DATA = {
             "value": -2.591,
             "unit": "bb/hand",
             "range": 3.9477
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "philbeardsell@gmail.com",
+            "name": "Philippe Beardsell",
+            "username": "philqc"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0a7366691f2adb681169606f7555bd20a079baa4",
+          "message": "add preflop cache root node (#42)\n\n* add preflop cache root node\r\n\r\n* remove fmt ranges to hopefully make code faster\r\n\r\n* fix legal actions",
+          "timestamp": "2024-01-30T15:15:26-05:00",
+          "tree_id": "5e30664c50b29ab1df19a9f3383f36fa69d77b60",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/0a7366691f2adb681169606f7555bd20a079baa4"
+        },
+        "date": 1706645959210,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 1.385,
+            "unit": "bb/hand",
+            "range": 0.7329
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 55.629,
+            "unit": "bb/hand",
+            "range": 2.9473
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 14.594,
+            "unit": "bb/hand",
+            "range": 2.7279
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": 3.758,
+            "unit": "bb/hand",
+            "range": 3.9584
           }
         ]
       }
