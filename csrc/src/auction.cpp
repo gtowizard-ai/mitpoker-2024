@@ -1,5 +1,7 @@
 #include "auction.h"
+#include <cmath>
 #include <numeric>
+
 #include "definitions.h"
 #include "equity.h"
 
@@ -36,10 +38,33 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
   float heroTwoCard = mean_equity(hero_range, villain_three_card, game, board);
   float equity_difference = heroThreeEq - heroTwoCard;*/
   float equity_difference = .2;
+  int abs_bid_diff = v_abs_bid_min_max[1] - v_abs_bid_min_max[0];
+  float rel_bid_diff = v_pot_percentage_min_max[1] - v_pot_percentage_min_max[0];
 
-  float equity_bid = ((1 / (1 - equity_difference)) - 1) * pot;
+  //This is the sum of the geometric series of of form
+  //x + x^2 + x^3..., which accounts for us getting the equity
+  //back from our bid itself
+  float equity_with_bid = ((1 / (1 - equity_difference)) - 1) * pot;
+  int default_bid = std::ceil(equity_with_bid) + 1;
 
-  return equity_bid;
+  if (SIGNIFICANT_BID_COUNT > bid_count) {
+    return default_bid + 1;
+  }
+  if (v_is_excessive_bidder) {
+    int stack = STARTING_STACK - (pot / 2);
+    return stack - REASONABLE_DIST_FROM_MAX;
+  }
+  if (std::abs(abs_bid_diff) < ABS_BIDDING_EPSILON) {
+    std::vector<int> bids = {default_bid, v_abs_bid_min_max[0]};
+    return *std::max_element(bids.begin(), bids.end());
+  }
+  if (std::abs(abs_bid_diff) < POT_PERCENTAGE_BIDDING_EPSILON) {
+    //We floor here because we are trying to undercut villain
+    std::vector<int> bids = {default_bid,
+                             static_cast<int>(std::floor(v_pot_percentage_min_max[0] * pot))};
+    return *std::max_element(bids.begin(), bids.end());
+  }
+  return default_bid;
 }
 
 void Auctioneer::update_exploits(const int bid, const int pot) {
@@ -61,6 +86,7 @@ void Auctioneer::update_exploits(const int bid, const int pot) {
   if (bid_to_pot > v_pot_percentage_min_max[1]) {
     v_pot_percentage_min_max[1] = bid_to_pot;
   }
+  bid_count++;
 }
 
 void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int hero_bid,
