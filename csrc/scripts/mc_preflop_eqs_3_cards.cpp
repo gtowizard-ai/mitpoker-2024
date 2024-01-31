@@ -3593,15 +3593,14 @@ int main() {
   std::array<size_t, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> count{};
   std::array<size_t, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> win_count{};
   std::array<size_t, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> lose_count{};
-  std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> payoff_matrix{};
   std::mt19937 gen(std::random_device{}());
 
   std::array<card_t, 52> deck{};
   std::iota(deck.begin(), deck.end(), 0);
 
   // Around 3e8 iters ~ 1 minute
-  constexpr size_t num_iters = 5e8;
-  const bool two_cards_eqs = true;
+  constexpr size_t num_iters = 1e10;
+  const bool two_cards_eqs = false;
   if (two_cards_eqs) {
     for (size_t i = 0; i < num_iters; ++i) {
       std::shuffle(deck.begin(), deck.end(), gen);
@@ -3647,39 +3646,45 @@ int main() {
   fmt::print("min/max count = {}/{} \n", *std::min_element(count.begin(), count.end()),
              *std::max_element(count.begin(), count.end()));
 
+  std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> payoff_matrix{};
   for (hand_t i = 0; i < NUM_HANDS_PREFLOP; ++i) {
-    for (hand_t j = 0; j < NUM_HANDS_PREFLOP; ++j) {
-      if (i == j) {
-        continue;
-      }
-      const auto idx = i * NUM_HANDS_PREFLOP + j;
+    for (hand_t j = i + 1; j < NUM_HANDS_PREFLOP; ++j) {
       // We store payoffs, not equity!
-      payoff_matrix[idx] =
-          (win_count[idx] / (double)count[idx]) - (lose_count[idx] / (double)count[idx]);
-      payoff_matrix[idx] *= BLOCK_MATRIX[idx];
+      // This should be a skew symmetric matrix so we can take the average of the two sampled values
+      const auto idx_ij = i * NUM_HANDS_PREFLOP + j;
+      auto ij = (win_count[idx_ij] / (double)count[idx_ij]) -
+                (lose_count[idx_ij] / (double)count[idx_ij]);
+      const auto idx_ji = j * NUM_HANDS_PREFLOP + i;
+      auto ji = (win_count[idx_ji] / (double)count[idx_ji]) -
+                (lose_count[idx_ji] / (double)count[idx_ji]);
+      payoff_matrix[idx_ij] = BLOCK_MATRIX[idx_ij] * ((ij + -ji) / 2.0);
+      payoff_matrix[idx_ji] = BLOCK_MATRIX[idx_ji] * ((-ij + ji) / 2.0);
     }
   }
 
   {  // Verify manually some stuff
-    auto deuces_vs_aces_index = PREFLOP_HAND_IDX[Hand("2c2d").index()] * NUM_HANDS_PREFLOP +
-                                PREFLOP_HAND_IDX[Hand("AcAd").index()];
-    auto aces_vs_deuces_index = PREFLOP_HAND_IDX[Hand("AcAd").index()] * NUM_HANDS_PREFLOP +
-                                PREFLOP_HAND_IDX[Hand("2c2d").index()];
-    auto deuces_vs_32s = PREFLOP_HAND_IDX[Hand("2c2d").index()] * NUM_HANDS_PREFLOP +
-                         PREFLOP_HAND_IDX[Hand("3c2c").index()];
+    auto _22_vs_AA = PREFLOP_HAND_IDX[Hand("2c2d").index()] * NUM_HANDS_PREFLOP +
+                     PREFLOP_HAND_IDX[Hand("AcAd").index()];
+    auto _AA_vs_22 = PREFLOP_HAND_IDX[Hand("AcAd").index()] * NUM_HANDS_PREFLOP +
+                     PREFLOP_HAND_IDX[Hand("2c2d").index()];
+    auto _22_vs_32s = PREFLOP_HAND_IDX[Hand("2c2d").index()] * NUM_HANDS_PREFLOP +
+                      PREFLOP_HAND_IDX[Hand("3c2c").index()];
+    auto _32s_vs_22 = PREFLOP_HAND_IDX[Hand("3c2c").index()] * NUM_HANDS_PREFLOP +
+                      PREFLOP_HAND_IDX[Hand("2c2d").index()];
 
-    fmt::print("22 vs AA = w={}/l={} \n",
-               (double)win_count[deuces_vs_aces_index] / count[deuces_vs_aces_index],
-               (double)lose_count[deuces_vs_aces_index] / count[deuces_vs_aces_index]);
+    fmt::print("22 vs AA: w={}/l={} \n", (double)win_count[_22_vs_AA] / count[_22_vs_AA],
+               (double)lose_count[_22_vs_AA] / count[_22_vs_AA]);
 
-    fmt::print("{} - 22 vs AA = payoff = {} (compared to {})\n", deuces_vs_aces_index,
-               payoff_matrix[deuces_vs_aces_index], PREFLOP_2_CARDS_PAYOFFS[deuces_vs_aces_index]);
-    fmt::print("{} - AA vs 22 = payoff = {} (compared to {})\n", aces_vs_deuces_index,
-               payoff_matrix[aces_vs_deuces_index], PREFLOP_2_CARDS_PAYOFFS[aces_vs_deuces_index]);
-    fmt::print("22 vs 22 = payoff = {} (compared to {}) \n", payoff_matrix[0],
+    fmt::print("22 vs AA: payoff = {} (compared to {})\n", payoff_matrix[_22_vs_AA],
+               PREFLOP_2_CARDS_PAYOFFS[_22_vs_AA]);
+    fmt::print("AA vs 22: payoff = {} (compared to {})\n", payoff_matrix[_AA_vs_22],
+               PREFLOP_2_CARDS_PAYOFFS[_AA_vs_22]);
+    fmt::print("22 vs 22: payoff = {} (compared to {}) \n", payoff_matrix[0],
                PREFLOP_2_CARDS_PAYOFFS[0]);
-    fmt::print("{} - 22 vs 32s = payoff = {} (compared to {}) \n", deuces_vs_32s,
-               payoff_matrix[deuces_vs_32s], PREFLOP_2_CARDS_PAYOFFS[deuces_vs_32s]);
+    fmt::print("22 vs 32s: payoff = {} (compared to {}) \n", payoff_matrix[_22_vs_32s],
+               PREFLOP_2_CARDS_PAYOFFS[_22_vs_32s]);
+    fmt::print("32s vs 22: payoff = {} (compared to {}) \n", payoff_matrix[_32s_vs_22],
+               PREFLOP_2_CARDS_PAYOFFS[_32s_vs_22]);
   }
 
   output_file << "{";
