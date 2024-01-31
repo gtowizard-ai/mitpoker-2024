@@ -28,7 +28,7 @@ class Auctioneer {
   void receive_bid(Range& hero_range, Range& villain_range, int hero_bid, int villain_bid,
                    const Game& game, const std::vector<card_t>& board_cards, int pot);
 
-  void update_exploits(int bid, int pot);
+  void update_exploits(const int hero_bid, const int villain_bid, const int bid_plus_pot);
 
  private:
   HandEquitiesThirdCard hand_equities_third_card_;
