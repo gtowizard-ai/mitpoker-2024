@@ -11,15 +11,15 @@ Action MainBot::sample_action_and_update_range(const GameInfo& game_info, const 
                                                const HandActionsValues& strategy,
                                                const std::vector<Action>& legal_actions,
                                                const float min_prob_sampling) {
-  if (legal_actions.size() != strategy.num_actions_) {
+  if (legal_actions.size() != strategy.num_actions) {
     throw std::runtime_error("Actions mistmatch");
   }
 
   // Get strategy for hand
   std::vector<float> probs;
-  probs.reserve(strategy.num_actions_);
-  for (unsigned a = 0; a < strategy.num_actions_; ++a) {
-    probs.push_back(strategy(hand.index(), a));
+  probs.reserve(strategy.num_actions);
+  for (unsigned a = 0; a < strategy.num_actions; ++a) {
+    probs.push_back(strategy(a, hand.index()));
   }
   // Don't sample if prob is too low due to non-convergence
   for (auto& val : probs) {
@@ -43,7 +43,7 @@ Action MainBot::sample_action_and_update_range(const GameInfo& game_info, const 
       strategy_str);
 
   for (hand_t i = 0; i < ranges_[hero_id].num_hands(); ++i) {
-    const auto action_prob = strategy(i, sampled_idx);
+    const auto action_prob = strategy(sampled_idx, i);
     ranges_[hero_id].range[i] = ranges_[hero_id].range[i] * action_prob;
   }
 

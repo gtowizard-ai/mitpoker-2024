@@ -8,13 +8,9 @@
 
 namespace pokerbot {
 
-HandActionsValues::HandActionsValues(const unsigned num_hands, const unsigned num_actions,
-                                     float value)
-    : data(num_hands * num_actions, value), num_hands_(num_hands), num_actions_(num_actions) {}
-
 CFR::CFR(const Game& game) : game_(game), board_data_cache_(game) {
   for (auto& child_values : children_cfvs_) {
-    child_values.resize(NUM_HANDS_POSTFLOP_3CARDS);
+    child_values.resize(ceil_to_multiple(NUM_HANDS_POSTFLOP_3CARDS));
   }
 }
 
@@ -80,7 +76,7 @@ void CFR::update_opponent_cfvs_vs_bet() {
   const auto& raise_action = actions_.back();
 
   // Opponent's perspective -> Fold means he lose
-  const auto half_pot = root_->pot_start_round() / 2;
+  const float half_pot = root_->pot_start_round() * 0.5f;
   const float fold_payoff = -(half_pot + root_->bets[1 - player_id_]);
   compute_fold_cfvs(opponent_range_raise_fold_, hero_range_raise_, fold_payoff, raise_fold_cfvs_);
 
@@ -97,7 +93,7 @@ void CFR::update_hero_cfvs_bet_node() {
   const auto& raise_action = actions_.back();
 
   // Hero's perspective -> Opponent folds mean we wins
-  const auto half_pot = root_->pot_start_round() / 2;
+  const float half_pot = root_->pot_start_round() * 0.5f;
   const float fold_payoff = half_pot + root_->bets[1 - player_id_];
   compute_fold_cfvs(hero_range_raise_, opponent_range_raise_fold_, fold_payoff, raise_fold_cfvs_);
 
@@ -124,7 +120,7 @@ void CFR::precompute_cfvs_fixed_nodes(const std::array<Range, 2>& ranges) {
       continue;
     }
 
-    const auto half_pot = root_->pot_start_round() / 2;
+    const float half_pot = root_->pot_start_round() * 0.5f;
     if (actions_[a].type == Action::Type::FOLD) {
       const float payoff = -(half_pot + root_->bets[player_id_]);
       compute_fold_cfvs(ranges[player_id_], ranges[1 - player_id_], payoff, children_cfvs_[a]);
@@ -142,26 +138,33 @@ void CFR::update_opponent_regrets() {
     const float root_value = opponent_fold_strategy_vs_bet_[hand] * raise_fold_cfvs_[hand] +
                              (1.0f - opponent_fold_strategy_vs_bet_[hand]) * raise_call_cfvs_[hand];
 
-    opponent_regrets_vs_bet_(hand, 0) += raise_fold_cfvs_[hand] - root_value;
-    opponent_regrets_vs_bet_(hand, 1) += raise_call_cfvs_[hand] - root_value;
+    opponent_regrets_vs_bet_(0, hand) += raise_fold_cfvs_[hand] - root_value;
+    opponent_regrets_vs_bet_(1, hand) += raise_call_cfvs_[hand] - root_value;
 
-    opponent_regrets_vs_bet_(hand, 0) *= regret_discount;
-    opponent_regrets_vs_bet_(hand, 1) *= regret_discount;
+    opponent_regrets_vs_bet_(0, hand) *= regret_discount;
+    opponent_regrets_vs_bet_(1, hand) *= regret_discount;
   }
 }
 
 void CFR::update_hero_regrets() {
   const auto regret_discount = get_linear_cfr_discount_factor();
-  for (hand_t hand = 0; hand < num_hands_[player_id_]; ++hand) {
-    float root_value = 0;
+
+  static_assert(RANGE_SIZE_MULTIPLE % 16 == 0);
+  for (hand_t hand = 0; hand < num_hands_[player_id_]; hand += 16) {
+    std::array<float, 16> root_values = {};
+
     for (unsigned action = 0; action < num_actions(); ++action) {
-      root_value += strategy_(hand, action) * children_cfvs_[action][hand];
+      for (unsigned i = 0; i < 16; ++i) {
+        root_values[i] += strategy_(action, hand + i) * children_cfvs_[action][hand + i];
+      }
     }
 
     for (unsigned action = 0; action < num_actions(); ++action) {
-      const auto immediate_regret = children_cfvs_[action][hand] - root_value;
-      regrets_(hand, action) += immediate_regret;
-      regrets_(hand, action) *= regret_discount;
+      for (unsigned i = 0; i < 16; ++i) {
+        const auto immediate_regret = children_cfvs_[action][hand + i] - root_values[i];
+        regrets_(action, hand + i) += immediate_regret;
+        regrets_(action, hand + i) *= regret_discount;
+      }
     }
   }
 }
@@ -172,8 +175,9 @@ void CFR::update_hero_reaches(const Range& hero_range) {
     return;
   }
 
+  const auto raise_action_index = num_actions() - 1;
   for (hand_t hand = 0; hand < num_hands_[player_id_]; ++hand) {
-    const auto raise_prob = strategy_(hand, num_actions() - 1);
+    const auto raise_prob = strategy_(raise_action_index, hand);
     hero_range_raise_.range[hand] = hero_range.range[hand] * raise_prob;
   }
 }
@@ -187,45 +191,63 @@ void CFR::update_opponent_reaches(const Range& opponent_range) {
 }
 
 void CFR::update_hero_strategy() {
-  for (hand_t hand = 0; hand < num_hands_[player_id_]; ++hand) {
-    float sum_positive_regrets = 0;
+  static_assert(RANGE_SIZE_MULTIPLE % 16 == 0);
+  for (hand_t hand = 0; hand < num_hands_[player_id_]; hand += 16) {
+    std::array<float, 16> sum_positive_regrets = {};
+
     for (unsigned action = 0; action < num_actions(); ++action) {
-      if (regrets_(hand, action) > 0) {
-        sum_positive_regrets += regrets_(hand, action);
-        strategy_(hand, action) = regrets_(hand, action);
-      } else {
-        strategy_(hand, action) = 0;
+      for (unsigned i = 0; i < 16; ++i) {
+        const float positive_regret = std::max(regrets_(action, hand + i), 0.0f);
+        sum_positive_regrets[i] += positive_regret;
+        strategy_(action, hand + i) = positive_regret;
       }
     }
 
     for (unsigned action = 0; action < num_actions(); ++action) {
-      strategy_(hand, action) = sum_positive_regrets > 0
-                                    ? strategy_(hand, action) / sum_positive_regrets
-                                    : 1.0f / static_cast<float>(num_actions());
+      for (unsigned i = 0; i < 16; ++i) {
+        if (sum_positive_regrets[i] > 0) {
+          strategy_(action, hand + i) /= sum_positive_regrets[i];
+        } else {
+          strategy_(action, hand + i) = 1.0f / static_cast<float>(num_actions());
+        }
+      }
+    }
+  }
+
+  // zero out strategy for hands outside of range just in case
+  for (hand_t hand = num_hands_[player_id_]; hand < ceil_to_multiple(num_hands_[player_id_], 16);
+       ++hand) {
+    for (unsigned action = 0; action < num_actions(); ++action) {
+      strategy_(action, hand) = 0;
     }
   }
 }
 
 void CFR::update_opponent_strategy() {
-  for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; ++hand) {
-    float sum_positive_regrets = 0;
+  static_assert(RANGE_SIZE_MULTIPLE % 16 == 0);
+  for (hand_t hand = 0; hand < num_hands_[1 - player_id_]; hand += 16) {
+    std::array<float, 16> sum_positive_regrets = {};
 
     // Fold
-    if (opponent_regrets_vs_bet_(hand, 0) > 0) {
-      sum_positive_regrets += opponent_regrets_vs_bet_(hand, 0);
-      opponent_fold_strategy_vs_bet_[hand] = opponent_regrets_vs_bet_(hand, 0);
-    } else {
-      opponent_fold_strategy_vs_bet_[hand] = 0;
+    for (unsigned i = 0; i < 16; ++i) {
+      const float positive_regret = std::max(opponent_regrets_vs_bet_(0, hand + i), 0.0f);
+      sum_positive_regrets[i] += positive_regret;
+      opponent_fold_strategy_vs_bet_[hand + i] = positive_regret;
     }
 
     // Call
-    if (opponent_regrets_vs_bet_(hand, 1) > 0) {
-      sum_positive_regrets += opponent_regrets_vs_bet_(hand, 1);
+    for (unsigned i = 0; i < 16; ++i) {
+      const float positive_regret = std::max(opponent_regrets_vs_bet_(1, hand + i), 0.0f);
+      sum_positive_regrets[i] += positive_regret;
     }
 
-    opponent_fold_strategy_vs_bet_[hand] =
-        sum_positive_regrets > 0 ? opponent_fold_strategy_vs_bet_[hand] / sum_positive_regrets
-                                 : 0.5f;
+    for (unsigned i = 0; i < 16; ++i) {
+      if (sum_positive_regrets[i] > 0) {
+        opponent_fold_strategy_vs_bet_[hand + i] /= sum_positive_regrets[i];
+      } else {
+        opponent_fold_strategy_vs_bet_[hand + i] = 0.5f;
+      }
+    }
   }
 }
 
@@ -268,12 +290,12 @@ void CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
 
   build_tree();
 
-  regrets_ = HandActionsValues(num_hands_[player_id_], num_actions(), 0);
-  opponent_regrets_vs_bet_ = HandActionsValues(num_hands_[1 - player_id_], 2, 0);
-  strategy_ = HandActionsValues(num_hands_[player_id_], num_actions(), 1.0f / num_actions());
-  opponent_fold_strategy_vs_bet_.assign(num_hands_[1 - player_id_], 0.5f);
-  raise_fold_cfvs_.assign(max_num_hands, 0);
-  raise_call_cfvs_.assign(max_num_hands, 0);
+  regrets_ = HandActionsValues(num_actions(), num_hands_[player_id_], 0);
+  opponent_regrets_vs_bet_ = HandActionsValues(2, num_hands_[1 - player_id_], 0);
+  strategy_ = HandActionsValues(num_actions(), num_hands_[player_id_], 1.0f / num_actions());
+  opponent_fold_strategy_vs_bet_.assign(ceil_to_multiple(num_hands_[1 - player_id_]), 0.5f);
+  raise_fold_cfvs_.assign(ceil_to_multiple(max_num_hands), 0);
+  raise_call_cfvs_.assign(ceil_to_multiple(max_num_hands), 0);
 
   precompute_cfvs_fixed_nodes(ranges);
   update_hero_reaches(ranges[player_id_]);
