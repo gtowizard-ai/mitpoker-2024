@@ -1,13 +1,25 @@
 #pragma once
-#include <array>
+#include <vector>
 #include "definitions.h"
 #include "game.h"
 
 namespace pokerbot {
 
+inline constexpr unsigned RANGE_SIZE_MULTIPLE = 16;
+
+template <typename T>
+inline constexpr T ceil_to_multiple(T n, unsigned multiple = RANGE_SIZE_MULTIPLE) {
+  return (n + multiple - 1) & ~(multiple - 1);
+}
+
 struct Range {
+  // smallest multiple of `RANGE_SIZE_MULTIPLE` that is >= `NUM_HANDS_POSTFLOP_3CARDS`
+  static constexpr hand_t SIZE = ceil_to_multiple(NUM_HANDS_POSTFLOP_3CARDS);
+
   NumCards num_cards;
-  std::array<float, NUM_HANDS_POSTFLOP_3CARDS> range;
+
+  // `range.size()` may not be equal to `NUM_HANDS_POSTFLOP_3CARDS`!
+  std::vector<float> range;
 
   /// Initialize uniform random range
   Range();

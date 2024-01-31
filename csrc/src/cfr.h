@@ -7,25 +7,24 @@
 
 namespace pokerbot {
 
-class HandActionsValues {
- public:
-  explicit HandActionsValues(unsigned num_hands, unsigned num_actions, float value);
+struct HandActionsValues {
+  explicit HandActionsValues(unsigned num_actions, unsigned num_hands, float value)
+      : data(num_actions, std::vector<float>(ceil_to_multiple(num_hands), value)),
+        num_actions(num_actions),
+        num_hands(num_hands) {}
 
   HandActionsValues() = default;
 
-  float& operator()(const hand_t hand, const unsigned action) {
-    return data[hand * num_actions_ + action];
+  float& operator()(const unsigned action, const hand_t hand) { return data[action][hand]; }
+
+  float const& operator()(const unsigned action, const hand_t hand) const {
+    return data[action][hand];
   }
 
-  float const& operator()(const hand_t hand, const unsigned action) const {
-    return data[hand * num_actions_ + action];
-  }
-
-  // Store a 2D data of [action, hand] in 1D vector of size num_hands * num_actions
-  std::vector<float> data;
-
-  unsigned num_hands_ = 0;
-  unsigned num_actions_ = 0;
+  // Store a 2D data of [action, hand]
+  std::vector<std::vector<float>> data;
+  unsigned num_actions = 0;
+  unsigned num_hands = 0;
 };
 
 // NB: Should create this object once and reuse it each time you need to solve a subgame

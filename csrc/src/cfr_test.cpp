@@ -72,15 +72,15 @@ TEST_F(CFRTest, TestRiverNutAirToyGame) {
   fmt::print("Board is {} \n", Card::to_string(board_cards));
   double bluff_frequency = 0;
   for (const auto& bluff : bluffs) {
-    fmt::print("{} Check = {} / Raise = {} \n", bluff, strategy(Hand(bluff).index(), 0),
-               strategy(Hand(bluff).index(), 1));
-    bluff_frequency += strategy(Hand(bluff).index(), 1);
+    fmt::print("{} Check = {} / Raise = {} \n", bluff, strategy(0, Hand(bluff).index()),
+               strategy(1, Hand(bluff).index()));
+    bluff_frequency += strategy(1, Hand(bluff).index());
   }
   double valuebet_frequency = 0;
   for (const auto& value_bet : value_bets) {
-    fmt::print("{} Check = {} / Raise = {} \n", value_bet, strategy(Hand(value_bet).index(), 0),
-               strategy(Hand(value_bet).index(), 1));
-    valuebet_frequency += strategy(Hand(value_bet).index(), 1);
+    fmt::print("{} Check = {} / Raise = {} \n", value_bet, strategy(0, Hand(value_bet).index()),
+               strategy(1, Hand(value_bet).index()));
+    valuebet_frequency += strategy(1, Hand(value_bet).index());
   }
   double pot_odds = (double)round_state->effective_stack() /
                     (round_state->effective_stack() + round_state->pot());
@@ -111,7 +111,7 @@ TEST_F(CFRTest, TestPreflopOpenRaiseStrategy) {
                                "Tc9h", "Tc8d", "9s8s", "9h8s", "6c5c", "3c2c", "3c2d"}) {
     Hand hand(hand_str);
     fmt::print("{} Fold = {} / Call = {} / Raise = {} \n", hand.to_string(),
-               strategy(hand.index(), 0), strategy(hand.index(), 1), strategy(hand.index(), 2));
+               strategy(0, hand.index()), strategy(1, hand.index()), strategy(2, hand.index()));
   }
 
   // TODO Add tests/asserts here
