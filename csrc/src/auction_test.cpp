@@ -59,7 +59,7 @@ TEST_F(AuctionTest, TestUpdateExploits) {
   villain_bid = 10;
   hero_bid = 11;
   pot = 10;
-  auctioneer.update_exploits(hero_bid, villain_bid, pot +  villain_bid);
+  auctioneer.update_exploits(hero_bid, villain_bid, pot + villain_bid);
   ASSERT_FALSE(auctioneer.v_is_excessive_bidder);
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[0], 10);
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[1], 391);
@@ -74,5 +74,4 @@ TEST_F(AuctionTest, TestUpdateExploits) {
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[1], 391);
   ASSERT_NEAR(auctioneer.v_pot_percentage_min_max[0], .5, TOLERANCE);
   ASSERT_NEAR(auctioneer.v_pot_percentage_min_max[1], 39.1, TOLERANCE);
-  
 }

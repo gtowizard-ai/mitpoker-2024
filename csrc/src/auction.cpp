@@ -56,15 +56,15 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
   return default_bid;
 }
 
-void Auctioneer::update_exploits(const int hero_bid, const int villain_bid, const int bid_plus_pot) {
+void Auctioneer::update_exploits(const int hero_bid, const int villain_bid,
+                                 const int bid_plus_pot) {
   int pot;
-  if (hero_bid == villain_bid){
-  	pot = bid_plus_pot - hero_bid - villain_bid;
-  }
-  else if (hero_bid > villain_bid){
-  	pot = bid_plus_pot - villain_bid;
-  }else{
-  	pot = bid_plus_pot - hero_bid;
+  if (hero_bid == villain_bid) {
+    pot = bid_plus_pot - hero_bid - villain_bid;
+  } else if (hero_bid > villain_bid) {
+    pot = bid_plus_pot - villain_bid;
+  } else {
+    pot = bid_plus_pot - hero_bid;
   }
   int stack = STARTING_STACK - (pot / 2);
   if ((stack - villain_bid) > REASONABLE_DIST_FROM_MAX) {
