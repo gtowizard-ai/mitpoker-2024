@@ -66,16 +66,6 @@ void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
 
 Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state,
                            const int active) {
-  time_manager_.update_action(game_info, state);
-
-  const auto action =
-      get_action(game_info, state, active, time_manager_.get_time_budget_ms(game_info, state));
-
-  return action;
-}
-
-Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state, const int active,
-                           const float time_budget_ms) {
   const auto legal_actions = state->legal_actions();
 
   const Hand hero_hand(state->hands[active]);
@@ -129,6 +119,9 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
                                                     *preflop_sb_cached_strategy_,
                                                     *preflop_sb_cached_legal_actions_);
   } else {
+    time_manager_.update_action(game_info, state);
+    const float time_budget_ms = time_manager_.get_time_budget_ms(game_info, state);
+
     // Solve..
     // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
     // (i.e., no more chance cards are dealt)
