@@ -56,19 +56,27 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
   return default_bid;
 }
 
-void Auctioneer::update_exploits(const int bid, const int bid_plus_pot) {
-  int pot = bid_plus_pot - bid;
+void Auctioneer::update_exploits(const int hero_bid, const int villain_bid, const int bid_plus_pot) {
+  int pot;
+  if (hero_bid == villain_bid){
+  	pot = bid_plus_pot - hero_bid - villain_bid;
+  }
+  else if (hero_bid > villain_bid){
+  	pot = bid_plus_pot - villain_bid;
+  }else{
+  	pot = bid_plus_pot - hero_bid;
+  }
   int stack = STARTING_STACK - (pot / 2);
-  if ((stack - bid) > REASONABLE_DIST_FROM_MAX) {
+  if ((stack - villain_bid) > REASONABLE_DIST_FROM_MAX) {
     v_is_excessive_bidder = false;
   }
-  if (bid < v_abs_bid_min_max[0]) {
-    v_abs_bid_min_max[0] = bid;
+  if (villain_bid < v_abs_bid_min_max[0]) {
+    v_abs_bid_min_max[0] = villain_bid;
   }
-  if (bid > v_abs_bid_min_max[1]) {
-    v_abs_bid_min_max[1] = bid;
+  if (villain_bid > v_abs_bid_min_max[1]) {
+    v_abs_bid_min_max[1] = villain_bid;
   }
-  float bid_to_pot = static_cast<float>(bid) / static_cast<float>(pot);
+  float bid_to_pot = static_cast<float>(villain_bid) / static_cast<float>(pot);
 
   if (bid_to_pot < v_pot_percentage_min_max[0]) {
     v_pot_percentage_min_max[0] = bid_to_pot;
@@ -86,7 +94,7 @@ void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int 
     return;  // We've already been here on the same hand
   }
 
-  update_exploits(villain_bid, pot);
+  update_exploits(hero_bid, villain_bid, pot);
 
   // Update ranges based on who won the bid
   if (hero_bid == villain_bid) {
