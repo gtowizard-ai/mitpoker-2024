@@ -20,7 +20,7 @@ void compute_cfvs_preflop(const Range& opponent_range, float payoff,
 
   for (hand_t i = 0; i < NUM_HANDS_PREFLOP; ++i) {
     for (hand_t j = 0; j < NUM_HANDS_PREFLOP; ++j) {
-      pf_cfvs[i] += PREFLOP_PAYOFFS[i * NUM_HANDS_PREFLOP + j] * pf_range[j] * payoff;
+      pf_cfvs[i] += PREFLOP_2_CARDS_PAYOFFS[i * NUM_HANDS_PREFLOP + j] * pf_range[j] * payoff;
     }
   }
 

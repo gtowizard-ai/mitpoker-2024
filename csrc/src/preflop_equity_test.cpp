@@ -13,20 +13,21 @@ TEST(PreflopEquityTest, TestIntegrityValues) {
     return std::isfinite(idx) && idx >= 0 && idx < NUM_HANDS_PREFLOP;
   }));
 
-  ASSERT_EQ(PREFLOP_PAYOFFS.size(), NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP);
-  ASSERT_TRUE(std::all_of(PREFLOP_PAYOFFS.begin(), PREFLOP_PAYOFFS.end(), [](auto payoff) {
-    return std::isfinite(payoff) && payoff >= -1.0 && payoff <= 1.0;
-  }));
+  ASSERT_EQ(PREFLOP_2_CARDS_PAYOFFS.size(), NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP);
+  ASSERT_TRUE(std::all_of(
+      PREFLOP_2_CARDS_PAYOFFS.begin(), PREFLOP_2_CARDS_PAYOFFS.end(),
+      [](auto payoff) { return std::isfinite(payoff) && payoff >= -1.0 && payoff <= 1.0; }));
 
   auto idx_22 = PREFLOP_HAND_IDX[Hand("2c2d").index()];
   auto idx_32 = PREFLOP_HAND_IDX[Hand("3c2d").index()];
   auto idx_aa = PREFLOP_HAND_IDX[Hand("AcAd").index()];
 
-  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_22 * NUM_HANDS_PREFLOP + idx_22], 0, 1e-4);
-  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_32 * NUM_HANDS_PREFLOP + idx_32], 0, 1e-4);
-  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_aa * NUM_HANDS_PREFLOP + idx_aa], 0, 1e-4);
-  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_22 * NUM_HANDS_PREFLOP + idx_32], 0.5 * (0.6352 - 0.3036), 1e-4);
-  ASSERT_NEAR(PREFLOP_PAYOFFS[idx_aa * NUM_HANDS_PREFLOP + idx_32], 0.8695 - 0.1253, 1e-4);
+  ASSERT_NEAR(PREFLOP_2_CARDS_PAYOFFS[idx_22 * NUM_HANDS_PREFLOP + idx_22], 0, 1e-4);
+  ASSERT_NEAR(PREFLOP_2_CARDS_PAYOFFS[idx_32 * NUM_HANDS_PREFLOP + idx_32], 0, 1e-4);
+  ASSERT_NEAR(PREFLOP_2_CARDS_PAYOFFS[idx_aa * NUM_HANDS_PREFLOP + idx_aa], 0, 1e-4);
+  ASSERT_NEAR(PREFLOP_2_CARDS_PAYOFFS[idx_22 * NUM_HANDS_PREFLOP + idx_32], 0.5 * (0.6352 - 0.3036),
+              1e-4);
+  ASSERT_NEAR(PREFLOP_2_CARDS_PAYOFFS[idx_aa * NUM_HANDS_PREFLOP + idx_32], 0.8695 - 0.1253, 1e-4);
 }
 
 TEST(PreflopEquityTest, TestComputeCFVs) {

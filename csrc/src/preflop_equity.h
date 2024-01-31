@@ -79,8 +79,8 @@ inline std::array<uint_fast32_t, NUM_HANDS_POSTFLOP_2CARDS> PREFLOP_HAND_IDX = {
     87,  87,  87,  166, 88,  88,  88,  167, 89,  89,  89,  168, 90,  90,  90,
 };
 
-// (P[win] - P[lose]) * block_prob
-inline std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> PREFLOP_PAYOFFS{
+// (P[win] - P[lose]) * block_prob when each player has 2 cards only
+inline std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP> PREFLOP_2_CARDS_PAYOFFS{
     0,
     0.16576691,
     -0.60858995,
