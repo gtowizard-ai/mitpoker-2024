@@ -10,7 +10,7 @@ namespace pokerbot {
 
 CFR::CFR(const Game& game) : game_(game), board_data_cache_(game) {
   for (auto& child_values : children_cfvs_) {
-    child_values.resize(NUM_HANDS_POSTFLOP_3CARDS);
+    child_values.resize(ceil_to_multiple(NUM_HANDS_POSTFLOP_3CARDS));
   }
 }
 
