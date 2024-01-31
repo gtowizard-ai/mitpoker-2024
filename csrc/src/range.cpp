@@ -4,17 +4,9 @@
 
 namespace pokerbot {
 
-namespace {
-
-auto init_random_range() {
-  std::array<float, NUM_HANDS_POSTFLOP_3CARDS> range{};
+Range::Range() : num_cards(NumCards::Two), range(SIZE) {
   std::fill_n(range.begin(), NUM_HANDS_POSTFLOP_2CARDS, 1.0);
-  return range;
 }
-
-}  // namespace
-
-Range::Range() : num_cards(NumCards::Two), range(init_random_range()) {}
 
 void Range::update_on_board_cards(const Game& game, const std::vector<card_t>& board_cards) {
   if (board_cards.empty()) {

@@ -231,7 +231,7 @@ inline std::array<std::string, 2> parseArgs(int argc, char* argv[]) {
   bool host_flag = false;
   for (int i = 1; i < argc; i++) {
     std::string arg(argv[i]);
-    if ((arg == "-h") | (arg == "--host")) {
+    if (arg == "-h" || arg == "--host") {
       host_flag = true;
     } else if (arg == "--port") {
       // nothing to do

@@ -1,47 +1,51 @@
 #pragma once
-#include <array>
 #include "game.h"
+#include "states.h"
+
+#include <array>
 
 namespace pokerbot {
 
 class TimeManager {
  public:
   static constexpr unsigned ROUNDS = 4;
-  static constexpr int WARM_UP_TIME = 6;
+  static constexpr float WARM_UP_TIME = 6;  // in milliseconds
+  static constexpr int WARM_UP_NUM_HANDS = 20;
+  static constexpr int TOTAL_ACTIONS_MARGIN = 3;
 
   explicit TimeManager(const std::array<float, ROUNDS>& ratio = {0.15, 0.20, 0.25, 0.40})
-      : ratio_(ratio), last_hand_in_round_({-1, -1, -1, -1}) {}
+      : ratio_(ratio) {}
 
-  void update_action(const GameInfo& game_info, const RoundStatePtr& state) {
+  void update_action(const GameInfo& /*game_info*/, const RoundStatePtr& state) {
     const auto round = state->round().id;
-    if (last_hand_in_round_[round] != game_info.hand_num) {
-      last_hand_in_round_[round] = game_info.hand_num;
-      hands_played_per_round_[round]++;
-    }
-    total_actions_per_round_[state->round().id]++;
+    total_actions_per_round_[round]++;
   }
 
   [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info,
                                          const RoundStatePtr& state) const {
-    const unsigned round = state->round().id;
-    if (game_info.hand_num < 20) {
+    if (game_info.hand_num < WARM_UP_NUM_HANDS) {
       return WARM_UP_TIME;
     }
 
-    const float game_time =
-        (std::max(game_info.game_clock - 0.5, 0.0) * 1000.0) / game_info.num_hands_left_in_match();
+    const unsigned round = state->round().id;
 
-    return std::max(game_time * ratio_[round] * static_cast<float>(hands_played_per_round_[round]) /
-                        (static_cast<float>(total_actions_per_round_[round])),
-                    1.0f);
+    float expected_sum = 0.0;
+    for (unsigned i = 0; i < ROUNDS; ++i) {
+      expected_sum += ratio_[i] * (total_actions_per_round_[i] + TOTAL_ACTIONS_MARGIN);
+    }
+
+    expected_sum *= static_cast<float>(game_info.num_hands_left_in_match()) /
+                    static_cast<float>(game_info.hand_num);
+
+    const float remaining_time_ms =
+        (game_info.game_clock - (0.5f - 0.4f / game_info.num_hands_left_in_match())) * 1000.0f;
+
+    return std::max(ratio_[round] * remaining_time_ms / expected_sum, 1.0f);
   }
 
  private:
-  std::array<unsigned, ROUNDS> total_actions_per_round_{};
   std::array<float, ROUNDS> ratio_;
-
-  std::array<int, ROUNDS> hands_played_per_round_{};
-  std::array<int, ROUNDS> last_hand_in_round_;
+  std::array<unsigned, ROUNDS> total_actions_per_round_{};
 };
 
 }  // namespace pokerbot
