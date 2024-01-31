@@ -1,7 +1,9 @@
 #pragma once
-#include <vector>
 #include "definitions.h"
 #include "game.h"
+
+#include <stdexcept>
+#include <vector>
 
 namespace pokerbot {
 
@@ -9,6 +11,9 @@ inline constexpr unsigned RANGE_SIZE_MULTIPLE = 16;
 
 template <typename T>
 inline constexpr T ceil_to_multiple(T n, unsigned multiple = RANGE_SIZE_MULTIPLE) {
+  if ((multiple & (multiple - 1)) != 0) {
+    throw std::invalid_argument("multiple must be a power of 2");
+  }
   return (n + multiple - 1) & ~(multiple - 1);
 }
 

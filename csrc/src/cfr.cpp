@@ -293,9 +293,9 @@ void CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
   regrets_ = HandActionsValues(num_actions(), num_hands_[player_id_], 0);
   opponent_regrets_vs_bet_ = HandActionsValues(2, num_hands_[1 - player_id_], 0);
   strategy_ = HandActionsValues(num_actions(), num_hands_[player_id_], 1.0f / num_actions());
-  opponent_fold_strategy_vs_bet_.assign(num_hands_[1 - player_id_], 0.5f);
-  raise_fold_cfvs_.assign(max_num_hands, 0);
-  raise_call_cfvs_.assign(max_num_hands, 0);
+  opponent_fold_strategy_vs_bet_.assign(ceil_to_multiple(num_hands_[1 - player_id_]), 0.5f);
+  raise_fold_cfvs_.assign(ceil_to_multiple(max_num_hands), 0);
+  raise_call_cfvs_.assign(ceil_to_multiple(max_num_hands), 0);
 
   precompute_cfvs_fixed_nodes(ranges);
   update_hero_reaches(ranges[player_id_]);
