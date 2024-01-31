@@ -49,14 +49,14 @@ TEST_F(AuctionTest, TestUpdateExploits) {
   Auctioneer auctioneer;
   int bid = 390;
   int pot = 10;
-  auctioneer.update_exploits(bid, bid+pot);
+  auctioneer.update_exploits(bid, bid + pot);
   ASSERT_TRUE(auctioneer.v_is_excessive_bidder);
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[0], 390);
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[1], 390);
   ASSERT_NEAR(auctioneer.v_pot_percentage_min_max[0], 39.0, TOLERANCE);
   ASSERT_NEAR(auctioneer.v_pot_percentage_min_max[1], 39.0, TOLERANCE);
   bid = 10;
-  auctioneer.update_exploits(bid, bid+pot);
+  auctioneer.update_exploits(bid, bid + pot);
   ASSERT_FALSE(auctioneer.v_is_excessive_bidder);
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[0], 10);
   ASSERT_EQ(auctioneer.v_abs_bid_min_max[1], 390);
