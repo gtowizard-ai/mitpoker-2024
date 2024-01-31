@@ -44,10 +44,6 @@ class MainBot {
                                         const HandActionsValues& strategy,
                                         const std::vector<Action>& legal_actions,
                                         float min_prob_sampling = 0.01);
-
-  // Get the action with time budget
-  Action get_action(const GameInfo& game_info, const RoundStatePtr& state, int active,
-                    float time_budget_ms);
 };
 
 }  // namespace pokerbot
