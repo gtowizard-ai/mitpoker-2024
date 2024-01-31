@@ -54,3 +54,7 @@ target_include_directories(bid_everything_bot PRIVATE ../csrc)
 add_executable(uniform_random_bot uniform_random_bot/uniform_random_bot.cpp)
 target_link_libraries(uniform_random_bot dependencies gtowizardai)
 target_include_directories(uniform_random_bot PRIVATE ../csrc)
+
+add_executable(preflop_all_in_bot preflop_all_in_bot/preflop_all_in_bot.cpp)
+target_link_libraries(preflop_all_in_bot dependencies gtowizardai)
+target_include_directories(preflop_all_in_bot PRIVATE ../csrc)

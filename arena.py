@@ -95,6 +95,7 @@ def run_match_vs_bid_everything_bot():
         "range": round(results.stddev, 4),
     }
 
+
 def run_match_vs_uniform_random_bot():
     main_bot = Player(name="main_vs_uniform_random", path="./csrc")
     uniform_random_bot = Player(name="uniform_random", path="./simple_bots/uniform_random_bot")
@@ -102,6 +103,20 @@ def run_match_vs_uniform_random_bot():
 
     return {
         "name": "Results vs. Uniform Random Bot",
+        "unit": "bb/hand",
+        "value": round(results.winrate, 4),
+        "range": round(results.stddev, 4),
+    }
+
+def run_match_vs_preflop_all_in_bot():
+    main_bot = Player(name="main_vs_preflop_all_in", path="./csrc")
+    preflop_all_in_bot = Player(
+        name="preflop_all_in_bot", path="./simple_bots/preflop_all_in_bot"
+    )
+    results = _run_match(main_bot, preflop_all_in_bot)
+
+    return {
+        "name": "Results vs. Preflop All-in Bot",
         "unit": "bb/hand",
         "value": round(results.winrate, 4),
         "range": round(results.stddev, 4),
@@ -128,6 +143,7 @@ def main():
         run_match_vs_check_call_bot(),
         run_match_vs_bid_everything_bot(),
         run_match_vs_uniform_random_bot(),
+        run_match_vs_preflop_all_in_bot(),
         run_match_vs_main_bot(),
     ]
 
