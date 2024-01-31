@@ -4,6 +4,7 @@
 #include "equity.h"
 #include "equity_third_card.h"
 #include "isomorphic_flop_encoder.h"
+#include <iostream>
 
 namespace pokerbot {
 
@@ -56,7 +57,9 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
   return default_bid;
 }
 
-void Auctioneer::update_exploits(const int bid, const int pot) {
+void Auctioneer::update_exploits(const int bid, const int bid_plus_pot) {
+  int pot = bid_plus_pot - bid;
+  std::cout << pot << std::endl;
   int stack = STARTING_STACK - (pot / 2);
   if ((stack - bid) > REASONABLE_DIST_FROM_MAX) {
     v_is_excessive_bidder = false;
