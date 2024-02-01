@@ -119,7 +119,6 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
           return Action{Action::Type::CHECK};
         }
         return std::nullopt;
-        ;
       }();
       if (is_opponent_node && last_action.has_value() &&
           last_decision_node->legal_actions().size() > 1) {
@@ -172,13 +171,22 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
     return Action{Action::Type::CHECK};
   }
 
-  if (is_hero_node && state->round() == round::PREFLOP && player == SB_POS &&
+  if (state->round() == round::PREFLOP && player == SB_POS &&
       state->bets[1 - player] == BIG_BLIND) {
-    if (!preflop_sb_cached_strategy_[player].has_value() ||
+    bool action_in_cache = is_hero_node;
+    if (sampled_action.has_value() && preflop_sb_cached_legal_actions_[player].has_value()) {
+      for (const auto& action : *preflop_sb_cached_legal_actions_[player]) {
+        if (action.type == sampled_action->type && action.amount == sampled_action->amount) {
+          action_in_cache = true;
+        }
+      }
+    }
+    if (!action_in_cache || !preflop_sb_cached_strategy_[player].has_value() ||
         !preflop_sb_cached_legal_actions_[player].has_value()) {
       // Solve with a larger time limit (computed once)
-      fmt::print("Solving root preflop node for 100ms \n");
-      cfr_.solve(ranges_, state, player, 100, sampled_action);
+      float time_allowed = is_hero_node ? 100 : 15;
+      fmt::print("is_hero={} - Solving root preflop node for {}ms \n", is_hero_node, time_allowed);
+      cfr_.solve(ranges_, state, player, time_allowed, sampled_action, 1000);
       preflop_sb_cached_strategy_[player] = cfr_.strategy();
       preflop_sb_cached_legal_actions_[player] = cfr_.legal_actions();
     }
@@ -203,7 +211,7 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
     // (i.e., no more chance cards are dealt)
     fmt::print("is_hero={} - {:.2f} ms allocated for solving with CFR \n", is_hero_node,
                time_budget_ms);
-    cfr_.solve(ranges_, state, player, time_budget_ms, sampled_action);
+    cfr_.solve(ranges_, state, player, time_budget_ms, sampled_action, 500);
     if (is_hero_node) {
       sampled_action = sample_action(game_info, *state, *player_hand, player, cfr_.strategy(),
                                      cfr_.legal_actions());
