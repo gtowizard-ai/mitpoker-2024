@@ -83,6 +83,10 @@ class PokerHand {
     const auto flush_test = (misc_data_ + flush_adder) & flush_test_mask;
 
     if (!flush_test) {
+      if (strength > WEAKEST_FLUSH) {
+        return strength;
+      }
+
       const auto flush_draw_test = (misc_data_ + flush_draw_adder) & flush_test_mask;
       const strength_t flush_draw_flag = flush_draw_test ? FLUSH_DRAW_BIT : 0;
       return strength | flush_draw_flag;
