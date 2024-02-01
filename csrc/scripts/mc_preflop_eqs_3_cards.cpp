@@ -3599,7 +3599,7 @@ int main() {
   std::iota(deck.begin(), deck.end(), 0);
 
   // Around 3e8 iters ~ 1 minute
-  constexpr size_t num_iters = 1e10;
+  constexpr size_t num_iters = 8e9;
   const bool two_cards_eqs = false;
   if (two_cards_eqs) {
     for (size_t i = 0; i < num_iters; ++i) {

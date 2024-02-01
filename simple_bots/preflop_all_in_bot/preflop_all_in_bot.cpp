@@ -23,7 +23,7 @@ struct PreflopAllInBot {
     }
 
     if (ranges::contains(legal_actions, Action::Type::RAISE)) {
-      return {Action::Type::RAISE, min_stack};
+      return {Action::Type::RAISE, STARTING_STACK};
     }
     if (ranges::contains(legal_actions, Action::Type::CALL)) {
       return {Action::Type::CALL};

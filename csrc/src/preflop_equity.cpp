@@ -3,7 +3,8 @@
 namespace pokerbot {
 
 void compute_cfvs_preflop(const Range& opponent_range, float payoff,
-                          std::vector<float>& postflop_cfvs) {
+                          std::vector<float>& postflop_cfvs,
+                          const std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP>& payoffs) {
   if (opponent_range.num_cards != NumCards::Two) {
     throw std::invalid_argument("Can't call compute_cfvs_preflop with 3-cards range");
   }
@@ -20,7 +21,7 @@ void compute_cfvs_preflop(const Range& opponent_range, float payoff,
 
   for (hand_t i = 0; i < NUM_HANDS_PREFLOP; ++i) {
     for (hand_t j = 0; j < NUM_HANDS_PREFLOP; ++j) {
-      pf_cfvs[i] += PREFLOP_2_CARDS_PAYOFFS[i * NUM_HANDS_PREFLOP + j] * pf_range[j] * payoff;
+      pf_cfvs[i] += payoffs[i * NUM_HANDS_PREFLOP + j] * pf_range[j] * payoff;
     }
   }
 
