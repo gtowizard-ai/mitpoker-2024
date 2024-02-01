@@ -103,8 +103,8 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
     if (last_decision_node != nullptr) {
       const auto opp_index = get_active(last_decision_node->button);
       const auto is_opponent_node = opp_index != active;
-      fmt::print("Last decision node: Opponent = {} - {} \n", is_opponent_node,
-                 last_decision_node->to_string());
+      // fmt::print("Last decision node: Opponent = {} - {} \n", is_opponent_node,
+      //            last_decision_node->to_string());
       // I don't know a better way to get this..
       const std::optional<Action> last_action = [&]() -> std::optional<Action> {
         if (state->bets[opp_index] > last_decision_node->bets[opp_index] &&
