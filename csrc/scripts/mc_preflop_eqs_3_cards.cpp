@@ -3608,8 +3608,8 @@ int main() {
       PokerHand h1({deck[2], deck[3], deck[4], deck[5], deck[6], deck[7], deck[8]});
       const auto h0_pf_idx = PREFLOP_HAND_IDX[Hand(deck[0], deck[1]).index()];
       const auto h1_pf_idx = PREFLOP_HAND_IDX[Hand(deck[2], deck[3]).index()];
-      const auto h0_eval = h0.evaluate();
-      const auto h1_eval = h1.evaluate();
+      const auto h0_eval = h0.evaluate() & STRENGTH_MASK;
+      const auto h1_eval = h1.evaluate() & STRENGTH_MASK;
 
       const auto matrix_idx = h0_pf_idx * NUM_HANDS_PREFLOP + h1_pf_idx;
       if (h0_eval > h1_eval) {
@@ -3626,8 +3626,8 @@ int main() {
       PokerHand h1({deck[3], deck[4], deck[5], deck[6], deck[7], deck[8], deck[9], deck[10]});
       const auto h0_pf_idx = PREFLOP_HAND_IDX[Hand(deck[0], deck[1]).index()];
       const auto h1_pf_idx = PREFLOP_HAND_IDX[Hand(deck[3], deck[4]).index()];
-      const auto h0_eval = h0.evaluate();
-      const auto h1_eval = h1.evaluate();
+      const auto h0_eval = h0.evaluate() & STRENGTH_MASK;
+      const auto h1_eval = h1.evaluate() & STRENGTH_MASK;
 
       const auto matrix_idx = h0_pf_idx * NUM_HANDS_PREFLOP + h1_pf_idx;
       if (h0_eval > h1_eval) {

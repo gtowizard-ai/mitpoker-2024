@@ -13,7 +13,7 @@ class TimeManager {
   static constexpr int WARM_UP_NUM_HANDS = 20;
   static constexpr int TOTAL_ACTIONS_MARGIN = 3;
 
-  explicit TimeManager(const std::array<float, ROUNDS>& ratio = {0.15, 0.20, 0.25, 0.40})
+  explicit TimeManager(const std::array<float, ROUNDS>& ratio = {0.1, 0.3, 0.3, 0.3})
       : ratio_(ratio) {}
 
   void update_action(const GameInfo& /*game_info*/, const RoundStatePtr& state) {

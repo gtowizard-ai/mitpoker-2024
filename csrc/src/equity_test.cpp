@@ -93,8 +93,8 @@ class EquityTest : public ::testing::Test {
         continue;
       }
       auto opponent_hand = eval_board + to_poker_hand(opponent_hands[i]);
-      auto hero_strength = hero_hand.evaluate();
-      auto opponent_strength = opponent_hand.evaluate();
+      auto hero_strength = hero_hand.evaluate() & STRENGTH_MASK;
+      auto opponent_strength = opponent_hand.evaluate() & STRENGTH_MASK;
       if (hero_strength > opponent_strength) {
         results.wins += opponent_range.range[i];
       } else if (hero_strength == opponent_strength) {
