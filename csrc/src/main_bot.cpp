@@ -45,7 +45,8 @@ Action MainBot::sample_action(const GameInfo& game_info, const RoundState& state
 }
 
 void MainBot::update_range(const int player, const HandActionsValues& strategy,
-                           const std::vector<Action>& legal_actions, const Action& action) {
+                           const std::vector<Action>& legal_actions, const Action& action,
+                           const bool is_hero_node) {
   if (legal_actions.size() != strategy.num_actions) {
     throw std::runtime_error("Actions mistmatch");
   }
@@ -65,10 +66,18 @@ void MainBot::update_range(const int player, const HandActionsValues& strategy,
         fmt::format("Actions mistmatch Two: {} ({})", action.to_string(), actions));
   }
 
-  // FIXME ADD UNIFORM RANDOM?
-  for (hand_t i = 0; i < ranges_[player].num_hands(); ++i) {
-    const auto action_prob = strategy(action_idx, i);
-    ranges_[player].range[i] *= action_prob;
+  if (is_hero_node) {
+    for (hand_t i = 0; i < ranges_[player].num_hands(); ++i) {
+      const auto action_prob = strategy(action_idx, i);
+      ranges_[player].range[i] *= action_prob;
+    }
+  } else {
+    for (hand_t i = 0; i < ranges_[player].num_hands(); ++i) {
+      const auto action_prob = strategy(action_idx, i);
+      auto strat = (1.0f - WEIGHT_UNIFORM_RANDOM_RANGE_OPPONENT) * action_prob +
+                   WEIGHT_UNIFORM_RANDOM_RANGE_OPPONENT * (1 - action_prob);
+      ranges_[player].range[i] *= strat;
+    }
   }
 }
 
@@ -112,7 +121,8 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
         return std::nullopt;
         ;
       }();
-      if (is_opponent_node && last_action.has_value()) {
+      if (is_opponent_node && last_action.has_value() &&
+          last_decision_node->legal_actions().size() > 1) {
         get_action_any_player(game_info, last_decision_node, opp_index, last_action);
       }
     }
@@ -178,7 +188,7 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
                                      *preflop_sb_cached_legal_actions_[player]);
     }
     update_range(player, *preflop_sb_cached_strategy_[player],
-                 *preflop_sb_cached_legal_actions_[player], *sampled_action);
+                 *preflop_sb_cached_legal_actions_[player], *sampled_action, is_hero_node);
 
   } else {
     // set time budget
@@ -198,7 +208,7 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
       sampled_action = sample_action(game_info, *state, *player_hand, player, cfr_.strategy(),
                                      cfr_.legal_actions());
     }
-    update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action);
+    update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action, is_hero_node);
   }
 
   return *sampled_action;

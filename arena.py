@@ -141,10 +141,10 @@ def run_match_vs_main_bot():
 def main():
     results = [
         run_match_vs_check_call_bot(),
-        run_match_vs_bid_everything_bot(),
-        run_match_vs_uniform_random_bot(),
-        run_match_vs_preflop_all_in_bot(),
-        run_match_vs_main_bot(),
+        # run_match_vs_bid_everything_bot(),
+        # run_match_vs_uniform_random_bot(),
+        # run_match_vs_preflop_all_in_bot(),
+        # run_match_vs_main_bot(),
     ]
 
     with open("arena_results.json", "w") as f:

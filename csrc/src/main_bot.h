@@ -38,7 +38,7 @@ class MainBot {
   // FIXME -> ADD THIS?
   // We update our opponent's range with a small weight of uniform random range
   // As a regularization since our estimated ranges are not that great
-  // static constexpr float WEIGHT_UNIFORM_RANDOM_RANGE_OPPONENT = 0.05;
+  static constexpr float WEIGHT_UNIFORM_RANDOM_RANGE_OPPONENT = 0.05;
 
   // Sample action based on strategy in `cfr_`
   // Won't sample any action with prob < `min_prob_sampling`
@@ -47,7 +47,8 @@ class MainBot {
                        const std::vector<Action>& legal_actions, float min_prob_sampling = 0.05);
 
   void update_range(int player, const HandActionsValues& strategy,
-                    const std::vector<Action>& legal_actions, const Action& action);
+                    const std::vector<Action>& legal_actions, const Action& action,
+                    bool is_hero_node);
 
   Action get_action_any_player(const GameInfo& game_info, const RoundStatePtr& state, int player,
                                std::optional<Action> sampled_action);
