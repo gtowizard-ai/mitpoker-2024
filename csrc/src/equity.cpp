@@ -329,7 +329,7 @@ static void compute_cfvs_showdown_2_vs_3(const Game& game, const Range& opponent
 
     if (draw_coefficient > 0) {
       // merge straight draws
-      if (hero_strength > WEAKEST_STRAIGHT && opponent_sum_0_sd > 0.0) {
+      if (hero_strength > WEAKEST_STRAIGHT && opponent_sum_0_sd > 0) {
         opponent_sum_0 += opponent_sum_0_sd;
         opponent_sum_0_sd = 0;
         for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
@@ -562,7 +562,7 @@ static void compute_cfvs_showdown_3_vs_2(const Game& game, const Range& opponent
 
     if (draw_coefficient > 0) {
       // merge straight draws
-      if (hero_strength > WEAKEST_STRAIGHT && opponent_sum_0_sd > 0.0) {
+      if (hero_strength > WEAKEST_STRAIGHT && opponent_sum_0_sd > 0) {
         opponent_sum_0 += opponent_sum_0_sd;
         opponent_sum_0_sd = 0;
         for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
