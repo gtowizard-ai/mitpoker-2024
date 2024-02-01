@@ -28,6 +28,10 @@ TEST(PreflopEquityTest, TestIntegrityValues) {
   ASSERT_NEAR(PREFLOP_2_CARDS_PAYOFFS[idx_22 * NUM_HANDS_PREFLOP + idx_32], 0.5 * (0.6352 - 0.3036),
               1e-4);
   ASSERT_NEAR(PREFLOP_2_CARDS_PAYOFFS[idx_aa * NUM_HANDS_PREFLOP + idx_32], 0.8695 - 0.1253, 1e-4);
+
+  ASSERT_TRUE(std::all_of(
+      PREFLOP_3_CARDS_PAYOFFS.begin(), PREFLOP_3_CARDS_PAYOFFS.end(),
+      [](auto payoff) { return std::isfinite(payoff) && payoff >= -1.0 && payoff <= 1.0; }));
 }
 
 TEST(PreflopEquityTest, TestComputeCFVsTwoCardsPayoffs) {
