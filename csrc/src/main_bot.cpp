@@ -46,7 +46,7 @@ Action MainBot::sample_action(const GameInfo& game_info, const RoundState& state
 
 void MainBot::update_range(const int player, const HandActionsValues& strategy,
                            const std::vector<Action>& legal_actions, const Action& action,
-                           const bool is_hero_node) {
+                           const std::optional<Hand>& player_hand, const float min_prob_keep) {
   if (legal_actions.size() != strategy.num_actions) {
     throw std::runtime_error("Actions mistmatch");
   }
@@ -66,10 +66,14 @@ void MainBot::update_range(const int player, const HandActionsValues& strategy,
         fmt::format("Actions mistmatch Two: {} ({})", action.to_string(), actions));
   }
 
-  if (is_hero_node) {
+  if (player_hand.has_value()) {
+    const auto hero_hand_idx = player_hand->index();
     for (hand_t i = 0; i < ranges_[player].num_hands(); ++i) {
       const auto action_prob = strategy(action_idx, i);
       ranges_[player].range[i] *= action_prob;
+      if (ranges_[player].range[i] < min_prob_keep && i != hero_hand_idx) {
+        ranges_[player].range[i] = 0;
+      }
     }
   } else {
     for (hand_t i = 0; i < ranges_[player].num_hands(); ++i) {
@@ -196,7 +200,7 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
       sampled_action =
           sample_action(game_info, *state, *player_hand, player, *sb_strategy, *sb_legal_actions);
     }
-    update_range(player, *sb_strategy, *sb_legal_actions, *sampled_action, is_hero_node);
+    update_range(player, *sb_strategy, *sb_legal_actions, *sampled_action, player_hand);
 
   } else {
     // set time budget
@@ -216,7 +220,7 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
       sampled_action = sample_action(game_info, *state, *player_hand, player, cfr_.strategy(),
                                      cfr_.legal_actions());
     }
-    update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action, is_hero_node);
+    update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action, player_hand);
   }
 
   return *sampled_action;

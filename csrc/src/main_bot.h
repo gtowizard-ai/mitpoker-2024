@@ -50,7 +50,7 @@ class MainBot {
 
   void update_range(int player, const HandActionsValues& strategy,
                     const std::vector<Action>& legal_actions, const Action& action,
-                    bool is_hero_node);
+                    const std::optional<Hand>& player_hand, float min_prob_keep = 0.01);
 
   Action get_action_any_player(const GameInfo& game_info, const RoundStatePtr& state, int player,
                                std::optional<Action> sampled_action);
