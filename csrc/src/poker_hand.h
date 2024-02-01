@@ -2,7 +2,7 @@
 
 #include "card.h"
 #include "definitions.h"
-#include "hand_category.h"
+#include "hand_strength.h"
 #include "poker_hand_tables.h"
 
 #include <algorithm>
@@ -69,17 +69,27 @@ class PokerHand {
 
   /// @brief Returns the strength of the hand (higher is better). Undefined behavior if the hand
   /// contains more than 8 cards.
+  /// @return Higher 13 bits: strength / Lower 3 bits: draw flags.
+  /// `STRENGTH_MASK` can be used to extract the strength.
   strength_t evaluate() const {
-    constexpr uint64_t suit_counter_offset = 0x3333'0000'0000'0000;
-    constexpr uint64_t flush_mask = 0x8888'0000'0000'0000;
+    constexpr uint64_t flush_adder = 0x3333'0000'0000'0000;
+    constexpr uint64_t flush_draw_adder = 0x4444'0000'0000'0000;
+    constexpr uint64_t flush_test_mask = 0x8888'0000'0000'0000;
 
     const auto rank_key = static_cast<detail::rank_key_t>(misc_data_);
     const auto offset = detail::RANK_KEY_OFFSET_TABLE[rank_key >> detail::RANK_KEY_OFFSET_SHIFT];
     auto strength = detail::NONFLUSH_LOOKUP_TABLE[rank_key + offset];
 
-    const auto flush_test = (misc_data_ + suit_counter_offset) & flush_mask;
+    const auto flush_test = (misc_data_ + flush_adder) & flush_test_mask;
+
     if (!flush_test) {
-      return strength;
+      if (strength > WEAKEST_FLUSH) {
+        return strength;
+      }
+
+      const auto flush_draw_test = (misc_data_ + flush_draw_adder) & flush_test_mask;
+      const strength_t flush_draw_flag = flush_draw_test ? FLUSH_DRAW_BIT : 0;
+      return strength | flush_draw_flag;
     }
 
     const auto shift_count = __builtin_clzll(flush_test) * 4;

@@ -3,6 +3,7 @@
 
 #include <pdqsort.h>
 
+#include <functional>
 #include <numeric>
 #include <stdexcept>
 
@@ -142,15 +143,17 @@ static void compute_cfvs_fixed_payoff_2_vs_2(const Game& game, const Range& oppo
   }
 
   double opponent_sum_0 = 0;
-  std::vector<double> opponent_sum_1(MAX_DECK_SIZE);
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1 = {};
 
   const auto& hands = game.hands(NumCards::Two);
   for (hand_t i = 0; i < hands.size(); ++i) {
     const double prob = opponent_range.range[i];
-    const auto& cards = hands[i].cards;
-    opponent_sum_0 += prob;
-    opponent_sum_1[cards[0]] += prob;
-    opponent_sum_1[cards[1]] += prob;
+    if (prob > 0) {
+      const auto& cards = hands[i].cards;
+      opponent_sum_0 += prob;
+      opponent_sum_1[cards[0]] += prob;
+      opponent_sum_1[cards[1]] += prob;
+    }
   }
 
   for (hand_t i = 0; i < hands.size(); ++i) {
@@ -167,7 +170,7 @@ static void compute_cfvs_fixed_payoff_2_vs_3(const Game& game, const Range& oppo
                                              std::vector<T>& cfvs, T payoff,
                                              BoardDataCache& cache) {
   double opponent_sum_0 = 0;
-  std::vector<double> opponent_sum_1(MAX_DECK_SIZE);
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1 = {};
   std::vector<double> opponent_sum_2(NUM_HANDS_POSTFLOP_2CARDS);
 
   const auto& opponent_hands = game.hands(NumCards::Three);
@@ -175,15 +178,17 @@ static void compute_cfvs_fixed_payoff_2_vs_3(const Game& game, const Range& oppo
 
   for (hand_t i = 0; i < opponent_hands.size(); ++i) {
     const double prob = opponent_range.range[i];
-    const auto& cards = opponent_hands[i].cards;
-    const auto& subs = subhand_indices[i];
-    opponent_sum_0 += prob;
-    opponent_sum_1[cards[0]] += prob;
-    opponent_sum_1[cards[1]] += prob;
-    opponent_sum_1[cards[2]] += prob;
-    opponent_sum_2[subs[0]] += prob;
-    opponent_sum_2[subs[1]] += prob;
-    opponent_sum_2[subs[2]] += prob;
+    if (prob > 0) {
+      const auto& cards = opponent_hands[i].cards;
+      const auto& subs = subhand_indices[i];
+      opponent_sum_0 += prob;
+      opponent_sum_1[cards[0]] += prob;
+      opponent_sum_1[cards[1]] += prob;
+      opponent_sum_1[cards[2]] += prob;
+      opponent_sum_2[subs[0]] += prob;
+      opponent_sum_2[subs[1]] += prob;
+      opponent_sum_2[subs[2]] += prob;
+    }
   }
 
   const auto& hero_hands = game.hands(NumCards::Two);
@@ -203,16 +208,18 @@ static void compute_cfvs_fixed_payoff_3_vs_2(const Game& game, const Range& oppo
                                              std::vector<T>& cfvs, T payoff,
                                              BoardDataCache& cache) {
   double opponent_sum_0 = 0;
-  std::vector<double> opponent_sum_1(MAX_DECK_SIZE);
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1 = {};
 
   const auto& opponent_hands = game.hands(NumCards::Two);
 
   for (hand_t i = 0; i < opponent_hands.size(); ++i) {
     const double prob = opponent_range.range[i];
-    const auto& cards = opponent_hands[i].cards;
-    opponent_sum_0 += prob;
-    opponent_sum_1[cards[0]] += prob;
-    opponent_sum_1[cards[1]] += prob;
+    if (prob > 0) {
+      const auto& cards = opponent_hands[i].cards;
+      opponent_sum_0 += prob;
+      opponent_sum_1[cards[0]] += prob;
+      opponent_sum_1[cards[1]] += prob;
+    }
   }
 
   const auto& hero_hands = game.hands(NumCards::Three);
@@ -235,7 +242,7 @@ static void compute_cfvs_fixed_payoff_3_vs_3(const Game& game, const Range& oppo
                                              std::vector<T>& cfvs, T payoff,
                                              BoardDataCache& cache) {
   double opponent_sum_0 = 0;
-  std::vector<double> opponent_sum_1(MAX_DECK_SIZE);
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1 = {};
   std::vector<double> opponent_sum_2(NUM_HANDS_POSTFLOP_2CARDS);
 
   const auto& hands = game.hands(NumCards::Three);
@@ -243,15 +250,17 @@ static void compute_cfvs_fixed_payoff_3_vs_3(const Game& game, const Range& oppo
 
   for (hand_t i = 0; i < hands.size(); ++i) {
     const double prob = opponent_range.range[i];
-    const auto& cards = hands[i].cards;
-    const auto& subs = subhand_indices[i];
-    opponent_sum_0 += prob;
-    opponent_sum_1[cards[0]] += prob;
-    opponent_sum_1[cards[1]] += prob;
-    opponent_sum_1[cards[2]] += prob;
-    opponent_sum_2[subs[0]] += prob;
-    opponent_sum_2[subs[1]] += prob;
-    opponent_sum_2[subs[2]] += prob;
+    if (prob > 0) {
+      const auto& cards = hands[i].cards;
+      const auto& subs = subhand_indices[i];
+      opponent_sum_0 += prob;
+      opponent_sum_1[cards[0]] += prob;
+      opponent_sum_1[cards[1]] += prob;
+      opponent_sum_1[cards[2]] += prob;
+      opponent_sum_2[subs[0]] += prob;
+      opponent_sum_2[subs[1]] += prob;
+      opponent_sum_2[subs[2]] += prob;
+    }
   }
 
   const auto& possible_hands = cache.get_possible_hands_3_cards(board_cards);
@@ -294,32 +303,96 @@ static void compute_cfvs_showdown_2_vs_3(const Game& game, const Range& opponent
   const auto& opponent_hands = game.hands(NumCards::Three);
   const auto& subhand_indices = game.subhand_indices();
 
+  double draw_coefficient = 0;
+  if (board_cards.size() == 3) {
+    draw_coefficient = 1.5 / (MAX_DECK_SIZE - 3);
+  } else if (board_cards.size() == 4) {
+    draw_coefficient = 1.0 / (MAX_DECK_SIZE - 4);
+  }
+
+  const double straight_draw_coefficient = draw_coefficient * 4;
+  const double flush_draw_weight = draw_coefficient * 9;
+
   unsigned j = 1;
   double opponent_sum_0 = 0;
-  std::vector<double> opponent_sum_1(MAX_DECK_SIZE);
+  double opponent_sum_0_sd = 0;
+  double opponent_sum_0_fd = 0;
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1 = {};
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1_sd = {};
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1_fd = {};
 
   // hero wins
   for (unsigned i = 1; i < hero_hands_sorted.size() - 1; ++i) {
     const auto& hero_hand = hero_hands_sorted[i];
     const hand_t hero_index = hero_hand & ((1 << 16) - 1);
-    const int hero_strength = hero_hand >> 16;
+    const auto hero_strength = (hero_hand >> 16) & STRENGTH_MASK;
+
+    if (draw_coefficient > 0) {
+      // merge straight draws
+      if (hero_strength > WEAKEST_STRAIGHT && opponent_sum_0_sd > 0) {
+        opponent_sum_0 += opponent_sum_0_sd;
+        opponent_sum_0_sd = 0;
+        for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
+          opponent_sum_1[card] += opponent_sum_1_sd[card];
+        }
+      }
+
+      // merge flush draws
+      if (hero_strength > WEAKEST_FLUSH && opponent_sum_0_fd > 0) {
+        opponent_sum_0 += opponent_sum_0_fd;
+        opponent_sum_0_fd = 0;
+        for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
+          opponent_sum_1[card] += opponent_sum_1_fd[card];
+        }
+      }
+    }
 
     while (true) {
       const auto& opponent_hand = opponent_hands_sorted[j];
-      const int opponent_strength = opponent_hand >> 16;
+      const auto opponent_strength = opponent_hand >> 16;
 
       if (hero_strength <= opponent_strength) {
         break;
       }
 
       const hand_t opponent_index = opponent_hand & ((1 << 16) - 1);
-      const auto& opponent_cards = opponent_hands[opponent_index].cards;
       const double prob = opponent_range.range[opponent_index];
 
-      opponent_sum_0 += prob;
-      opponent_sum_1[opponent_cards[0]] += prob;
-      opponent_sum_1[opponent_cards[1]] += prob;
-      opponent_sum_1[opponent_cards[2]] += prob;
+      if (prob == 0) {
+        ++j;
+        continue;
+      }
+
+      double weight = 1;
+      const auto& opponent_cards = opponent_hands[opponent_index].cards;
+
+      if (draw_coefficient > 0) {
+        if (opponent_strength & FLUSH_DRAW_BIT) {
+          const double value = prob * flush_draw_weight;
+          opponent_sum_0_fd += value;
+          opponent_sum_1_fd[opponent_cards[0]] += value;
+          opponent_sum_1_fd[opponent_cards[1]] += value;
+          opponent_sum_1_fd[opponent_cards[2]] += value;
+          weight -= flush_draw_weight;
+        }
+
+        const auto num_sd = opponent_strength & STRAIGHT_DRAW_MASK;
+        if (num_sd > 0) {
+          const double straight_draw_weight = weight * straight_draw_coefficient * num_sd;
+          const double value = prob * straight_draw_weight;
+          opponent_sum_0_sd += value;
+          opponent_sum_1_sd[opponent_cards[0]] += value;
+          opponent_sum_1_sd[opponent_cards[1]] += value;
+          opponent_sum_1_sd[opponent_cards[2]] += value;
+          weight -= straight_draw_weight;
+        }
+      }
+
+      const double value = prob * weight;
+      opponent_sum_0 += value;
+      opponent_sum_1[opponent_cards[0]] += value;
+      opponent_sum_1[opponent_cards[1]] += value;
+      opponent_sum_1[opponent_cards[2]] += value;
 
       ++j;
     }
@@ -332,42 +405,94 @@ static void compute_cfvs_showdown_2_vs_3(const Game& game, const Range& opponent
 
   j = opponent_hands_sorted.size() - 2;
   opponent_sum_0 = 0;
+  opponent_sum_0_sd = 0;
+  opponent_sum_0_fd = 0;
   std::fill(opponent_sum_1.begin(), opponent_sum_1.end(), 0);
+  std::fill(opponent_sum_1_sd.begin(), opponent_sum_1_sd.end(), 0);
+  std::fill(opponent_sum_1_fd.begin(), opponent_sum_1_fd.end(), 0);
   std::vector<double> opponent_sum_2(NUM_HANDS_POSTFLOP_2CARDS);
+  std::vector<double> opponent_sum_2_sd(NUM_HANDS_POSTFLOP_2CARDS);
+  std::vector<double> opponent_sum_2_fd(NUM_HANDS_POSTFLOP_2CARDS);
+
+  bool is_below_straight = false;
+  bool is_below_flush = false;
+  auto opponent_sum_0_ref = std::ref(opponent_sum_0);
+  auto opponent_sum_1_ref = std::ref(opponent_sum_1);
+  auto opponent_sum_2_ref = std::ref(opponent_sum_2);
 
   // hero loses
   for (unsigned i = hero_hands_sorted.size() - 2; i > 0; --i) {
     const auto& hero_hand = hero_hands_sorted[i];
     const hand_t hero_index = hero_hand & ((1 << 16) - 1);
-    const int hero_strength = hero_hand >> 16;
+    const auto hero_strength = hero_hand >> 16;
 
     while (true) {
       const auto& opponent_hand = opponent_hands_sorted[j];
-      const int opponent_strength = opponent_hand >> 16;
+      const auto opponent_strength = (opponent_hand >> 16) & STRENGTH_MASK;
 
       if (hero_strength >= opponent_strength) {
         break;
       }
 
+      if (draw_coefficient > 0) {
+        if (!is_below_flush && opponent_strength < WEAKEST_FLUSH) {
+          is_below_flush = true;
+          opponent_sum_0_ref = std::ref(opponent_sum_0_fd);
+          opponent_sum_1_ref = std::ref(opponent_sum_1_fd);
+          opponent_sum_2_ref = std::ref(opponent_sum_2_fd);
+        }
+
+        if (!is_below_straight && opponent_strength < WEAKEST_STRAIGHT) {
+          is_below_straight = true;
+          opponent_sum_0_ref = std::ref(opponent_sum_0_sd);
+          opponent_sum_1_ref = std::ref(opponent_sum_1_sd);
+          opponent_sum_2_ref = std::ref(opponent_sum_2_sd);
+        }
+      }
+
       const hand_t opponent_index = opponent_hand & ((1 << 16) - 1);
-      const auto& opponent_cards = opponent_hands[opponent_index].cards;
-      const auto& subs = subhand_indices[opponent_index];
       const double prob = opponent_range.range[opponent_index];
 
-      opponent_sum_0 += prob;
-      opponent_sum_1[opponent_cards[0]] += prob;
-      opponent_sum_1[opponent_cards[1]] += prob;
-      opponent_sum_1[opponent_cards[2]] += prob;
-      opponent_sum_2[subs[0]] += prob;
-      opponent_sum_2[subs[1]] += prob;
-      opponent_sum_2[subs[2]] += prob;
+      if (prob == 0) {
+        --j;
+        continue;
+      }
+
+      const auto& opponent_cards = opponent_hands[opponent_index].cards;
+      const auto& subs = subhand_indices[opponent_index];
+
+      opponent_sum_0_ref += prob;
+      opponent_sum_1_ref.get()[opponent_cards[0]] += prob;
+      opponent_sum_1_ref.get()[opponent_cards[1]] += prob;
+      opponent_sum_1_ref.get()[opponent_cards[2]] += prob;
+      opponent_sum_2_ref.get()[subs[0]] += prob;
+      opponent_sum_2_ref.get()[subs[1]] += prob;
+      opponent_sum_2_ref.get()[subs[2]] += prob;
 
       --j;
     }
 
     const auto& hero_cards = hero_hands[hero_index].cards;
-    const double sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
-                       opponent_sum_1[hero_cards[1]] + opponent_sum_2[hero_index];
+    double sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] - opponent_sum_1[hero_cards[1]] +
+                 opponent_sum_2[hero_index];
+
+    if (draw_coefficient > 0) {
+      if (is_below_flush) {
+        double weight = 1 - ((hero_strength & FLUSH_DRAW_BIT) ? flush_draw_weight : 0);
+        sum += (opponent_sum_0_fd - opponent_sum_1_fd[hero_cards[0]] -
+                opponent_sum_1_fd[hero_cards[1]] - opponent_sum_1_fd[hero_cards[2]]) *
+               weight;
+
+        if (is_below_straight) {
+          const auto num_sd = hero_strength & STRAIGHT_DRAW_MASK;
+          weight *= (1 - straight_draw_coefficient * num_sd);
+          sum += (opponent_sum_0_sd - opponent_sum_1_sd[hero_cards[0]] -
+                  opponent_sum_1_sd[hero_cards[1]] + opponent_sum_2_sd[hero_index]) *
+                 weight;
+        }
+      }
+    }
+
     cfvs[hero_index] -= sum * payoff;
   }
 
@@ -408,33 +533,105 @@ static void compute_cfvs_showdown_3_vs_2(const Game& game, const Range& opponent
   const auto& opponent_hands = game.hands(NumCards::Two);
   const auto& subhand_indices = game.subhand_indices();
 
+  double draw_coefficient = 0;
+  if (board_cards.size() == 3) {
+    draw_coefficient = 1.5 / (MAX_DECK_SIZE - 3);
+  } else if (board_cards.size() == 4) {
+    draw_coefficient = 1.0 / (MAX_DECK_SIZE - 4);
+  }
+
+  const double straight_draw_coefficient = draw_coefficient * 4;
+  const double flush_draw_weight = draw_coefficient * 9;
+
   unsigned j = 1;
   double opponent_sum_0 = 0;
-  std::vector<double> opponent_sum_1(MAX_DECK_SIZE);
+  double opponent_sum_0_sd = 0;
+  double opponent_sum_0_fd = 0;
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1 = {};
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1_sd = {};
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1_fd = {};
   std::vector<double> opponent_sum_2(NUM_HANDS_POSTFLOP_2CARDS);
+  std::vector<double> opponent_sum_2_sd(NUM_HANDS_POSTFLOP_2CARDS);
+  std::vector<double> opponent_sum_2_fd(NUM_HANDS_POSTFLOP_2CARDS);
 
   // hero wins
   for (unsigned i = 1; i < hero_hands_sorted.size() - 1; ++i) {
     const auto& hero_hand = hero_hands_sorted[i];
     const hand_t hero_index = hero_hand & ((1 << 16) - 1);
-    const int hero_strength = hero_hand >> 16;
+    const auto hero_strength = (hero_hand >> 16) & STRENGTH_MASK;
+
+    if (draw_coefficient > 0) {
+      // merge straight draws
+      if (hero_strength > WEAKEST_STRAIGHT && opponent_sum_0_sd > 0) {
+        opponent_sum_0 += opponent_sum_0_sd;
+        opponent_sum_0_sd = 0;
+        for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
+          opponent_sum_1[card] += opponent_sum_1_sd[card];
+        }
+        for (hand_t hand = 0; hand < NUM_HANDS_POSTFLOP_2CARDS; ++hand) {
+          opponent_sum_2[hand] += opponent_sum_2_sd[hand];
+        }
+      }
+
+      // merge flush draws
+      if (hero_strength > WEAKEST_FLUSH && opponent_sum_0_fd > 0) {
+        opponent_sum_0 += opponent_sum_0_fd;
+        opponent_sum_0_fd = 0;
+        for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
+          opponent_sum_1[card] += opponent_sum_1_fd[card];
+        }
+        for (hand_t hand = 0; hand < NUM_HANDS_POSTFLOP_2CARDS; ++hand) {
+          opponent_sum_2[hand] += opponent_sum_2_fd[hand];
+        }
+      }
+    }
 
     while (true) {
       const auto& opponent_hand = opponent_hands_sorted[j];
-      const int opponent_strength = opponent_hand >> 16;
+      const auto opponent_strength = opponent_hand >> 16;
 
       if (hero_strength <= opponent_strength) {
         break;
       }
 
       const hand_t opponent_index = opponent_hand & ((1 << 16) - 1);
-      const auto& opponent_cards = opponent_hands[opponent_index].cards;
       const double prob = opponent_range.range[opponent_index];
 
-      opponent_sum_0 += prob;
-      opponent_sum_1[opponent_cards[0]] += prob;
-      opponent_sum_1[opponent_cards[1]] += prob;
-      opponent_sum_2[opponent_index] += prob;
+      if (prob == 0) {
+        ++j;
+        continue;
+      }
+
+      double weight = 1;
+      const auto& opponent_cards = opponent_hands[opponent_index].cards;
+
+      if (draw_coefficient > 0) {
+        if (opponent_strength & FLUSH_DRAW_BIT) {
+          const double value = prob * flush_draw_weight;
+          opponent_sum_0_fd += value;
+          opponent_sum_1_fd[opponent_cards[0]] += value;
+          opponent_sum_1_fd[opponent_cards[1]] += value;
+          opponent_sum_2_fd[opponent_index] += value;
+          weight -= flush_draw_weight;
+        }
+
+        const auto num_sd = opponent_strength & STRAIGHT_DRAW_MASK;
+        if (num_sd > 0) {
+          const double straight_draw_weight = weight * straight_draw_coefficient * num_sd;
+          const double value = prob * straight_draw_weight;
+          opponent_sum_0_sd += value;
+          opponent_sum_1_sd[opponent_cards[0]] += value;
+          opponent_sum_1_sd[opponent_cards[1]] += value;
+          opponent_sum_2_sd[opponent_index] += value;
+          weight -= straight_draw_weight;
+        }
+      }
+
+      const double value = prob * weight;
+      opponent_sum_0 += value;
+      opponent_sum_1[opponent_cards[0]] += value;
+      opponent_sum_1[opponent_cards[1]] += value;
+      opponent_sum_2[opponent_index] += value;
 
       ++j;
     }
@@ -457,36 +654,83 @@ static void compute_cfvs_showdown_3_vs_2(const Game& game, const Range& opponent
 
   j = opponent_hands_sorted.size() - 2;
   opponent_sum_0 = 0;
+  opponent_sum_0_sd = 0;
+  opponent_sum_0_fd = 0;
   std::fill(opponent_sum_1.begin(), opponent_sum_1.end(), 0);
+  std::fill(opponent_sum_1_sd.begin(), opponent_sum_1_sd.end(), 0);
+  std::fill(opponent_sum_1_fd.begin(), opponent_sum_1_fd.end(), 0);
+
+  bool is_below_straight = false;
+  bool is_below_flush = false;
+  auto opponent_sum_0_ref = std::ref(opponent_sum_0);
+  auto opponent_sum_1_ref = std::ref(opponent_sum_1);
 
   // hero loses
   for (unsigned i = hero_hands_sorted.size() - 2; i > 0; --i) {
     const auto& hero_hand = hero_hands_sorted[i];
     const hand_t hero_index = hero_hand & ((1 << 16) - 1);
-    const int hero_strength = hero_hand >> 16;
+    const auto hero_strength = hero_hand >> 16;
 
     while (true) {
       const auto& opponent_hand = opponent_hands_sorted[j];
-      const int opponent_strength = opponent_hand >> 16;
+      const auto opponent_strength = (opponent_hand >> 16) & STRENGTH_MASK;
 
       if (hero_strength >= opponent_strength) {
         break;
       }
 
+      if (draw_coefficient > 0) {
+        if (!is_below_flush && opponent_strength < WEAKEST_FLUSH) {
+          is_below_flush = true;
+          opponent_sum_0_ref = std::ref(opponent_sum_0_fd);
+          opponent_sum_1_ref = std::ref(opponent_sum_1_fd);
+        }
+
+        if (!is_below_straight && opponent_strength < WEAKEST_STRAIGHT) {
+          is_below_straight = true;
+          opponent_sum_0_ref = std::ref(opponent_sum_0_sd);
+          opponent_sum_1_ref = std::ref(opponent_sum_1_sd);
+        }
+      }
+
       const hand_t opponent_index = opponent_hand & ((1 << 16) - 1);
-      const auto& opponent_cards = opponent_hands[opponent_index].cards;
       const double prob = opponent_range.range[opponent_index];
 
-      opponent_sum_0 += prob;
-      opponent_sum_1[opponent_cards[0]] += prob;
-      opponent_sum_1[opponent_cards[1]] += prob;
+      if (prob == 0) {
+        --j;
+        continue;
+      }
+
+      const auto& opponent_cards = opponent_hands[opponent_index].cards;
+
+      opponent_sum_0_ref += prob;
+      opponent_sum_1_ref.get()[opponent_cards[0]] += prob;
+      opponent_sum_1_ref.get()[opponent_cards[1]] += prob;
 
       --j;
     }
 
     const auto& hero_cards = hero_hands[hero_index].cards;
-    const double sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
-                       opponent_sum_1[hero_cards[1]] - opponent_sum_1[hero_cards[2]];
+    double sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] - opponent_sum_1[hero_cards[1]] -
+                 opponent_sum_1[hero_cards[2]];
+
+    if (draw_coefficient > 0) {
+      if (is_below_flush) {
+        double weight = 1 - ((hero_strength & FLUSH_DRAW_BIT) ? flush_draw_weight : 0);
+        sum += (opponent_sum_0_fd - opponent_sum_1_fd[hero_cards[0]] -
+                opponent_sum_1_fd[hero_cards[1]] - opponent_sum_1_fd[hero_cards[2]]) *
+               weight;
+
+        if (is_below_straight) {
+          const auto num_sd = hero_strength & STRAIGHT_DRAW_MASK;
+          weight *= (1 - straight_draw_coefficient * num_sd);
+          sum += (opponent_sum_0_sd - opponent_sum_1_sd[hero_cards[0]] -
+                  opponent_sum_1_sd[hero_cards[1]] - opponent_sum_1_sd[hero_cards[2]]) *
+                 weight;
+        }
+      }
+    }
+
     cfvs[hero_index] -= sum * payoff;
   }
 
@@ -522,37 +766,115 @@ static void compute_cfvs_showdown_3_vs_3(const Game& game, const Range& opponent
   const auto& hands = game.hands(NumCards::Three);
   const auto& subhand_indices = game.subhand_indices();
 
+  double draw_coefficient = 0;
+  if (board_cards.size() == 3) {
+    draw_coefficient = 1.5 / (MAX_DECK_SIZE - 3);
+  } else if (board_cards.size() == 4) {
+    draw_coefficient = 1.0 / (MAX_DECK_SIZE - 4);
+  }
+
+  const double straight_draw_coefficient = draw_coefficient * 4;
+  const double flush_draw_weight = draw_coefficient * 9;
+
   unsigned j = 1;
   double opponent_sum_0 = 0;
-  std::vector<double> opponent_sum_1(MAX_DECK_SIZE);
+  double opponent_sum_0_sd = 0;
+  double opponent_sum_0_fd = 0;
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1 = {};
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1_sd = {};
+  std::array<double, MAX_DECK_SIZE> opponent_sum_1_fd = {};
   std::vector<double> opponent_sum_2(NUM_HANDS_POSTFLOP_2CARDS);
+  std::vector<double> opponent_sum_2_sd(NUM_HANDS_POSTFLOP_2CARDS);
+  std::vector<double> opponent_sum_2_fd(NUM_HANDS_POSTFLOP_2CARDS);
 
   // hero wins
   for (unsigned i = 1; i < hands_sorted.size() - 1; ++i) {
     const auto& hero_hand = hands_sorted[i];
     const hand_t hero_index = hero_hand & ((1 << 16) - 1);
-    const int hero_strength = hero_hand >> 16;
+    const auto hero_strength = (hero_hand >> 16) & STRENGTH_MASK;
+
+    if (draw_coefficient > 0) {
+      // merge straight draws
+      if (hero_strength > WEAKEST_STRAIGHT && opponent_sum_0_sd > 0) {
+        opponent_sum_0 += opponent_sum_0_sd;
+        opponent_sum_0_sd = 0;
+        for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
+          opponent_sum_1[card] += opponent_sum_1_sd[card];
+        }
+        for (hand_t hand = 0; hand < NUM_HANDS_POSTFLOP_2CARDS; ++hand) {
+          opponent_sum_2[hand] += opponent_sum_2_sd[hand];
+        }
+      }
+
+      // merge flush draws
+      if (hero_strength > WEAKEST_FLUSH && opponent_sum_0_fd > 0) {
+        opponent_sum_0 += opponent_sum_0_fd;
+        opponent_sum_0_fd = 0;
+        for (card_t card = 0; card < MAX_DECK_SIZE; ++card) {
+          opponent_sum_1[card] += opponent_sum_1_fd[card];
+        }
+        for (hand_t hand = 0; hand < NUM_HANDS_POSTFLOP_2CARDS; ++hand) {
+          opponent_sum_2[hand] += opponent_sum_2_fd[hand];
+        }
+      }
+    }
 
     while (true) {
       const auto& opponent_hand = hands_sorted[j];
-      const int opponent_strength = opponent_hand >> 16;
+      const auto opponent_strength = opponent_hand >> 16;
 
       if (hero_strength <= opponent_strength) {
         break;
       }
 
       const hand_t opponent_index = opponent_hand & ((1 << 16) - 1);
-      const auto& opponent_cards = hands[opponent_index].cards;
-      const auto& subs = subhand_indices[opponent_index];
       const double prob = opponent_range.range[opponent_index];
 
-      opponent_sum_0 += prob;
-      opponent_sum_1[opponent_cards[0]] += prob;
-      opponent_sum_1[opponent_cards[1]] += prob;
-      opponent_sum_1[opponent_cards[2]] += prob;
-      opponent_sum_2[subs[0]] += prob;
-      opponent_sum_2[subs[1]] += prob;
-      opponent_sum_2[subs[2]] += prob;
+      if (prob == 0) {
+        ++j;
+        continue;
+      }
+
+      double weight = 1;
+      const auto& opponent_cards = hands[opponent_index].cards;
+      const auto& subs = subhand_indices[opponent_index];
+
+      if (draw_coefficient > 0) {
+        if (opponent_strength & FLUSH_DRAW_BIT) {
+          const double value = prob * flush_draw_weight;
+          opponent_sum_0_fd += value;
+          opponent_sum_1_fd[opponent_cards[0]] += value;
+          opponent_sum_1_fd[opponent_cards[1]] += value;
+          opponent_sum_1_fd[opponent_cards[2]] += value;
+          opponent_sum_2_fd[subs[0]] += value;
+          opponent_sum_2_fd[subs[1]] += value;
+          opponent_sum_2_fd[subs[2]] += value;
+          weight -= flush_draw_weight;
+        }
+
+        const auto num_sd = opponent_strength & STRAIGHT_DRAW_MASK;
+        if (num_sd > 0) {
+          const double straight_draw_weight = weight * straight_draw_coefficient * num_sd;
+          const double value = prob * straight_draw_weight;
+          opponent_sum_0_sd += value;
+          opponent_sum_1_sd[opponent_cards[0]] += value;
+          opponent_sum_1_sd[opponent_cards[1]] += value;
+          opponent_sum_1_sd[opponent_cards[2]] += value;
+          opponent_sum_2_sd[subs[0]] += value;
+          opponent_sum_2_sd[subs[1]] += value;
+          opponent_sum_2_sd[subs[2]] += value;
+          weight -= straight_draw_weight;
+        }
+      }
+
+      const double value = prob * weight;
+      opponent_sum_0 += value;
+      opponent_sum_1[opponent_cards[0]] += value;
+      opponent_sum_1[opponent_cards[1]] += value;
+      opponent_sum_1[opponent_cards[2]] += value;
+      opponent_sum_2[subs[0]] += value;
+      opponent_sum_2[subs[1]] += value;
+      opponent_sum_2[subs[2]] += value;
 
       ++j;
     }
@@ -567,44 +889,101 @@ static void compute_cfvs_showdown_3_vs_3(const Game& game, const Range& opponent
 
   j = hands_sorted.size() - 2;
   opponent_sum_0 = 0;
+  opponent_sum_0_sd = 0;
+  opponent_sum_0_fd = 0;
   std::fill(opponent_sum_1.begin(), opponent_sum_1.end(), 0);
+  std::fill(opponent_sum_1_sd.begin(), opponent_sum_1_sd.end(), 0);
+  std::fill(opponent_sum_1_fd.begin(), opponent_sum_1_fd.end(), 0);
   std::fill(opponent_sum_2.begin(), opponent_sum_2.end(), 0);
+  std::fill(opponent_sum_2_sd.begin(), opponent_sum_2_sd.end(), 0);
+  std::fill(opponent_sum_2_fd.begin(), opponent_sum_2_fd.end(), 0);
+
+  bool is_below_straight = false;
+  bool is_below_flush = false;
+  auto opponent_sum_0_ref = std::ref(opponent_sum_0);
+  auto opponent_sum_1_ref = std::ref(opponent_sum_1);
+  auto opponent_sum_2_ref = std::ref(opponent_sum_2);
 
   // hero loses
   for (unsigned i = hands_sorted.size() - 2; i > 0; --i) {
     const auto& hero_hand = hands_sorted[i];
     const hand_t hero_index = hero_hand & ((1 << 16) - 1);
-    const int hero_strength = hero_hand >> 16;
+    const auto hero_strength = hero_hand >> 16;
 
     while (true) {
       const auto& opponent_hand = hands_sorted[j];
-      const int opponent_strength = opponent_hand >> 16;
+      const auto opponent_strength = (opponent_hand >> 16) & STRENGTH_MASK;
 
       if (hero_strength >= opponent_strength) {
         break;
       }
 
+      if (draw_coefficient > 0) {
+        if (!is_below_flush && opponent_strength < WEAKEST_FLUSH) {
+          is_below_flush = true;
+          opponent_sum_0_ref = std::ref(opponent_sum_0_fd);
+          opponent_sum_1_ref = std::ref(opponent_sum_1_fd);
+          opponent_sum_2_ref = std::ref(opponent_sum_2_fd);
+        }
+
+        if (!is_below_straight && opponent_strength < WEAKEST_STRAIGHT) {
+          is_below_straight = true;
+          opponent_sum_0_ref = std::ref(opponent_sum_0_sd);
+          opponent_sum_1_ref = std::ref(opponent_sum_1_sd);
+          opponent_sum_2_ref = std::ref(opponent_sum_2_sd);
+        }
+      }
+
       const hand_t opponent_index = opponent_hand & ((1 << 16) - 1);
-      const auto& opponent_cards = hands[opponent_index].cards;
-      const auto& subs = subhand_indices[opponent_index];
       const double prob = opponent_range.range[opponent_index];
 
-      opponent_sum_0 += prob;
-      opponent_sum_1[opponent_cards[0]] += prob;
-      opponent_sum_1[opponent_cards[1]] += prob;
-      opponent_sum_1[opponent_cards[2]] += prob;
-      opponent_sum_2[subs[0]] += prob;
-      opponent_sum_2[subs[1]] += prob;
-      opponent_sum_2[subs[2]] += prob;
+      if (prob == 0) {
+        --j;
+        continue;
+      }
+
+      const auto& opponent_cards = hands[opponent_index].cards;
+      const auto& subs = subhand_indices[opponent_index];
+
+      opponent_sum_0_ref += prob;
+      opponent_sum_1_ref.get()[opponent_cards[0]] += prob;
+      opponent_sum_1_ref.get()[opponent_cards[1]] += prob;
+      opponent_sum_1_ref.get()[opponent_cards[2]] += prob;
+      opponent_sum_2_ref.get()[subs[0]] += prob;
+      opponent_sum_2_ref.get()[subs[1]] += prob;
+      opponent_sum_2_ref.get()[subs[2]] += prob;
 
       --j;
     }
 
     const auto& hero_cards = hands[hero_index].cards;
     const auto& subs = subhand_indices[hero_index];
-    const double sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] -
-                       opponent_sum_1[hero_cards[1]] - opponent_sum_1[hero_cards[2]] +
-                       opponent_sum_2[subs[0]] + opponent_sum_2[subs[1]] + opponent_sum_2[subs[2]];
+
+    double sum = opponent_sum_0 - opponent_sum_1[hero_cards[0]] - opponent_sum_1[hero_cards[1]] -
+                 opponent_sum_1[hero_cards[2]] + opponent_sum_2[subs[0]] + opponent_sum_2[subs[1]] +
+                 opponent_sum_2[subs[2]];
+
+    if (draw_coefficient > 0) {
+      if (is_below_flush) {
+        double weight = 1 - ((hero_strength & FLUSH_DRAW_BIT) ? flush_draw_weight : 0);
+        sum +=
+            (opponent_sum_0_fd - opponent_sum_1_fd[hero_cards[0]] -
+             opponent_sum_1_fd[hero_cards[1]] - opponent_sum_1_fd[hero_cards[2]] +
+             opponent_sum_2_fd[subs[0]] + opponent_sum_2_fd[subs[1]] + opponent_sum_2_fd[subs[2]]) *
+            weight;
+
+        if (is_below_straight) {
+          const auto num_sd = hero_strength & STRAIGHT_DRAW_MASK;
+          weight *= (1 - straight_draw_coefficient * num_sd);
+          sum += (opponent_sum_0_sd - opponent_sum_1_sd[hero_cards[0]] -
+                  opponent_sum_1_sd[hero_cards[1]] - opponent_sum_1_sd[hero_cards[2]] +
+                  opponent_sum_2_sd[subs[0]] + opponent_sum_2_sd[subs[1]] +
+                  opponent_sum_2_sd[subs[2]]) *
+                 weight;
+        }
+      }
+    }
+
     cfvs[hero_index] -= sum * payoff;
   }
 

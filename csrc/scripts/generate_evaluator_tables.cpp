@@ -1,4 +1,4 @@
-#include "../src/hand_category.h"
+#include "../src/hand_strength.h"
 
 #include <algorithm>
 #include <array>
@@ -8,13 +8,14 @@
 #include <map>
 #include <set>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
 using namespace pokerbot;
 
 constexpr unsigned num_ranks = 13;
+constexpr unsigned min_num_cards = 5;
+constexpr unsigned max_num_cards = 8;
 
 using rank_key_t = int32_t;
 
@@ -66,18 +67,37 @@ unsigned find_straight(unsigned rank_bitset) {
   }
 }
 
+/// Returns the number of ranks that can complete a straight draw.
+unsigned count_straight_draw(unsigned rank_bitset) {
+  if (find_straight(rank_bitset) != 0) {
+    return 0;
+  }
+
+  unsigned num_outs = 0;
+  for (unsigned rank = 0; rank < num_ranks; ++rank) {
+    num_outs += find_straight(rank_bitset | (1 << rank)) != 0;
+  }
+
+  if (num_outs > 3) {
+    throw std::runtime_error("fatal error: more than 12 straight outs are not supported");
+  }
+
+  return num_outs;
+}
+
 /// Returns a 32-bit value representing the strength of a hand. Higher value is better.
-unsigned make_strength_value(HandCategory category, unsigned rank, unsigned kicker) {
-  return (static_cast<unsigned>(category) << 26) | (rank << 13) | kicker;
+unsigned make_strength_value(HandCategory category, unsigned rank, unsigned kicker,
+                             unsigned num_straight_draw = 0) {
+  return (static_cast<unsigned>(category) << 28) | (rank << 15) | (kicker << 2) | num_straight_draw;
 }
 
 /// Returns a hand category from a strength value.
-std::underlying_type_t<HandCategory> hand_category(unsigned strength) {
-  return strength >> 26;
+HandCategory hand_category(unsigned strength) {
+  return static_cast<HandCategory>(strength >> 28);
 }
 
 /// Returns the strength of a non-flush hand, given the number of cards of each rank.
-unsigned evaluate_nonflush(const std::array<uint8_t, num_ranks>& rank_counts) {
+unsigned evaluate_nonflush(const std::array<uint8_t, num_ranks>& rank_counts, unsigned num_cards) {
   unsigned rank_bitset = 0;
   std::array<unsigned, 5> rank_bitset_of_count = {};
 
@@ -106,23 +126,29 @@ unsigned evaluate_nonflush(const std::array<uint8_t, num_ranks>& rank_counts) {
   } else if (unsigned straight = find_straight(rank_bitset); straight != 0) {
     // Straight
     return make_strength_value(HandCategory::Straight, straight, 0);
-  } else if (rank_bitset_of_count[3] != 0) {
+  }
+
+  int num_straight_draw = num_cards == max_num_cards ? 0 : count_straight_draw(rank_bitset);
+
+  if (rank_bitset_of_count[3] != 0) {
     // Three of a kind
     unsigned kicker = keep_significant_n_bits(rank_bitset_of_count[1], 2);
-    return make_strength_value(HandCategory::ThreeOfAKind, rank_bitset_of_count[3], kicker);
+    return make_strength_value(HandCategory::ThreeOfAKind, rank_bitset_of_count[3], kicker,
+                               num_straight_draw);
   } else if (has_multiple_bits(rank_bitset_of_count[2])) {
     // Two pair
     unsigned pairs = keep_significant_n_bits(rank_bitset_of_count[2], 2);
     unsigned kicker = keep_significant_n_bits(rank_bitset ^ pairs, 1);
-    return make_strength_value(HandCategory::TwoPair, pairs, kicker);
+    return make_strength_value(HandCategory::TwoPair, pairs, kicker, num_straight_draw);
   } else if (rank_bitset_of_count[2] != 0) {
     // Pair
     unsigned kicker = keep_significant_n_bits(rank_bitset_of_count[1], 3);
-    return make_strength_value(HandCategory::Pair, rank_bitset_of_count[2], kicker);
+    return make_strength_value(HandCategory::Pair, rank_bitset_of_count[2], kicker,
+                               num_straight_draw);
   } else {
     // High card
     unsigned rank = keep_significant_n_bits(rank_bitset, 5);
-    return make_strength_value(HandCategory::HighCard, rank, 0);
+    return make_strength_value(HandCategory::HighCard, rank, 0, num_straight_draw);
   }
 }
 
@@ -141,18 +167,21 @@ unsigned evaluate_flush(unsigned rank_bitset) {
 /// Recursive function that enumerates all possible non-flush hands and stores their strength.
 void enumerate_nonflush_hands(std::array<uint8_t, num_ranks>& rank_counts,
                               std::map<rank_key_t, unsigned>& strength_map,
-                              std::set<unsigned>& seen_strengths, unsigned max_num_cards,
-                              unsigned current_rank = 0, unsigned current_num_cards = 0,
-                              rank_key_t rank_key = 0) {
+                              std::set<unsigned>& seen_strengths, unsigned current_rank = 0,
+                              unsigned current_num_cards = 0, rank_key_t rank_key = 0) {
   // termination case
   if (current_rank == num_ranks) {
+    if (current_num_cards < min_num_cards) {
+      return;
+    }
+
     if (strength_map.count(rank_key)) {
       std::cerr << "fatal error: `rank_bases` is not well-defined\n";
       std::cerr << "duplicate rank key: " << rank_key << std::endl;
       std::exit(EXIT_FAILURE);
     }
 
-    const auto strength = evaluate_nonflush(rank_counts);
+    const auto strength = evaluate_nonflush(rank_counts, current_num_cards);
     strength_map.emplace(rank_key, strength);
     seen_strengths.insert(strength);
     return;
@@ -162,15 +191,15 @@ void enumerate_nonflush_hands(std::array<uint8_t, num_ranks>& rank_counts,
   const unsigned max_count = std::min(max_num_cards - current_num_cards, 4u);
   for (unsigned count = 0; count <= max_count; ++count) {
     rank_counts[current_rank] = count;
-    enumerate_nonflush_hands(rank_counts, strength_map, seen_strengths, max_num_cards,
-                             current_rank + 1, current_num_cards + count,
+    enumerate_nonflush_hands(rank_counts, strength_map, seen_strengths, current_rank + 1,
+                             current_num_cards + count,
                              rank_key + rank_bases[current_rank] * count);
   }
 }
 
 /// Enumerates all possible flush hands and stores their strength.
 void enumerate_flush_hands(std::map<unsigned, unsigned>& strength_map,
-                           std::set<unsigned>& seen_strengths, unsigned max_num_cards) {
+                           std::set<unsigned>& seen_strengths) {
   constexpr unsigned end = 1 << num_ranks;
   for (unsigned num_cards = 5; num_cards <= max_num_cards; ++num_cards) {
     for (unsigned rank_bitset = (1 << num_cards) - 1; rank_bitset < end;
@@ -183,24 +212,39 @@ void enumerate_flush_hands(std::map<unsigned, unsigned>& strength_map,
 }
 
 /// Creates a strength conversion map from `unsigned` to `strength_t`.
-std::map<unsigned, strength_t> create_strength_map(const std::set<unsigned>& seen_strengths) {
+std::map<unsigned, strength_t> create_strength_map(const std::set<unsigned>& seen_strengths,
+                                                   strength_t& weakest_straight,
+                                                   strength_t& weakest_flush) {
   std::map<unsigned, strength_t> result;
 
-  strength_t current_category = 0;
-  strength_t current_rank = 0;
+  HandCategory current_category = HandCategory::HighCard;
+  unsigned current_strength = 0;
+  strength_t mapped_strength = 0;
 
   for (auto strength : seen_strengths) {
-    if (auto category = hand_category(strength); category != current_category) {
+    if (auto category = hand_category(strength); current_category != category) {
       current_category = category;
-      current_rank = 0;
+      if (category == HandCategory::Straight) {
+        weakest_straight = mapped_strength++ << 3;
+      }
+      if (category == HandCategory::Flush) {
+        weakest_flush = mapped_strength++ << 3;
+      }
     }
 
-    if (current_rank >= (1 << detail::HAND_CATEGORY_SHIFT)) {
-      std::cerr << "fatal error: `HAND_CATEGORY_SHIFT` is too small" << std::endl;
+    if (current_strength != (strength & ~3)) {
+      current_strength = strength & ~3;
+      ++mapped_strength;
+    }
+
+    if (mapped_strength >= 1 << 13) {
+      std::cerr << "fatal error: `strength_t` is not large enough to store all strengths"
+                << std::endl;
       std::exit(EXIT_FAILURE);
     }
 
-    result.emplace(strength, (current_category << detail::HAND_CATEGORY_SHIFT) | current_rank++);
+    const strength_t straight_draw_flag = strength & 3;
+    result.emplace(strength, (mapped_strength << 3) | straight_draw_flag);
   }
 
   return result;
@@ -312,22 +356,22 @@ std::tuple<std::vector<rank_key_t>, int, int> generate_offset_table(
 
 int main() {
   // [Usage]
-  // ./build/scripts/generate_evaluation_tables > csrc/src/poker_hand_tables.h
-
-  constexpr unsigned num_cards = 8;
+  // ./csrc/build/scripts/generate_evaluator_tables > csrc/src/poker_hand_tables.h
 
   std::set<unsigned> seen_strengths;
   std::map<rank_key_t, unsigned> nonflush_strength_map;
   std::map<unsigned, unsigned> flush_strength_map;
 
   std::array<uint8_t, num_ranks> rank_counts = {};
-  enumerate_flush_hands(flush_strength_map, seen_strengths, num_cards);
-  enumerate_nonflush_hands(rank_counts, nonflush_strength_map, seen_strengths, num_cards);
+  enumerate_flush_hands(flush_strength_map, seen_strengths);
+  enumerate_nonflush_hands(rank_counts, nonflush_strength_map, seen_strengths);
 
-  const auto strength_map = create_strength_map(seen_strengths);
+  strength_t weakest_straight = 0;
+  strength_t weakest_flush = 0;
+  const auto strength_map = create_strength_map(seen_strengths, weakest_straight, weakest_flush);
   const auto [offset_table, shift, table_size] = generate_offset_table(nonflush_strength_map);
 
-  std::vector<strength_t> flush_table((((1 << num_cards) - 1) << (num_ranks - num_cards)) + 1);
+  std::vector<strength_t> flush_table(flush_strength_map.rbegin()->first + 1);
   for (const auto& [rank_bitset, strength] : flush_strength_map) {
     flush_table[rank_bitset] = strength_map.at(strength);
   }
@@ -341,9 +385,12 @@ int main() {
   // generate code
   std::cout << "// This file is generated by scripts/generate_evaluator_tables.cpp\n\n";
   std::cout << "#pragma once\n\n";
-  std::cout << "#include \"hand_category.h\"\n\n";
+  std::cout << "#include \"hand_strength.h\"\n\n";
   std::cout << "#include <cstdint>\n\n";
-  std::cout << "namespace pokerbot::detail {\n\n";
+  std::cout << "namespace pokerbot {\n\n";
+  std::cout << "inline constexpr strength_t WEAKEST_STRAIGHT = " << weakest_straight << ";\n";
+  std::cout << "inline constexpr strength_t WEAKEST_FLUSH = " << weakest_flush << ";\n\n";
+  std::cout << "namespace detail {\n\n";
   std::cout << "using rank_key_t = int32_t;\n\n";
   std::cout << "inline constexpr unsigned RANK_KEY_OFFSET_SHIFT = " << shift << ";\n\n";
   std::cout << "inline constexpr rank_key_t RANK_BASES[" << num_ranks << "] = { ";
@@ -363,5 +410,6 @@ int main() {
   std::for_each(nonflush_table.cbegin(), nonflush_table.cend(),
                 [](auto strength) { std::cout << strength << ", "; });
   std::cout << "};\n\n";
-  std::cout << "}  // namespace pokerbot::detail\n";
+  std::cout << "}  // namespace detail\n\n";
+  std::cout << "}  // namespace pokerbot\n";
 }
