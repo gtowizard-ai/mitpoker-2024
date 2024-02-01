@@ -62,7 +62,12 @@ void CFR::compute_showdown_cfvs(const Range& traverser_range, const Range& oppon
                                 float payoff, std::vector<float>& cfvs) const {
   std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
   if (root_->round() == round::PREFLOP) {
-    compute_cfvs_preflop(opponent_range, payoff, cfvs);
+    // FIXME - Does this make sense?
+    if (payoff >= STARTING_STACK) {
+      compute_cfvs_preflop(opponent_range, payoff, cfvs, PREFLOP_3_CARDS_PAYOFFS);
+    } else {
+      compute_cfvs_preflop(opponent_range, payoff, cfvs, PREFLOP_2_CARDS_PAYOFFS);
+    }
   } else {
     compute_cfvs_showdown<float>(game_, traverser_range, opponent_range, root_->board_cards, cfvs,
                                  payoff, board_data_cache_);
