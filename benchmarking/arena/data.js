@@ -1,58 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706763654973,
+  "lastUpdate": 1706764125880,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "d8ca323dd561aba83ca806184346704864646823",
-          "message": "Update Opponent Range",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/53/commits/d8ca323dd561aba83ca806184346704864646823"
-        },
-        "date": 1706760270823,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 1.5435,
-            "unit": "bb/hand",
-            "range": 1.1924
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 55.926,
-            "unit": "bb/hand",
-            "range": 2.9321
-          },
-          {
-            "name": "Results vs. Uniform Random Bot",
-            "value": 10.3965,
-            "unit": "bb/hand",
-            "range": 2.2377
-          },
-          {
-            "name": "Results vs. Preflop All-in Bot",
-            "value": 4.933,
-            "unit": "bb/hand",
-            "range": 2.2851
-          },
-          {
-            "name": "Results vs. Ourselves",
-            "value": 1.0085,
-            "unit": "bb/hand",
-            "range": 1.8108
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -492,6 +442,60 @@ window.BENCHMARK_DATA = {
             "value": 2.3285,
             "unit": "bb/hand",
             "range": 1.9646
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "oinari17@gmail.com",
+            "name": "Wataru Inariba",
+            "username": "b-inary"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "84e4882abf7208465697fc145e433dceab07a47c",
+          "message": "Suppress warnings (#56)",
+          "timestamp": "2024-02-01T13:55:07+09:00",
+          "tree_id": "cf9a1a0ac812d4737dc5af6fcb8cb3d94e06e68f",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/commit/84e4882abf7208465697fc145e433dceab07a47c"
+        },
+        "date": 1706764125100,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 4.232,
+            "unit": "bb/hand",
+            "range": 1.3421
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 62.948,
+            "unit": "bb/hand",
+            "range": 3.0589
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 13.5125,
+            "unit": "bb/hand",
+            "range": 2.2899
+          },
+          {
+            "name": "Results vs. Preflop All-in Bot",
+            "value": 3.775,
+            "unit": "bb/hand",
+            "range": 2.3051
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": 1.1675,
+            "unit": "bb/hand",
+            "range": 1.8983
           }
         ]
       }
