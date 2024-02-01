@@ -18,7 +18,13 @@ TEST_F(AuctionTest, TestGetBid) {
   Hand hand("KsKd");
   int pot = 100;
   const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot);
-  ASSERT_EQ(bid, 37);
+  ASSERT_EQ(bid, 65);
+  pot = 798;
+  const auto bid_2 = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot);
+  ASSERT_EQ(bid_2, 1);
+  pot = -2;
+  const auto bid_3 = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot);
+  ASSERT_EQ(bid_3, 0);
 }
 
 TEST_F(AuctionTest, TestGetBidHighDrawingHand) {
@@ -30,7 +36,7 @@ TEST_F(AuctionTest, TestGetBidHighDrawingHand) {
   int pot = 100;
   const auto bid = auctioneer.get_bid(hero_range, villain_range, game_, board, hand, pot);
   // Bid higher because our hand really benefits from it
-  ASSERT_EQ(bid, 75);
+  ASSERT_EQ(bid, 134);
 }
 
 TEST_F(AuctionTest, TestReceiveBid) {
