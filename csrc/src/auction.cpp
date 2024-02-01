@@ -1,7 +1,5 @@
 #include "auction.h"
-#include <numeric>
 #include "definitions.h"
-#include "equity.h"
 #include "equity_third_card.h"
 #include "isomorphic_flop_encoder.h"
 
@@ -15,8 +13,9 @@ Auctioneer::Auctioneer() : hand_equities_third_card_(HandEquitiesThirdCard()) {
   v_pot_percentage_min_max[1] = -1;
 }
 
-int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
-                        const std::vector<card_t>& board, const Hand& hand, const int pot) {
+int Auctioneer::get_bid(const Range& /*hero_range*/, const Range& /*villain_range*/,
+                        const Game& /*game*/, const std::vector<card_t>& board, const Hand& hand,
+                        const int pot) {
   auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board);
   float board_eq_difference = -AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
   float hand_eq_difference =
@@ -25,10 +24,8 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
              hand_eq_difference, board_eq_difference);
 
   float equity_difference = std::max(board_eq_difference, hand_eq_difference);
-  float equity_bid = ((1 / (1 - equity_difference)) - 1) * pot;
 
   int abs_bid_diff = v_abs_bid_min_max[1] - v_abs_bid_min_max[0];
-  float rel_bid_diff = v_pot_percentage_min_max[1] - v_pot_percentage_min_max[0];
 
   //This is the sum of the geometric series of of form
   //x + x^2 + x^3..., which accounts for us getting the equity

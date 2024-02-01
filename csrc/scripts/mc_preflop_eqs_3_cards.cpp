@@ -1,8 +1,6 @@
 #include <chrono>
 #include <fstream>
 #include <random>
-#include "../src/equity.h"
-#include "../src/isomorphic_flop_encoder.h"
 #include "../src/poker_hand.h"
 #include "../src/preflop_equity.h"
 

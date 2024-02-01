@@ -1,6 +1,5 @@
 #include "auction.h"
 #include <gtest/gtest.h>
-#include "isomorphic_flop_encoder.h"
 
 using namespace pokerbot;
 
