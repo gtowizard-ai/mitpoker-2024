@@ -33,7 +33,8 @@ class CFR {
   explicit CFR(const Game& game);
 
   void solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state, unsigned player_id,
-             float time_budget_ms, unsigned max_num_iters = 1000);
+             float time_budget_ms, std::optional<Action> force_raise_root = std::nullopt,
+             unsigned max_num_iters = 1000);
 
   // Actions considered at the state
   const auto& legal_actions() const { return actions_; }
@@ -46,7 +47,7 @@ class CFR {
  private:
   void step(const std::array<Range, 2>& ranges);
 
-  void build_tree();
+  void build_tree(std::optional<Action> force_raise_root);
 
   [[nodiscard]] float get_linear_cfr_discount_factor() const;
 

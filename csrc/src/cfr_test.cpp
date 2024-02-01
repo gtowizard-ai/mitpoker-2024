@@ -27,6 +27,33 @@ TEST_F(CFRTest, TestNoErrorThreeVsThreeCards) {
   cfr.solve(ranges, round_state, 0, 10);
 }
 
+TEST_F(CFRTest, TestForceRaiseSizeRootNode) {
+  auto cfr = CFR(game_);
+
+  const auto board_cards = Card::to_vector("KcTd7h3s2c");
+  std::array<Range, 2> ranges{Range(), Range()};
+  ranges[0].update_on_board_cards(game_, board_cards);
+  ranges[0].to_3_cards_range(game_, board_cards);
+  ranges[1].update_on_board_cards(game_, board_cards);
+
+  std::array<std::string, 2> hands = {"2h2d2s", "8h8d"};
+
+  auto round_state = std::make_shared<RoundState>(BB_POS, false, EMPTY_BIDS, BLINDS,
+                                                  STARTING_STACKS, hands, board_cards, nullptr);
+
+  cfr.solve(ranges, round_state, 0, 10, Action{Action::Type::RAISE, 200});
+  const auto& actions = cfr.legal_actions();
+
+  bool found = false;
+  for (const auto& action : actions) {
+    if (action.type == Action::Type::RAISE && action.amount == 200) {
+      found = true;
+      break;
+    }
+  }
+  ASSERT_TRUE(found);
+}
+
 TEST_F(CFRTest, TestRiverNutAirToyGame) {
   // Test Classic Nuts+Air vs. Bluff catcher toy game.
   const auto board_cards = Card::to_vector("2c2d2h3c3d");
@@ -66,7 +93,8 @@ TEST_F(CFRTest, TestRiverNutAirToyGame) {
   auto round_state =
       std::make_shared<RoundState>(BB_POS, false, bids, bets, stacks, hands, board_cards, nullptr);
 
-  cfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), hero_id, 4000, 500);
+  cfr.solve(ranges, std::static_pointer_cast<const RoundState>(round_state), hero_id, 4000,
+            std::nullopt, 500);
   const auto& strategy = cfr.strategy();
 
   fmt::print("Board is {} \n", Card::to_string(board_cards));

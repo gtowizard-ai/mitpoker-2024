@@ -14,7 +14,7 @@ CFR::CFR(const Game& game) : game_(game), board_data_cache_(game) {
   }
 }
 
-void CFR::build_tree() {
+void CFR::build_tree(const std::optional<Action> force_raise_root) {
   actions_.clear();
   actions_.reserve(legal_actions().size() + 1);
 
@@ -33,16 +33,20 @@ void CFR::build_tree() {
   if (raise_is_legal) {
     // Prefer to go all-in when it's less than X * pot-sized-bet
     // Otherwise always choose a pot-sized-bet
-    const auto raise_bounds = root_->raise_bounds();
-    auto amount_call = std::max(root_->bets[0], root_->bets[1]);
-    auto pot_plus_call = root_->pot() + std::abs(root_->bets[1] - root_->bets[0]);
-    auto pot_sized_bet = amount_call + pot_plus_call;
-
-    if (raise_bounds[1] < 3 * pot_sized_bet) {
-      // All-in
-      actions_.emplace_back(Action::Type::RAISE, raise_bounds[1]);
+    if (force_raise_root.has_value() && force_raise_root->type == Action::Type::RAISE) {
+      actions_.emplace_back(*force_raise_root);
     } else {
-      actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
+      const auto raise_bounds = root_->raise_bounds();
+      auto amount_call = std::max(root_->bets[0], root_->bets[1]);
+      auto pot_plus_call = root_->pot() + std::abs(root_->bets[1] - root_->bets[0]);
+      auto pot_sized_bet = amount_call + pot_plus_call;
+
+      if (raise_bounds[1] < 3 * pot_sized_bet) {
+        // All-in
+        actions_.emplace_back(Action::Type::RAISE, raise_bounds[1]);
+      } else {
+        actions_.emplace_back(Action::Type::RAISE, pot_sized_bet);
+      }
     }
   }
 
@@ -278,7 +282,7 @@ void CFR::step(const std::array<Range, 2>& ranges) {
 
 void CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
                 const unsigned player_id, const float time_budget_ms,
-                const unsigned max_num_iters) {
+                const std::optional<Action> force_raise_root, const unsigned max_num_iters) {
   const auto start_time = std::chrono::high_resolution_clock::now();
   root_ = state;
   num_hands_ = {
@@ -293,7 +297,7 @@ void CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
   opponent_range_raise_call_ = ranges[1 - player_id_];
   opponent_range_raise_fold_ = ranges[1 - player_id_];
 
-  build_tree();
+  build_tree(force_raise_root);
 
   regrets_ = HandActionsValues(num_actions(), num_hands_[player_id_], 0);
   opponent_regrets_vs_bet_ = HandActionsValues(2, num_hands_[1 - player_id_], 0);
