@@ -1,4 +1,5 @@
 #pragma once
+#include <fmt/format.h>
 #include "definitions.h"
 
 namespace pokerbot {

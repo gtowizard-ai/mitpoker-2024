@@ -1,6 +1,5 @@
 #include <fstream>
 #include <iostream>
-#include <unordered_set>
 #include <vector>
 #include "../src/equity.h"
 #include "../src/game.h"
