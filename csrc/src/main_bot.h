@@ -33,8 +33,11 @@ class MainBot {
   CFR cfr_;
   TimeManager time_manager_;
   mutable std::mt19937 gen_;
-  std::array<std::optional<HandActionsValues>, 2> preflop_sb_cached_strategy_;
-  std::array<std::optional<std::vector<Action>>, 2> preflop_sb_cached_legal_actions_;
+  std::optional<HandActionsValues> hero_sb_cached_strategy_;
+  std::optional<HandActionsValues> opp_sb_cached_strategy_;
+  std::optional<std::vector<Action>> hero_sb_cached_legal_actions_;
+  std::optional<std::vector<Action>> opp_sb_cached_legal_actions_;
+
   // We update our opponent's range with a small weight of uniform random range
   // As a regularization since our estimated ranges are not that great
   static constexpr float WEIGHT_UNIFORM_RANDOM_RANGE_OPPONENT = 0.05;

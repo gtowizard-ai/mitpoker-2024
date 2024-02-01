@@ -174,29 +174,29 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
   if (state->round() == round::PREFLOP && player == SB_POS &&
       state->bets[1 - player] == BIG_BLIND) {
     bool action_in_cache = is_hero_node;
-    if (sampled_action.has_value() && preflop_sb_cached_legal_actions_[player].has_value()) {
-      for (const auto& action : *preflop_sb_cached_legal_actions_[player]) {
+    auto& sb_legal_actions =
+        is_hero_node ? hero_sb_cached_legal_actions_ : opp_sb_cached_legal_actions_;
+    auto& sb_strategy = is_hero_node ? hero_sb_cached_strategy_ : opp_sb_cached_strategy_;
+    if (sampled_action.has_value() && sb_legal_actions.has_value()) {
+      for (const auto& action : *sb_legal_actions) {
         if (action.type == sampled_action->type && action.amount == sampled_action->amount) {
           action_in_cache = true;
         }
       }
     }
-    if (!action_in_cache || !preflop_sb_cached_strategy_[player].has_value() ||
-        !preflop_sb_cached_legal_actions_[player].has_value()) {
+    if (!action_in_cache || !sb_legal_actions.has_value() || !sb_strategy.has_value()) {
       // Solve with a larger time limit (computed once)
       float time_allowed = is_hero_node ? 100 : 15;
       fmt::print("is_hero={} - Solving root preflop node for {}ms \n", is_hero_node, time_allowed);
-      cfr_.solve(ranges_, state, player, time_allowed, sampled_action, 1000);
-      preflop_sb_cached_strategy_[player] = cfr_.strategy();
-      preflop_sb_cached_legal_actions_[player] = cfr_.legal_actions();
+      cfr_.solve(ranges_, state, player, time_allowed, sampled_action, 400);
+      sb_strategy = cfr_.strategy();
+      sb_legal_actions = cfr_.legal_actions();
     }
     if (is_hero_node) {
-      sampled_action = sample_action(game_info, *state, *player_hand, player,
-                                     *preflop_sb_cached_strategy_[player],
-                                     *preflop_sb_cached_legal_actions_[player]);
+      sampled_action =
+          sample_action(game_info, *state, *player_hand, player, *sb_strategy, *sb_legal_actions);
     }
-    update_range(player, *preflop_sb_cached_strategy_[player],
-                 *preflop_sb_cached_legal_actions_[player], *sampled_action, is_hero_node);
+    update_range(player, *sb_strategy, *sb_legal_actions, *sampled_action, is_hero_node);
 
   } else {
     // set time budget

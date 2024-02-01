@@ -7,7 +7,7 @@ import config as config
 from engine import Game, Player, BIG_BLIND
 
 
-NUM_HANDS = 1000
+NUM_HANDS = 100
 
 
 @dataclass
@@ -140,10 +140,10 @@ def run_match_vs_main_bot():
 
 def main():
     results = [
-        run_match_vs_check_call_bot(),
-        run_match_vs_bid_everything_bot(),
-        run_match_vs_uniform_random_bot(),
-        run_match_vs_preflop_all_in_bot(),
+        # run_match_vs_check_call_bot(),
+        # run_match_vs_bid_everything_bot(),
+        # run_match_vs_uniform_random_bot(),
+        # run_match_vs_preflop_all_in_bot(),
         run_match_vs_main_bot(),
     ]
 
