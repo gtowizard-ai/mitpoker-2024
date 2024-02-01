@@ -33,14 +33,22 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
   //This is the sum of the geometric series of of form
   //x + x^2 + x^3..., which accounts for us getting the equity
   //back from our bid itself
+  int stack = STARTING_STACK - (pot / 2);
   float equity_with_bid = ((1 / (1 - equity_difference)) - 1) * pot;
-  int default_bid = std::ceil(equity_with_bid) + 1;
+  int default_bid;
+  if ((stack - pot) < 0) {
+    default_bid = std::ceil(equity_with_bid) + 1;
+  } else {
+    default_bid = std::ceil(equity_with_bid * BID_MULTIPLIER) + 1;
+  }
+  if (default_bid > stack) {
+    return stack;
+  }
 
   if (SIGNIFICANT_BID_COUNT > bid_count) {
     return default_bid;
   }
   if (v_is_excessive_bidder) {
-    int stack = STARTING_STACK - (pot / 2);
     return stack - REASONABLE_DIST_FROM_MAX;
   }
   if (std::abs(abs_bid_diff) < ABS_BIDDING_EPSILON) {
@@ -52,6 +60,9 @@ int Auctioneer::get_bid(const Range& hero_range, const Range& villain_range, con
     std::vector<int> bids = {default_bid,
                              static_cast<int>(std::floor(v_pot_percentage_min_max[0] * pot))};
     return *std::max_element(bids.begin(), bids.end());
+  }
+  if (default_bid < 0) {
+    return 0;
   }
   return default_bid;
 }
