@@ -63,11 +63,7 @@ struct Hand {
 
   uint_fast8_t num_cards() const { return cards[2] == MAX_DECK_SIZE ? 2 : 3; }
 
-  card_t high_card() const { return cards[num_cards() - 1]; }
-
-  card_t low_card() const { return cards[0]; }
-
-  // Mapping from {card1, card2} to index over all combos
+  // Mapping from cards to index over all combos
   // (e.g. from [0, 1326) when two cards, or [0, 22100) with 3 cards
   hand_t index() const {
     if (num_cards() == 2) {
