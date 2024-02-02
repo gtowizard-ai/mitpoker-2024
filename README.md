@@ -41,6 +41,8 @@ Just considering equity is not enough. We also need to consider that the player 
 
 We elected to represent this overrealization by multiplying our preferred bid by a constant multiple in all spots (this could be made to be more granular - for example the in position player is likely going to overrealize more than the out of position player). In order to represent overrealization - we ran monte carlo simulations to compare the outcomes of different bid multipliers. Bots that won the card for 1.8 times the equity based bid outperformed all bots that won the auction for values between 0.5-2.5. 
 
+So in short our bidding approach was to choose a bid based on the equity of our hand against a random range - then scale that bid to account for the fact that the player with 3 cards will likely overrealize their equity. 
+
 ### Arena Benchmarks
 
 Find our [benchmarks here](https://github.com/ruse-ai/mitpokerbots-2024/tree/gh-pages)
