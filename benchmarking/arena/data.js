@@ -1,58 +1,8 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1706896943946,
+  "lastUpdate": 1706897755391,
   "repoUrl": "https://github.com/ruse-ai/mitpokerbots-2024",
   "entries": {
     "Arena Benchmark": [
-      {
-        "commit": {
-          "author": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "committer": {
-            "name": "ruse-ai",
-            "username": "ruse-ai"
-          },
-          "id": "997cdd11dcc94c6c21f6e9f8abde08e335bffe8d",
-          "message": "Update Opponent Range",
-          "timestamp": "2024-01-24T02:28:03Z",
-          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/53/commits/997cdd11dcc94c6c21f6e9f8abde08e335bffe8d"
-        },
-        "date": 1706762915009,
-        "tool": "customBiggerIsBetter",
-        "benches": [
-          {
-            "name": "Results vs. Check/Call Bot",
-            "value": 3.4885,
-            "unit": "bb/hand",
-            "range": 1.3546
-          },
-          {
-            "name": "Results vs. Bid Everything Bot",
-            "value": 61.588,
-            "unit": "bb/hand",
-            "range": 3.0294
-          },
-          {
-            "name": "Results vs. Uniform Random Bot",
-            "value": 9.581,
-            "unit": "bb/hand",
-            "range": 2.099
-          },
-          {
-            "name": "Results vs. Preflop All-in Bot",
-            "value": 3.016,
-            "unit": "bb/hand",
-            "range": 2.4737
-          },
-          {
-            "name": "Results vs. Ourselves",
-            "value": -0.6655,
-            "unit": "bb/hand",
-            "range": 1.9691
-          }
-        ]
-      },
       {
         "commit": {
           "author": {
@@ -516,6 +466,56 @@ window.BENCHMARK_DATA = {
             "value": -0.6215,
             "unit": "bb/hand",
             "range": 1.9452
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "committer": {
+            "name": "ruse-ai",
+            "username": "ruse-ai"
+          },
+          "id": "5e0d92352cd63967f281bd3861988586754034e9",
+          "message": "Cleaning",
+          "timestamp": "2024-01-24T02:28:03Z",
+          "url": "https://github.com/ruse-ai/mitpokerbots-2024/pull/57/commits/5e0d92352cd63967f281bd3861988586754034e9"
+        },
+        "date": 1706897754439,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "Results vs. Check/Call Bot",
+            "value": 2.723,
+            "unit": "bb/hand",
+            "range": 1.4432
+          },
+          {
+            "name": "Results vs. Bid Everything Bot",
+            "value": 60.4675,
+            "unit": "bb/hand",
+            "range": 3.0374
+          },
+          {
+            "name": "Results vs. Uniform Random Bot",
+            "value": 8.02,
+            "unit": "bb/hand",
+            "range": 2.1002
+          },
+          {
+            "name": "Results vs. Preflop All-in Bot",
+            "value": 3.168,
+            "unit": "bb/hand",
+            "range": 2.3319
+          },
+          {
+            "name": "Results vs. Ourselves",
+            "value": -1.574,
+            "unit": "bb/hand",
+            "range": 2.099
           }
         ]
       }
