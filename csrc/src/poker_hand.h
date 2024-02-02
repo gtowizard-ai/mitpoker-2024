@@ -70,7 +70,8 @@ class PokerHand {
   /// @brief Returns the strength of the hand (higher is better). Undefined behavior if the hand
   /// contains more than 8 cards.
   /// @return Higher 13 bits: strength / Lower 3 bits: draw flags.
-  /// `STRENGTH_MASK` can be used to extract the strength.
+  /// `STRENGTH_MASK` can be used to extract the strength. Even if the river card has already been
+  /// dealt, this function may return draw flags enabled because it does not know about it.
   strength_t evaluate() const {
     constexpr uint64_t flush_adder = 0x3333'0000'0000'0000;
     constexpr uint64_t flush_draw_adder = 0x4444'0000'0000'0000;
