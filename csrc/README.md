@@ -1,6 +1,6 @@
 # Time Manager
 
-To optimize the game solving within the 30-second solving time constraint for 1000 hands, we've implemented a `TimeManager` class (`time_manager.h`) for efficient time allocation. This class takes charge of managing the time distribution across the four rounds of each hand: Preflop, Flop, Turn, and River. Our goal is to allocate more time to rounds that inherently require additional attention, ensuring enough time allocated to the solving algorithms.
+To optimize the game solving within the 30-second solving time constraint for 1000 hands, we've implemented a `TimeManager` class (`time_manager.h`) for efficient time allocation. This class takes charge of managing the time distribution across the four rounds of each hand: Preflop, Flop, Turn, and River. Our goal is to allocate more time to rounds that inherently are time consuming, ensuring enough time allocated to the solving algorithms.
 
 At the onset of the game, an instance of the `TimeManager` class is instantiated in the `MainBot` class (`main_bot.cpp`). During the execution of the `get_action_any_player` function, this instance is invoked, with some actions exempt from time scheduling, such as those involving precomputed data or scenarios where only one legal action is viable. For actions that involve time-consuming solving processes, the `TimeManager` class is utilized by invoking the `get_time_budget_ms` function, which returns the time limit in milliseconds.
 
