@@ -5,8 +5,7 @@
 namespace pokerbot::round {
 
 struct Round {
-  Round(unsigned id, unsigned num_board_cards)
-      : id(id), num_board_cards(num_board_cards) {}
+  Round(unsigned id, unsigned num_board_cards) : id(id), num_board_cards(num_board_cards) {}
 
   std::string to_string() const;
 

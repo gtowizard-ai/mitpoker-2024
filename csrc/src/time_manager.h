@@ -21,8 +21,7 @@ class TimeManager {
     total_actions_per_round_[round_id]++;
   }
 
-  [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info,
-                                         const RoundState& state) const {
+  [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info, const RoundState& state) const {
     if (game_info.hand_num < WARM_UP_NUM_HANDS) {
       return WARM_UP_TIME;
     }
