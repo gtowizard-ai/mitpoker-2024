@@ -40,17 +40,12 @@ TEST_F(CFRTest, TestForceRaiseSizeRootNode) {
   auto round_state = std::make_shared<RoundState>(BB_POS, false, EMPTY_BIDS, BLINDS,
                                                   STARTING_STACKS, hands, board_cards, nullptr);
 
+  const auto raise_action = Action{Action::Type::RAISE, 200};
   cfr.solve(ranges, round_state, 0, 10, Action{Action::Type::RAISE, 200});
   const auto& actions = cfr.legal_actions();
 
-  bool found = false;
-  for (const auto& action : actions) {
-    if (action.type == Action::Type::RAISE && action.amount == 200) {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
+  auto it = std::find(actions.begin(), actions.end(), raise_action);
+  ASSERT_NE(it, actions.end());
 }
 
 TEST_F(CFRTest, TestRiverNutAirToyGame) {

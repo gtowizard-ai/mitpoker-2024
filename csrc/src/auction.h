@@ -21,13 +21,12 @@ class Auctioneer {
   bool v_is_excessive_bidder;
   int bid_count = 0;
 
-  int get_bid(const Range& hero_range, const Range& villain_range, const Game& game,
-              const std::vector<card_t>& board_cards, const Hand& hand, int pot);
+  int get_bid(const std::vector<card_t>& board_cards, const Hand& hand, int pot);
 
   void receive_bid(Range& hero_range, Range& villain_range, int hero_bid, int villain_bid,
                    const Game& game, const std::vector<card_t>& board_cards, int pot);
 
-  void update_exploits(const int hero_bid, const int villain_bid, const int bid_plus_pot);
+  void update_exploits(int hero_bid, int villain_bid, int bid_plus_pot);
 
  private:
   HandEquitiesThirdCard hand_equities_third_card_;
