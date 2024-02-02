@@ -5,6 +5,12 @@
 
 namespace pokerbot {
 
+inline constexpr int ABS_BIDDING_EPSILON = 2;
+inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
+inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+inline constexpr int SIGNIFICANT_BID_COUNT = 5;
+inline constexpr float BID_MULTIPLIER = 1.8;
+
 Auctioneer::Auctioneer() : hand_equities_third_card_(HandEquitiesThirdCard()) {
   v_is_excessive_bidder = true;
   v_abs_bid_min_max[0] = STARTING_STACK;

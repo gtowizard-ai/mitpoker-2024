@@ -206,8 +206,8 @@ Action MainBot::solve_with_cfr(const GameInfo& game_info, const RoundStatePtr& s
                                std::optional<Action> sampled_action,
                                const std::optional<Hand>& player_hand) {
   // set time budget
-  time_manager_.update_action(game_info, state);
-  const auto time_budget_ms = time_manager_.get_time_budget_ms(game_info, state);
+  time_manager_.update_action(*state);
+  const auto time_budget_ms = time_manager_.get_time_budget_ms(game_info, *state);
   ranges_[player].update_on_board_cards(game_, state->board_cards);
   ranges_[1 - player].update_on_board_cards(game_, state->board_cards);
 
