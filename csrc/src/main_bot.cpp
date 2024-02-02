@@ -9,7 +9,7 @@ MainBot::MainBot()
 Action MainBot::sample_action(const GameInfo& game_info, const RoundState& state, const Hand& hand,
                               const int hero_id, const HandActionsValues& strategy,
                               const std::vector<Action>& legal_actions,
-                              const float min_prob_sampling) {
+                              const float min_prob_sampling) const {
   if (legal_actions.size() != strategy.num_actions) {
     throw std::runtime_error("Actions mistmatch");
   }
@@ -35,8 +35,8 @@ Action MainBot::sample_action(const GameInfo& game_info, const RoundState& state
     strategy_str += std::to_string(val) + ",";
   }
   fmt::print(
-      "#{} - {} - {} - (Hero={}, Pot={}, Bets={}/{}) Sampled Action {} on {} based on strategy = "
-      "{} \n",
+      "#{} - {} - {} - (Hero={}, Pot={}, Bets={}/{}) "
+      "Sampled Action {} on {} based on strategy = {} \n",
       game_info.hand_num, state.round().to_string(), hand.to_string(), hero_id, state.pot(),
       state.bets[0], state.bets[1], sampled_action.to_string(), Card::to_string(state.board_cards),
       strategy_str);
@@ -50,21 +50,11 @@ void MainBot::update_range(const int player, const HandActionsValues& strategy,
   if (legal_actions.size() != strategy.num_actions) {
     throw std::runtime_error("Actions mistmatch");
   }
-  unsigned action_idx;
-  for (action_idx = 0; action_idx < legal_actions.size(); ++action_idx) {
-    if (legal_actions[action_idx].amount == action.amount &&
-        legal_actions[action_idx].type == action.type) {
-      break;
-    }
+  auto it = std::find(legal_actions.begin(), legal_actions.end(), action);
+  if (it == legal_actions.end()) {
+    throw std::runtime_error(fmt::format("Actions mistmatch Two: {}", action.to_string()));
   }
-  if (action_idx == legal_actions.size()) {
-    std::string actions;
-    for (const auto& action : legal_actions) {
-      actions += action.to_string() + ",";
-    }
-    throw std::runtime_error(
-        fmt::format("Actions mistmatch Two: {} ({})", action.to_string(), actions));
-  }
+  auto action_idx = std::distance(legal_actions.begin(), it);
 
   if (player_hand.has_value()) {
     const auto hero_hand_idx = player_hand->index();
@@ -85,45 +75,41 @@ void MainBot::update_range(const int player, const HandActionsValues& strategy,
   }
 }
 
-void MainBot::handle_new_hand(const GameInfo& game_info, const RoundStatePtr& /*state*/,
+void MainBot::handle_new_hand(const GameInfo& /*game_info*/, const RoundStatePtr& /*state*/,
                               int /*active*/) {
   std::fill(ranges_.begin(), ranges_.end(), Range());
-  fmt::print("Time Remaining:: {}\n", game_info.game_clock);
 }
 
 void MainBot::handle_hand_over(const GameInfo& /*game_info*/,
-                               const TerminalStatePtr& /*terminal_state*/, int /*active*/) {
-  // int my_delta = terminal_state->deltas[active];  // your bankroll change from this round
-  // auto previous_state = std::static_pointer_cast<const RoundState>(terminal_state->previous_state);  // RoundState before payoffs
-  // auto my_cards = previous_state->hands[active];  // your cards
-  // auto opp_cards = previous_state->hands[1-active];  // opponent's cards or "" if not revealed
+                               const TerminalStatePtr& /*terminal_state*/, int /*active*/) {}
+
+std::optional<Action> get_last_opponent_action(const RoundState& curr_state,
+                                               const RoundState& prev_state, const int opp_index) {
+  // Not sure if there is a better way to get this based on `RoundState`..
+  if (curr_state.bets[opp_index] > prev_state.bets[opp_index] &&
+      curr_state.bets[opp_index] > curr_state.bets[1 - opp_index]) {
+    return Action{Action::Type::RAISE, curr_state.bets[opp_index]};
+  }
+  if (curr_state.bets[opp_index] > prev_state.bets[opp_index] &&
+      curr_state.bets[opp_index] == curr_state.bets[1 - opp_index]) {
+    return Action{Action::Type::CALL};
+  }
+  if (curr_state.bets[opp_index] == prev_state.bets[opp_index]) {
+    return Action{Action::Type::CHECK};
+  }
+  return std::nullopt;
 }
 
 Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state,
                            const int active) {
   if (state->previous_state != nullptr) {
+    // Simulate the thinking process of our opponent if he made an action
     const auto last_decision_node =
         std::dynamic_pointer_cast<const RoundState>(state->previous_state);
     if (last_decision_node != nullptr) {
       const auto opp_index = get_active(last_decision_node->button);
       const auto is_opponent_node = opp_index != active;
-      // fmt::print("Last decision node: Opponent = {} - {} \n", is_opponent_node,
-      //            last_decision_node->to_string());
-      // I don't know a better way to get this..
-      const std::optional<Action> last_action = [&]() -> std::optional<Action> {
-        if (state->bets[opp_index] > last_decision_node->bets[opp_index] &&
-            state->bets[opp_index] > state->bets[1 - opp_index]) {
-          return Action{Action::Type::RAISE, state->bets[opp_index]};
-        }
-        if (state->bets[opp_index] > last_decision_node->bets[opp_index] &&
-            state->bets[opp_index] == state->bets[1 - opp_index]) {
-          return Action{Action::Type::CALL};
-        }
-        if (state->bets[opp_index] == last_decision_node->bets[opp_index]) {
-          return Action{Action::Type::CHECK};
-        }
-        return std::nullopt;
-      }();
+      auto last_action = get_last_opponent_action(*state, *last_decision_node, opp_index);
       if (is_opponent_node && last_action.has_value() &&
           last_decision_node->legal_actions().size() > 1) {
         get_action_any_player(game_info, last_decision_node, opp_index, last_action);
@@ -145,8 +131,7 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
 
   if (is_hero_node && ranges::contains(legal_actions, Action::Type::BID)) {
     /// Auction
-    const auto bid = auctioneer_.get_bid(ranges_[player], ranges_[1 - player], game_,
-                                         state->board_cards, *player_hand, state->pot());
+    const auto bid = auctioneer_.get_bid(state->board_cards, *player_hand, state->pot());
     fmt::print("Bidding {} in {}\n", bid, state->pot());
     return {Action::Type::BID, bid};
   }
@@ -177,52 +162,63 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
 
   if (state->round() == round::PREFLOP && player == SB_POS &&
       state->bets[1 - player] == BIG_BLIND) {
-    bool action_in_cache = is_hero_node;
-    auto& sb_legal_actions =
-        is_hero_node ? hero_sb_cached_legal_actions_ : opp_sb_cached_legal_actions_;
-    auto& sb_strategy = is_hero_node ? hero_sb_cached_strategy_ : opp_sb_cached_strategy_;
-    if (sampled_action.has_value() && sb_legal_actions.has_value()) {
-      for (const auto& action : *sb_legal_actions) {
-        if (action.type == sampled_action->type && action.amount == sampled_action->amount) {
-          action_in_cache = true;
-        }
+    return solve_preflop_root_node(game_info, state, player, is_hero_node, sampled_action,
+                                   player_hand);
+  } else {
+    return solve_with_cfr(game_info, state, player, is_hero_node, sampled_action, player_hand);
+  }
+}
+
+Action MainBot::solve_preflop_root_node(const GameInfo& game_info, const RoundStatePtr& state,
+                                        const int player, const bool is_hero_node,
+                                        std::optional<Action> sampled_action,
+                                        const std::optional<Hand>& player_hand) {
+  bool action_in_cache = is_hero_node;
+  auto& sb_legal_actions =
+      is_hero_node ? hero_sb_cached_legal_actions_ : opp_sb_cached_legal_actions_;
+  auto& sb_strategy = is_hero_node ? hero_sb_cached_strategy_ : opp_sb_cached_strategy_;
+  if (sampled_action.has_value() && sb_legal_actions.has_value()) {
+    for (const auto& action : *sb_legal_actions) {
+      if (action.type == sampled_action->type && action.amount == sampled_action->amount) {
+        action_in_cache = true;
       }
     }
-    if (!action_in_cache || !sb_legal_actions.has_value() || !sb_strategy.has_value()) {
-      // Solve with a larger time limit (computed once)
-      float time_allowed = is_hero_node ? 100 : 15;
-      fmt::print("is_hero={} - Solving root preflop node for {}ms \n", is_hero_node, time_allowed);
-      cfr_.solve(ranges_, state, player, time_allowed, sampled_action, 400);
-      sb_strategy = cfr_.strategy();
-      sb_legal_actions = cfr_.legal_actions();
-    }
-    if (is_hero_node) {
-      sampled_action =
-          sample_action(game_info, *state, *player_hand, player, *sb_strategy, *sb_legal_actions);
-    }
-    update_range(player, *sb_strategy, *sb_legal_actions, *sampled_action, player_hand);
-
-  } else {
-    // set time budget
-    time_manager_.update_action(game_info, state);
-    const auto time_budget_ms = time_manager_.get_time_budget_ms(game_info, state);
-    // FIXME.. Could be avoided
-    ranges_[player].update_on_board_cards(game_, state->board_cards);
-    ranges_[1 - player].update_on_board_cards(game_, state->board_cards);
-
-    // Solve..
-    // FIXME - On flop/turn, CFVs are calculated as if showdown will be held with the current board
-    // (i.e., no more chance cards are dealt)
-    fmt::print("is_hero={} - {:.2f} ms allocated for solving with CFR \n", is_hero_node,
-               time_budget_ms);
-    cfr_.solve(ranges_, state, player, time_budget_ms, sampled_action, 500);
-    if (is_hero_node) {
-      sampled_action = sample_action(game_info, *state, *player_hand, player, cfr_.strategy(),
-                                     cfr_.legal_actions());
-    }
-    update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action, player_hand);
   }
 
+  if (!action_in_cache || !sb_legal_actions.has_value() || !sb_strategy.has_value()) {
+    // Solve with a larger time limit (computed once)
+    float time_allowed = is_hero_node ? 100 : 15;
+    fmt::print("is_hero={} - Solving root preflop node for {}ms \n", is_hero_node, time_allowed);
+    cfr_.solve(ranges_, state, player, time_allowed, sampled_action, 400);
+    sb_strategy = cfr_.strategy();
+    sb_legal_actions = cfr_.legal_actions();
+  }
+  if (is_hero_node) {
+    sampled_action =
+        sample_action(game_info, *state, *player_hand, player, *sb_strategy, *sb_legal_actions);
+  }
+  update_range(player, *sb_strategy, *sb_legal_actions, *sampled_action, player_hand);
+  return *sampled_action;
+}
+
+Action MainBot::solve_with_cfr(const GameInfo& game_info, const RoundStatePtr& state,
+                               const int player, const bool is_hero_node,
+                               std::optional<Action> sampled_action,
+                               const std::optional<Hand>& player_hand) {
+  // set time budget
+  time_manager_.update_action(*state);
+  const auto time_budget_ms = time_manager_.get_time_budget_ms(game_info, *state);
+  ranges_[player].update_on_board_cards(game_, state->board_cards);
+  ranges_[1 - player].update_on_board_cards(game_, state->board_cards);
+
+  fmt::print("is_hero={} - {:.2f} ms allocated for solving with CFR \n", is_hero_node,
+             time_budget_ms);
+  cfr_.solve(ranges_, state, player, time_budget_ms, sampled_action, 500);
+  if (is_hero_node) {
+    sampled_action = sample_action(game_info, *state, *player_hand, player, cfr_.strategy(),
+                                   cfr_.legal_actions());
+  }
+  update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action, player_hand);
   return *sampled_action;
 }
 

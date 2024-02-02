@@ -69,7 +69,7 @@ struct RoundState final : State {
 
   StatePtr proceed(const Action& action) const;
 
-  std::string to_string() const;
+  std::string to_string() const override;
 
   const auto& round() const { return round::from_num_cards(board_cards.size()); }
 };
@@ -85,7 +85,7 @@ struct TerminalState final : State {
                 StatePtr previous_state)
       : deltas(deltas), bids(bids), previous_state(std::move(previous_state)) {}
 
-  std::string to_string() const;
+  std::string to_string() const override;
 };
 
 using TerminalStatePtr = std::shared_ptr<const TerminalState>;

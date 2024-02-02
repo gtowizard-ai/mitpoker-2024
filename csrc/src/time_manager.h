@@ -16,18 +16,17 @@ class TimeManager {
   explicit TimeManager(const std::array<float, ROUNDS>& ratio = {0.1, 0.3, 0.3, 0.3})
       : ratio_(ratio) {}
 
-  void update_action(const GameInfo& /*game_info*/, const RoundStatePtr& state) {
-    const auto round = state->round().id;
-    total_actions_per_round_[round]++;
+  void update_action(const RoundState& state) {
+    const auto round_id = state.round().id;
+    total_actions_per_round_[round_id]++;
   }
 
-  [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info,
-                                         const RoundStatePtr& state) const {
+  [[nodiscard]] float get_time_budget_ms(const GameInfo& game_info, const RoundState& state) const {
     if (game_info.hand_num < WARM_UP_NUM_HANDS) {
       return WARM_UP_TIME;
     }
 
-    const unsigned round = state->round().id;
+    const unsigned round_id = state.round().id;
 
     float expected_sum = 0.0;
     for (unsigned i = 0; i < ROUNDS; ++i) {
@@ -40,7 +39,7 @@ class TimeManager {
     const float remaining_time_ms =
         (game_info.game_clock - (0.5f - 0.4f / game_info.num_hands_left_in_match())) * 1000.0f;
 
-    return std::max(ratio_[round] * remaining_time_ms / expected_sum, 1.0f);
+    return std::max(ratio_[round_id] * remaining_time_ms / expected_sum, 1.0f);
   }
 
  private:

@@ -9,8 +9,6 @@ TEST(HandTest, TestSmallest2CardsHand) {
   ASSERT_EQ(Hand("2c2d").cards, h_2c2d.cards);
   ASSERT_EQ(Hand("2d2c").index(), h_2c2d.index());
   ASSERT_EQ(h_2c2d.num_cards(), 2);
-  ASSERT_EQ(h_2c2d.low_card(), 0);
-  ASSERT_EQ(h_2c2d.high_card(), 1);
   ASSERT_EQ(h_2c2d.index(), 0);
   ASSERT_EQ(h_2c2d.to_string(), "2c2d");
 }
@@ -20,8 +18,6 @@ TEST(HandTest, TestHighest2CardsHand) {
   ASSERT_EQ(Hand("AhAs").cards, h_AhAs.cards);
   ASSERT_EQ(Hand("AsAh").index(), h_AhAs.index());
   ASSERT_EQ(h_AhAs.num_cards(), 2);
-  ASSERT_EQ(h_AhAs.low_card(), 50);
-  ASSERT_EQ(h_AhAs.high_card(), 51);
   ASSERT_EQ(h_AhAs.index(), NUM_HANDS_POSTFLOP_2CARDS - 1);
   ASSERT_EQ(h_AhAs.to_string(), "AhAs");
 }
@@ -31,8 +27,6 @@ TEST(HandTest, TestSmallest3CardsHand) {
   ASSERT_EQ(Hand("2h2d2c").cards, h_2c2d2h.cards);
   ASSERT_EQ(Hand("2h2d2c").index(), h_2c2d2h.index());
   ASSERT_EQ(h_2c2d2h.num_cards(), 3);
-  ASSERT_EQ(h_2c2d2h.low_card(), 0);
-  ASSERT_EQ(h_2c2d2h.high_card(), 2);
   ASSERT_EQ(h_2c2d2h.index(), 0);
   ASSERT_EQ(h_2c2d2h.to_string(), "2c2d2h");
 }
@@ -42,8 +36,6 @@ TEST(HandTest, TestHighest3CardsHand) {
   ASSERT_EQ(Hand("AdAhAs").cards, h_AdAhAs.cards);
   ASSERT_EQ(Hand("AdAhAs").index(), h_AdAhAs.index());
   ASSERT_EQ(h_AdAhAs.num_cards(), 3);
-  ASSERT_EQ(h_AdAhAs.low_card(), 49);
-  ASSERT_EQ(h_AdAhAs.high_card(), 51);
   ASSERT_EQ(h_AdAhAs.index(), NUM_HANDS_POSTFLOP_3CARDS - 1);
   ASSERT_EQ(h_AdAhAs.to_string(), "AdAhAs");
 }

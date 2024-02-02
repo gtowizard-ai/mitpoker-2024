@@ -5,6 +5,12 @@
 
 namespace pokerbot {
 
+inline constexpr int ABS_BIDDING_EPSILON = 2;
+inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
+inline constexpr int REASONABLE_DIST_FROM_MAX = 10;
+inline constexpr int SIGNIFICANT_BID_COUNT = 5;
+inline constexpr float BID_MULTIPLIER = 1.8;
+
 Auctioneer::Auctioneer() : hand_equities_third_card_(HandEquitiesThirdCard()) {
   v_is_excessive_bidder = true;
   v_abs_bid_min_max[0] = STARTING_STACK;
@@ -13,9 +19,7 @@ Auctioneer::Auctioneer() : hand_equities_third_card_(HandEquitiesThirdCard()) {
   v_pot_percentage_min_max[1] = -1;
 }
 
-int Auctioneer::get_bid(const Range& /*hero_range*/, const Range& /*villain_range*/,
-                        const Game& /*game*/, const std::vector<card_t>& board, const Hand& hand,
-                        const int pot) {
+int Auctioneer::get_bid(const std::vector<card_t>& board, const Hand& hand, const int pot) {
   auto isomorphic_board = IsomorphicFlopEncoder::to_isomorphic_flop(board);
   float board_eq_difference = -AVG_EQUITY_LOSS_THIRD_CARD.at(isomorphic_board);
   float hand_eq_difference =

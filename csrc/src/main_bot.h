@@ -46,7 +46,8 @@ class MainBot {
   // Won't sample any action with prob < `min_prob_sampling`
   Action sample_action(const GameInfo& game_info, const RoundState& state, const Hand& hand,
                        int hero_id, const HandActionsValues& strategy,
-                       const std::vector<Action>& legal_actions, float min_prob_sampling = 0.05);
+                       const std::vector<Action>& legal_actions,
+                       float min_prob_sampling = 0.05) const;
 
   void update_range(int player, const HandActionsValues& strategy,
                     const std::vector<Action>& legal_actions, const Action& action,
@@ -54,6 +55,16 @@ class MainBot {
 
   Action get_action_any_player(const GameInfo& game_info, const RoundStatePtr& state, int player,
                                std::optional<Action> sampled_action);
+
+  Action solve_with_cfr(const GameInfo& game_info, const RoundStatePtr& state, int player,
+                        bool is_hero_node, std::optional<Action> sampled_action,
+                        const std::optional<Hand>& player_hand);
+
+  /// Special solving for preflop root node where we use a cache
+  /// if the `sampled_action` already exists in a cached solution
+  Action solve_preflop_root_node(const GameInfo& game_info, const RoundStatePtr& state, int player,
+                                 bool is_hero_node, std::optional<Action> sampled_action,
+                                 const std::optional<Hand>& player_hand);
 };
 
 }  // namespace pokerbot
