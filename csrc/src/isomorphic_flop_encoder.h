@@ -5,11 +5,13 @@
 
 namespace pokerbot {
 
+/// Custom/ugly isomorphic flop encoder
+/// Transforms a flop to its isomorphic representation
+/// (22100 flops -> 1755 strategically different flops)
 class IsomorphicFlopEncoder {
  public:
   static unsigned constexpr NUM_FLOPS = 1755;
 
-  // Custom/ugly isomorphic flop encoder
   static std::string to_isomorphic_flop(const std::vector<card_t>& raw_cards) {
     std::vector cards = {Card(raw_cards[0]), Card(raw_cards[1]), Card(raw_cards[2])};
     std::sort(cards.begin(), cards.end());
@@ -42,23 +44,22 @@ class IsomorphicFlopEncoder {
     }
   }
 
-  static std::vector<int> find_mapping(const std::vector<card_t>& isomorphic_cards,
-                                       const std::vector<card_t>& cards) {
+  /// Finds suit mapping from `prev_cards` to `new_cards` for a flop
+  static std::vector<int> find_mapping(const std::vector<card_t>& prev_cards,
+                                       const std::vector<card_t>& new_cards) {
     // Only 24 possible mappings in total (4 factorial) so we iterate over all of
     // them until we find the right one.
     int mapping[] = {0, 1, 2, 3};
     do {
       bool ok = true;
-      for (unsigned i = 0; i < isomorphic_cards.size(); ++i) {
-        auto prev_suit = suit_of_card(isomorphic_cards[i]);
+      for (auto prev_card : prev_cards) {
+        auto prev_suit = suit_of_card(prev_card);
         auto isomorph_suit = mapping[prev_suit];
-        auto isomorph_card = make_card(rank_of_card(isomorphic_cards[i]), isomorph_suit);
+        auto isomorph_card = make_card(rank_of_card(prev_card), isomorph_suit);
 
-        // If flop check all flop cards, else check cards until now.
-        // this works because we always keep the rounds ordering with isomorphism
-        auto end_index = i < 3 ? cards.begin() + 3 : cards.begin() + (i + 1);
-        end_index = end_index >= cards.end() ? cards.end() : end_index;
-        if (std::find(cards.begin(), end_index, isomorph_card) == end_index) {
+        auto end_index = new_cards.begin() + 3;
+        end_index = end_index >= new_cards.end() ? new_cards.end() : end_index;
+        if (std::find(new_cards.begin(), end_index, isomorph_card) == end_index) {
           ok = false;
           break;
         }
@@ -71,7 +72,7 @@ class IsomorphicFlopEncoder {
 
     throw std::invalid_argument(
         fmt::format("No suit mapping from isomorphic_cards '{}' to cards '{}'",
-                    Card::to_string(isomorphic_cards), Card::to_string(cards)));
+                    Card::to_string(prev_cards), Card::to_string(new_cards)));
   }
 };
 

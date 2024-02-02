@@ -12,6 +12,10 @@ struct Action {
   Action(Type t = Type::CHECK, int a = 0) : type(t), amount(a) {}
 
   std::string to_string() const;
+
+  auto operator==(const Action& rhs) const {
+    return this->type == rhs.type && this->amount == rhs.amount;
+  }
 };
 
 }  // namespace pokerbot

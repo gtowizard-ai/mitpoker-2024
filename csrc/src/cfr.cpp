@@ -66,8 +66,8 @@ void CFR::compute_showdown_cfvs(const Range& traverser_range, const Range& oppon
                                 float payoff, std::vector<float>& cfvs) const {
   std::fill_n(cfvs.begin(), traverser_range.num_hands(), 0);
   if (root_->round() == round::PREFLOP) {
-    // FIXME - Does this make sense?
     if (payoff >= STARTING_STACK) {
+      // If we go all-in preflop, both players get a third card for free on the flop
       compute_cfvs_preflop(opponent_range, payoff, cfvs, PREFLOP_3_CARDS_PAYOFFS);
     } else {
       compute_cfvs_preflop(opponent_range, payoff, cfvs, PREFLOP_2_CARDS_PAYOFFS);
