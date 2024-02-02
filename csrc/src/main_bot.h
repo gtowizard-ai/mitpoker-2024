@@ -56,17 +56,15 @@ class MainBot {
   Action get_action_any_player(const GameInfo& game_info, const RoundStatePtr& state, int player,
                                std::optional<Action> sampled_action);
 
-
   Action solve_with_cfr(const GameInfo& game_info, const RoundStatePtr& state, int player,
-                                 bool is_hero_node, std::optional<Action> sampled_action,
-                                 const std::optional<Hand>& player_hand);
+                        bool is_hero_node, std::optional<Action> sampled_action,
+                        const std::optional<Hand>& player_hand);
 
   /// Special solving for preflop root node where we use a cache
   /// if the `sampled_action` already exists in a cached solution
-  Action solve_preflop_root_node(const GameInfo& game_info, const RoundStatePtr& state,
-                                          int player, bool is_hero_node,
-                                          std::optional<Action> sampled_action,
-                                          const std::optional<Hand>& player_hand);
+  Action solve_preflop_root_node(const GameInfo& game_info, const RoundStatePtr& state, int player,
+                                 bool is_hero_node, std::optional<Action> sampled_action,
+                                 const std::optional<Hand>& player_hand);
 };
 
 }  // namespace pokerbot

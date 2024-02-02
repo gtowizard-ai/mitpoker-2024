@@ -119,59 +119,6 @@ Action MainBot::get_action(const GameInfo& game_info, const RoundStatePtr& state
   return get_action_any_player(game_info, state, active, std::nullopt);
 }
 
-Action MainBot::solve_preflop_root_node(const GameInfo& game_info, const RoundStatePtr& state,
-                                        const int player, const bool is_hero_node,
-                                        std::optional<Action> sampled_action,
-                                        const std::optional<Hand>& player_hand) {
-  bool action_in_cache = is_hero_node;
-  auto& sb_legal_actions =
-      is_hero_node ? hero_sb_cached_legal_actions_ : opp_sb_cached_legal_actions_;
-  auto& sb_strategy = is_hero_node ? hero_sb_cached_strategy_ : opp_sb_cached_strategy_;
-  if (sampled_action.has_value() && sb_legal_actions.has_value()) {
-    for (const auto& action : *sb_legal_actions) {
-      if (action.type == sampled_action->type && action.amount == sampled_action->amount) {
-        action_in_cache = true;
-      }
-    }
-  }
-
-  if (!action_in_cache || !sb_legal_actions.has_value() || !sb_strategy.has_value()) {
-    // Solve with a larger time limit (computed once)
-    float time_allowed = is_hero_node ? 100 : 15;
-    fmt::print("is_hero={} - Solving root preflop node for {}ms \n", is_hero_node, time_allowed);
-    cfr_.solve(ranges_, state, player, time_allowed, sampled_action, 400);
-    sb_strategy = cfr_.strategy();
-    sb_legal_actions = cfr_.legal_actions();
-  }
-  if (is_hero_node) {
-    sampled_action =
-        sample_action(game_info, *state, *player_hand, player, *sb_strategy, *sb_legal_actions);
-  }
-  update_range(player, *sb_strategy, *sb_legal_actions, *sampled_action, player_hand);
-  return *sampled_action;
-}
-
-Action MainBot::solve_with_cfr(const GameInfo& game_info, const RoundStatePtr& state,
-                                        const int player, const bool is_hero_node,
-                                        std::optional<Action> sampled_action,
-                                        const std::optional<Hand>& player_hand) {
-  // set time budget
-  time_manager_.update_action(game_info, state);
-  const auto time_budget_ms = time_manager_.get_time_budget_ms(game_info, state);
-  ranges_[player].update_on_board_cards(game_, state->board_cards);
-  ranges_[1 - player].update_on_board_cards(game_, state->board_cards);
-
-  fmt::print("is_hero={} - {:.2f} ms allocated for solving with CFR \n", is_hero_node,
-             time_budget_ms);
-  cfr_.solve(ranges_, state, player, time_budget_ms, sampled_action, 500);
-  if (is_hero_node) {
-    sampled_action = sample_action(game_info, *state, *player_hand, player, cfr_.strategy(),
-                                   cfr_.legal_actions());
-  }
-  update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action, player_hand);
-  return *sampled_action;
-}
-
 Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStatePtr& state,
                                       const int player, std::optional<Action> sampled_action) {
   const auto legal_actions = state->legal_actions();
@@ -215,10 +162,64 @@ Action MainBot::get_action_any_player(const GameInfo& game_info, const RoundStat
 
   if (state->round() == round::PREFLOP && player == SB_POS &&
       state->bets[1 - player] == BIG_BLIND) {
-    return solve_preflop_root_node(game_info, state, player, is_hero_node, sampled_action, player_hand);
+    return solve_preflop_root_node(game_info, state, player, is_hero_node, sampled_action,
+                                   player_hand);
   } else {
     return solve_with_cfr(game_info, state, player, is_hero_node, sampled_action, player_hand);
   }
+}
+
+Action MainBot::solve_preflop_root_node(const GameInfo& game_info, const RoundStatePtr& state,
+                                        const int player, const bool is_hero_node,
+                                        std::optional<Action> sampled_action,
+                                        const std::optional<Hand>& player_hand) {
+  bool action_in_cache = is_hero_node;
+  auto& sb_legal_actions =
+      is_hero_node ? hero_sb_cached_legal_actions_ : opp_sb_cached_legal_actions_;
+  auto& sb_strategy = is_hero_node ? hero_sb_cached_strategy_ : opp_sb_cached_strategy_;
+  if (sampled_action.has_value() && sb_legal_actions.has_value()) {
+    for (const auto& action : *sb_legal_actions) {
+      if (action.type == sampled_action->type && action.amount == sampled_action->amount) {
+        action_in_cache = true;
+      }
+    }
+  }
+
+  if (!action_in_cache || !sb_legal_actions.has_value() || !sb_strategy.has_value()) {
+    // Solve with a larger time limit (computed once)
+    float time_allowed = is_hero_node ? 100 : 15;
+    fmt::print("is_hero={} - Solving root preflop node for {}ms \n", is_hero_node, time_allowed);
+    cfr_.solve(ranges_, state, player, time_allowed, sampled_action, 400);
+    sb_strategy = cfr_.strategy();
+    sb_legal_actions = cfr_.legal_actions();
+  }
+  if (is_hero_node) {
+    sampled_action =
+        sample_action(game_info, *state, *player_hand, player, *sb_strategy, *sb_legal_actions);
+  }
+  update_range(player, *sb_strategy, *sb_legal_actions, *sampled_action, player_hand);
+  return *sampled_action;
+}
+
+Action MainBot::solve_with_cfr(const GameInfo& game_info, const RoundStatePtr& state,
+                               const int player, const bool is_hero_node,
+                               std::optional<Action> sampled_action,
+                               const std::optional<Hand>& player_hand) {
+  // set time budget
+  time_manager_.update_action(game_info, state);
+  const auto time_budget_ms = time_manager_.get_time_budget_ms(game_info, state);
+  ranges_[player].update_on_board_cards(game_, state->board_cards);
+  ranges_[1 - player].update_on_board_cards(game_, state->board_cards);
+
+  fmt::print("is_hero={} - {:.2f} ms allocated for solving with CFR \n", is_hero_node,
+             time_budget_ms);
+  cfr_.solve(ranges_, state, player, time_budget_ms, sampled_action, 500);
+  if (is_hero_node) {
+    sampled_action = sample_action(game_info, *state, *player_hand, player, cfr_.strategy(),
+                                   cfr_.legal_actions());
+  }
+  update_range(player, cfr_.strategy(), cfr_.legal_actions(), *sampled_action, player_hand);
+  return *sampled_action;
 }
 
 }  // namespace pokerbot
