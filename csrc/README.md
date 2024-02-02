@@ -17,4 +17,4 @@ Here, "terminal nodes" may not refer to the actual end of the game.
 On the flop and turn, "terminal values" are calculated as if the game ends on the current street, i.e., there are
 no more betting rounds.
 This abstraction makes draw hands undervalued, so we added a special treatment to "boost" the values of flush draws and straight draws.
-However, this treatment is only a heuristic and does not give well-defined values, and also it turns out that it does not seem to improve performance.
+However, this treatment is only a heuristic and does not necessarily give well-defined values, and also it turns out that it does not seem to improve performance significantly.
