@@ -25,13 +25,13 @@ The technological breakthroughs of AI in the last decade have shown the incredib
 
 By replacing the exact values by the approximation of a DNN, we can create small depth-limited subgames and solve them much faster than solving the entire game:
 
-![alt text](assets/depth-limited-solving-nn.png)
+![Depth-limited solving with value networks](assets/depth-limited-solving-nn.png)
 
 However, due to the heavy constraints on thinking time and limited time for implementing the AI, using a learned value network was out of the scope of this project. As a cheap alternative, we replace this network by an heuristic, where we assume that both players get the values corresponding to their equities.
 
-![alt text](assets/depth-limited-solving-no-nn.png)
+![Our technique - Solving small depth-limited subgames using an heuristic function instead of a learned value network at the depth-limit](assets/depth-limited-solving-no-nn.png)
 
-This is the same values that a player would get at an all-in node, so we call them `All-in values`. This is not considered to be a good heuristic and could never achieve superhuman performance, but given more time and more resources, the architecture would remain the same, except that this heuristic would be replaced by the values coming from a DNN, which shows the generality of this approach.
+These values are the same values that a player would get at an all-in node, so we call them `All-in values`. This is not considered to be a good heuristic and could never achieve superhuman performance, but given more time and more resources, the architecture would remain the same, except that this heuristic would be replaced by the values coming from a DNN, which shows the generality of this approach.
 
 
 ### Poker hand evaluator (`poker_hand.h`)
