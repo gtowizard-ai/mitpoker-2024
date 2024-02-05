@@ -10,7 +10,7 @@ Auction Hold'em is a fun twist on No-Limit Texas Hold'em, where a bidding round 
 
 ### GTO Wizard AI
 
-As one of the main sponsor of the event, and the team behind [GTO Wizard AI](https://blog.gtowizard.com/introducing-gto-wizard-ai/), we thought it would be fun to submit our own entry to the tournament. As such, we spent around 5 days working on this implementation, which we are now open-sourcing :)
+As one of the main sponsor of the event, and the team behind [GTO Wizard AI](https://blog.gtowizard.com/introducing-gto-wizard-ai/), we thought it would be fun to submit our own entry to the tournament. As such, we spent around 5 days working on this implementation, which we are now making open-source
 
 We've also given the final lecture of the class, where we gave an history of poker AI in the last 10 years, and talked about the state of AI in the poker industry. Slides can be found [here](assets/Lecture%207%20Slides.pdf).
 
@@ -31,7 +31,7 @@ However, due to the heavy constraints on thinking time and limited time for impl
 
 ![Our technique - Solving small depth-limited subgames using an heuristic function instead of a learned value network at the depth-limit](assets/depth-limited-solving-no-nn.png)
 
-These values are the same values that a player would get at an all-in node, so we call them `All-in values`. This is not considered to be a good heuristic and could never achieve superhuman performance, but given more time and more resources, the architecture would remain the same, except that this heuristic would be replaced by the values coming from a DNN, which shows the generality of this approach.
+These values are the same values that a player would get at an all-in node, so we call them `All-in values`. Note that this is not considered to be a good heuristic and could never achieve superhuman performance. However, given more time and more resources, the architecture would remain the same, except that this heuristic would be replaced by the values coming from a DNN, which shows the generality of this approach.
 
 
 ### Poker hand evaluator (`poker_hand.h`)
