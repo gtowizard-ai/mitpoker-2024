@@ -9,7 +9,7 @@
 #include "hand.h"
 #include "isomorphic_flop_encoder.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 class FlopString {
  public:
@@ -27,18 +27,18 @@ class FlopString {
   } data_;
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard
 
 namespace std {
 
 template <>
-struct hash<pokerbot::FlopString> {
-  std::size_t operator()(const pokerbot::FlopString& flop) const { return flop.std_hash(); }
+struct hash<gtowizard::FlopString> {
+  std::size_t operator()(const gtowizard::FlopString& flop) const { return flop.std_hash(); }
 };
 
 }  // namespace std
 
-namespace pokerbot {
+namespace gtowizard {
 
 // `std::array<char, 7>` is used just to reduce compile time
 inline std::array<std::array<char, 7>, 1755> ISOMORPHIC_FLOPS = {
@@ -1187,4 +1187,4 @@ class HandEquitiesThirdCard {
   std::vector<float> hand_equities_;
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

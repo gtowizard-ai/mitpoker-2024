@@ -4,7 +4,7 @@
 
 #include "hand.h"
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 TEST(PreflopEquityTest, TestIntegrityValues) {
   ASSERT_EQ(PREFLOP_HAND_IDX.size(), NUM_HANDS_POSTFLOP_2CARDS);

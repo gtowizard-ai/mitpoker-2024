@@ -1,7 +1,7 @@
 #pragma once
 #include "hand.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 struct GameInfo {
   // Total number of chips you've gained or lost from the beginning of the match to the start of this round
@@ -71,4 +71,4 @@ class Game {
   std::vector<std::array<hand_t, 3>> subhand_indices_;
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

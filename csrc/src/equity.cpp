@@ -7,7 +7,7 @@
 #include <numeric>
 #include <stdexcept>
 
-namespace pokerbot {
+namespace gtowizard {
 
 const std::vector<hand_t>& BoardDataCache::get_possible_hands_2_cards(
     const std::vector<card_t>& board_cards) {
@@ -1135,4 +1135,4 @@ template void compute_cfvs_showdown<double>(const Game& game, const Range& hero_
                                             std::vector<double>& cfvs, double payoff,
                                             BoardDataCache& cache, bool is_river_equity);
 
-}  // namespace pokerbot
+}  // namespace gtowizard

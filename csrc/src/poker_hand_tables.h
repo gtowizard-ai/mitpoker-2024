@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-namespace pokerbot {
+namespace gtowizard {
 
 inline constexpr strength_t WEAKEST_STRAIGHT = 46824;
 inline constexpr strength_t WEAKEST_FLUSH = 46912;
@@ -26594,4 +26594,4 @@ inline const strength_t NONFLUSH_LOOKUP_TABLE[229452] = {
 
 }  // namespace detail
 
-}  // namespace pokerbot
+}  // namespace gtowizard

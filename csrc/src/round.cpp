@@ -2,7 +2,7 @@
 #include <fmt/format.h>
 #include <stdexcept>
 
-namespace pokerbot::round {
+namespace gtowizard::round {
 
 std::string Round::to_string() const {
   switch (id) {
@@ -29,4 +29,4 @@ const Round& from_num_cards(unsigned num_board_cards) {
       fmt::format("round_from_num_cards: Invalid num_board_cards provided: {}", num_board_cards));
 }
 
-}  // namespace pokerbot::round
+}  // namespace gtowizard::round

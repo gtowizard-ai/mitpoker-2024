@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace pokerbot {
+namespace gtowizard {
 
 /// The type that represents the strength of a hand. Higher is better.
 using strength_t = uint16_t;
@@ -24,4 +24,4 @@ enum class HandCategory : uint8_t {
   StraightFlush,
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

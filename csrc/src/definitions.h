@@ -4,7 +4,7 @@
 #include <optional>
 #include <string_view>
 
-namespace pokerbot {
+namespace gtowizard {
 
 constexpr std::string_view kSuitChars = "cdhs";
 constexpr std::string_view kRankChars = "23456789TJQKA";
@@ -35,4 +35,4 @@ inline std::array<int, 2> STARTING_STACKS = {
 inline std::array<int, 2> BLINDS = {SMALL_BLIND, BIG_BLIND};
 inline std::array<std::optional<int>, 2> EMPTY_BIDS = {std::nullopt, std::nullopt};
 
-}  // namespace pokerbot
+}  // namespace gtowizard

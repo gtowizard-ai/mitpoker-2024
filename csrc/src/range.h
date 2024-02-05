@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace pokerbot {
+namespace gtowizard {
 
 inline constexpr unsigned RANGE_SIZE_MULTIPLE = 16;
 
@@ -38,4 +38,4 @@ struct Range {
   void to_3_cards_range(const Game& game, const std::vector<card_t>& board_cards);
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

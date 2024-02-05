@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <unordered_set>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 TEST(HandTest, TestSmallest2CardsHand) {
   Hand h_2c2d(0, 1);

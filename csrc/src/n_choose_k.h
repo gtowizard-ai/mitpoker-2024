@@ -2,7 +2,7 @@
 #include <fmt/format.h>
 #include "definitions.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 namespace detail {
 
@@ -44,4 +44,4 @@ constexpr uint64_t n_choose_k(int n, int k) {
   return detail::n_choose_k_array[n * (MAX_DECK_SIZE + 1) + k];
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

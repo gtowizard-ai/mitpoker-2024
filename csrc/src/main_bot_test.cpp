@@ -2,7 +2,7 @@
 #include <fmt/ranges.h>
 #include <gtest/gtest.h>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 std::array<int, 2> NO_BETS = {0, 0};
 std::array<std::optional<int>, 2> NO_BIDS = {std::nullopt, std::nullopt};

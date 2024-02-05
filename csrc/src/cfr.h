@@ -5,7 +5,7 @@
 #include "range.h"
 #include "states.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 struct HandActionsValues {
   explicit HandActionsValues(unsigned num_actions, unsigned num_hands, float value)
@@ -104,4 +104,4 @@ class CFR {
   mutable BoardDataCache board_data_cache_;
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

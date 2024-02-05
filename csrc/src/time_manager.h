@@ -4,7 +4,7 @@
 
 #include <array>
 
-namespace pokerbot {
+namespace gtowizard {
 
 class TimeManager {
  public:
@@ -47,4 +47,4 @@ class TimeManager {
   std::array<unsigned, ROUNDS> total_actions_per_round_{};
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

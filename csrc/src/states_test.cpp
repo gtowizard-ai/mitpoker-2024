@@ -4,7 +4,7 @@
 #include "card.h"
 #include "ranges_utils.h"
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 class StatesTest : public ::testing::Test {
  protected:

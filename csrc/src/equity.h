@@ -5,7 +5,7 @@
 #include <optional>
 #include <type_traits>
 
-namespace pokerbot {
+namespace gtowizard {
 
 class BoardDataCache {
  public:
@@ -50,4 +50,4 @@ std::vector<float> compute_equities(const Game& game, const Range& hero_range,
                                     const Range& opponent_range,
                                     const std::vector<card_t>& board_cards);
 
-}  // namespace pokerbot
+}  // namespace gtowizard

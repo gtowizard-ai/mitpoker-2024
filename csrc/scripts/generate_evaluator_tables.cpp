@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 constexpr unsigned num_ranks = 13;
 constexpr unsigned min_num_cards = 5;
@@ -387,7 +387,7 @@ int main() {
   std::cout << "#pragma once\n\n";
   std::cout << "#include \"hand_strength.h\"\n\n";
   std::cout << "#include <cstdint>\n\n";
-  std::cout << "namespace pokerbot {\n\n";
+  std::cout << "namespace gtowizard {\n\n";
   std::cout << "inline constexpr strength_t WEAKEST_STRAIGHT = " << weakest_straight << ";\n";
   std::cout << "inline constexpr strength_t WEAKEST_FLUSH = " << weakest_flush << ";\n\n";
   std::cout << "namespace detail {\n\n";
@@ -411,5 +411,5 @@ int main() {
                 [](auto strength) { std::cout << strength << ", "; });
   std::cout << "};\n\n";
   std::cout << "}  // namespace detail\n\n";
-  std::cout << "}  // namespace pokerbot\n";
+  std::cout << "}  // namespace gtowizard\n";
 }

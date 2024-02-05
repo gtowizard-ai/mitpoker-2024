@@ -7,7 +7,7 @@
 
 #include "card.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 StatePtr RoundState::showdown() const {
   return std::make_shared<TerminalState>(std::array<int, 2>{0, 0}, bids, get_shared());
@@ -142,4 +142,4 @@ std::string TerminalState::to_string() const {
   return fmt::format(FMT_STRING("terminal(deltas=[{}])"), join(deltas, ", "));
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

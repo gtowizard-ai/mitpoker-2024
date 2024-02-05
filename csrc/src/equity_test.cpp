@@ -6,7 +6,7 @@
 #include "ranges_utils.h"
 #include "round.h"
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 class EquityTest : public ::testing::Test {
  protected:

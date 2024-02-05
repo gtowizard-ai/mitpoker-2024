@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <unordered_set>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 TEST(IsomorphicFlopEncoderTest, TestEncodeAllFlops) {
   std::unordered_set<std::string> seen_flops;

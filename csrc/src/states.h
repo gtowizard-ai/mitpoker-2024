@@ -6,7 +6,7 @@
 #include "definitions.h"
 #include "round.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 struct State : std::enable_shared_from_this<State> {
   virtual ~State() = default;
@@ -95,4 +95,4 @@ inline int get_active(int a) {
   return active < 0 ? active + 2 : active;
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

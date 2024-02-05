@@ -1,7 +1,7 @@
 #include "auction.h"
 #include <gtest/gtest.h>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 class AuctionTest : public ::testing::Test {
  protected:

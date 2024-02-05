@@ -1,7 +1,7 @@
 #include "card.h"
 #include <gtest/gtest.h>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 TEST(CardTest, TestConstructor) {
   ASSERT_EQ(Card(0).card(), 0);

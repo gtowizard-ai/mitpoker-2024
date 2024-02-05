@@ -4,7 +4,7 @@
 #include "definitions.h"
 #include "range.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 inline std::array<uint_fast32_t, NUM_HANDS_POSTFLOP_2CARDS> PREFLOP_HAND_IDX = {
     0,   0,   0,   0,   0,   0,   91,  1,   1,   1,   1,   91,  1,   1,   2,   1,   1,   91,  1,
@@ -32220,4 +32220,4 @@ void compute_cfvs_preflop(const Range& opponent_range, float payoff,
                           std::vector<float>& postflop_cfvs,
                           const std::array<float, NUM_HANDS_PREFLOP * NUM_HANDS_PREFLOP>& payoffs);
 
-}  // namespace pokerbot
+}  // namespace gtowizard

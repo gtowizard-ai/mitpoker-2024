@@ -6,7 +6,7 @@
 #include "states.h"
 #include "time_manager.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 class MainBot {
  public:
@@ -67,4 +67,4 @@ class MainBot {
                                  const std::optional<Hand>& player_hand);
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

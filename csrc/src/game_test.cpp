@@ -1,7 +1,7 @@
 #include "game.h"
 #include <gtest/gtest.h>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 class GameTest : public ::testing::Test {
  protected:

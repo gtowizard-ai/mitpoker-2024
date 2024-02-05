@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include "ranges_utils.h"
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 class RangeTest : public ::testing::Test {
  protected:

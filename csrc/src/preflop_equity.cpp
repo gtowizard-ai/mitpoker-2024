@@ -1,6 +1,6 @@
 #include "preflop_equity.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 void compute_cfvs_preflop(const Range& opponent_range, float payoff,
                           std::vector<float>& postflop_cfvs,
@@ -30,4 +30,4 @@ void compute_cfvs_preflop(const Range& opponent_range, float payoff,
   }
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

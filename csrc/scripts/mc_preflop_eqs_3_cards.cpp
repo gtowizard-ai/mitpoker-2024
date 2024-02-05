@@ -4,7 +4,7 @@
 #include "../src/poker_hand.h"
 #include "../src/preflop_equity.h"
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 std::array<float, NUM_HANDS_PREFLOP* NUM_HANDS_PREFLOP> BLOCK_MATRIX = {
     0.16666658, 0.5000001,  1,          0.5000001,  1,          1,          0.5000001,  1,

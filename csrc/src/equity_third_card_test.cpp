@@ -3,7 +3,7 @@
 
 #include "isomorphic_flop_encoder.h"
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 TEST(EquityThirdCardTest, TestAvgEquityThirdCardTableIntegrity) {
   ASSERT_EQ(AVG_EQUITY_LOSS_THIRD_CARD.size(), 1755);

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace pokerbot {
+namespace gtowizard {
 
 struct Action {
   enum class Type { FOLD, CALL, CHECK, RAISE, BID };
@@ -18,4 +18,4 @@ struct Action {
   }
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

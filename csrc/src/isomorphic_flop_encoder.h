@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "card.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 /// Custom/ugly isomorphic flop encoder
 /// Transforms a flop to its isomorphic representation
@@ -76,4 +76,4 @@ class IsomorphicFlopEncoder {
   }
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

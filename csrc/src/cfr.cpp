@@ -6,7 +6,7 @@
 #include "preflop_equity.h"
 #include "states.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 CFR::CFR(const Game& game) : game_(game), board_data_cache_(game) {
   for (auto& child_values : children_cfvs_) {
@@ -328,4 +328,4 @@ void CFR::solve(const std::array<Range, 2>& ranges, const RoundStatePtr& state,
   }
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

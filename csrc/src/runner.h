@@ -15,7 +15,7 @@
 #include "game.h"
 #include "states.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 static constexpr int NUM_HANDS_MATCH = 1000;
 
@@ -245,4 +245,4 @@ inline std::array<std::string, 2> parseArgs(int argc, char* argv[]) {
   return {host, std::to_string(port)};
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

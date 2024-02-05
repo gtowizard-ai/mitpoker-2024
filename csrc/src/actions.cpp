@@ -2,7 +2,7 @@
 
 #include <fmt/format.h>
 
-namespace pokerbot {
+namespace gtowizard {
 
 std::string Action::to_string() const {
   switch (type) {
@@ -19,4 +19,4 @@ std::string Action::to_string() const {
   }
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

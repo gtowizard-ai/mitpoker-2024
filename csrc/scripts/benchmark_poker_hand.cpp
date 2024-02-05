@@ -7,7 +7,7 @@
 #include <random>
 #include <vector>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 int main() {
   constexpr unsigned num_trials = 1000;

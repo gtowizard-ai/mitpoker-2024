@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 // constexpr int num_categories = 9;
 

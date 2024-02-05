@@ -2,7 +2,7 @@
 #include <fmt/ranges.h>
 #include <gtest/gtest.h>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 class CFRTest : public ::testing::Test {
  protected:

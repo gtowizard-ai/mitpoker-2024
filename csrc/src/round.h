@@ -2,7 +2,7 @@
 #include <array>
 #include <string>
 
-namespace pokerbot::round {
+namespace gtowizard::round {
 
 struct Round {
   Round(unsigned id, unsigned num_board_cards) : id(id), num_board_cards(num_board_cards) {}
@@ -27,4 +27,4 @@ const std::array<Round, 4> ROUNDS = {PREFLOP, FLOP, TURN, RIVER};
 
 const Round& from_num_cards(unsigned num_board_cards);
 
-}  // namespace pokerbot::round
+}  // namespace gtowizard::round

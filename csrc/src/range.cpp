@@ -2,7 +2,7 @@
 
 #include "ranges_utils.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 Range::Range() : num_cards(NumCards::Two), range(SIZE) {
   std::fill_n(range.begin(), NUM_HANDS_POSTFLOP_2CARDS, 1.0);
@@ -51,4 +51,4 @@ void Range::to_3_cards_range(const Game& game, const std::vector<card_t>& board_
   }
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

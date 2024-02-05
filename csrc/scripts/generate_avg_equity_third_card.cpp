@@ -6,7 +6,7 @@
 #include "../src/isomorphic_flop_encoder.h"
 #include "../src/ranges_utils.h"
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 void generate_equities(bool output_average_value = false) {
   std::ofstream output_file = [&] {

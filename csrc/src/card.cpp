@@ -1,6 +1,6 @@
 #include "card.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 Card::Card(std::string_view card) {
   if (card.size() != 2) {
@@ -47,4 +47,4 @@ std::vector<card_t> Card::to_vector(std::string_view card_string) {
   return cards;
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

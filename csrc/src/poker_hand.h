@@ -13,7 +13,7 @@
 #include <string_view>
 #include <vector>
 
-namespace pokerbot {
+namespace gtowizard {
 
 /// A struct representing a set of cards, designed to efficiently merge and evaluate hands.
 class PokerHand;
@@ -199,4 +199,4 @@ constexpr bool PokerHand::contains(card_t card) const {
   return suitwise_bitset_ & detail::EVAL_HAND_ARRAY[card].suitwise_bitset_;
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

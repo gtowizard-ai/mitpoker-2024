@@ -1,7 +1,7 @@
 #include "main_bot.h"
 #include "ranges_utils.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 MainBot::MainBot()
     : game_(), auctioneer_(), cfr_(game_), time_manager_(), gen_(std::random_device{}()) {}
@@ -222,4 +222,4 @@ Action MainBot::solve_with_cfr(const GameInfo& game_info, const RoundStatePtr& s
   return *sampled_action;
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

@@ -6,7 +6,7 @@
 #include "definitions.h"
 #include "n_choose_k.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 namespace detail {
 
@@ -99,4 +99,4 @@ struct Hand {
   }
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

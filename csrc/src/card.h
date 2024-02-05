@@ -3,7 +3,7 @@
 #include <vector>
 #include "definitions.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 constexpr unsigned rank_of_card(card_t card) {
   return card / MAX_SUITS;
@@ -60,4 +60,4 @@ class Card {
   card_t card_;
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard

@@ -1,6 +1,6 @@
 #include "../src/main_bot.h"
 #include "../src/runner.h"
-using namespace pokerbot;
+using namespace gtowizard;
 
 /*
   Main program for running our pokerbot

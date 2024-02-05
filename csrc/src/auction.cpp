@@ -3,7 +3,7 @@
 #include "equity_third_card.h"
 #include "isomorphic_flop_encoder.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 inline constexpr int ABS_BIDDING_EPSILON = 2;
 inline constexpr float POT_PERCENTAGE_BIDDING_EPSILON = .1;
@@ -119,4 +119,4 @@ void Auctioneer::receive_bid(Range& hero_range, Range& villain_range, const int 
   }
 }
 
-}  // namespace pokerbot
+}  // namespace gtowizard

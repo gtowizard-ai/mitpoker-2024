@@ -4,7 +4,7 @@
 #include <iostream>
 #include <random>
 
-using namespace pokerbot;
+using namespace gtowizard;
 
 int main() {
   constexpr unsigned num_trials_2_vs_3 = 10000;

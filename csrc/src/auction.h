@@ -4,7 +4,7 @@
 #include "hand.h"
 #include "range.h"
 
-namespace pokerbot {
+namespace gtowizard {
 
 class Auctioneer {
  public:
@@ -26,4 +26,4 @@ class Auctioneer {
   HandEquitiesThirdCard hand_equities_third_card_;
 };
 
-}  // namespace pokerbot
+}  // namespace gtowizard
