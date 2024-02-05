@@ -12,7 +12,7 @@ Auction Hold'em is a fun twist on No-Limit Texas Hold'em, where a bidding round 
 
 As one of the main sponsor of the event, and the team behind [GTO Wizard AI](https://blog.gtowizard.com/introducing-gto-wizard-ai/), we thought it would be fun to submit our own entry into the tournament. As such, we spent around 5 days working on this implementation, which we are now open-sourcing :)
 
-We've also given the final lecture of the class, where we gave an history of poker AI in the last 10 years, and talked about the state of AI in the poker industry. Slides can be found [Here](assets/Lecture%207%20Slides.pdf)
+We've also given the final lecture of the class, where we gave an history of poker AI in the last 10 years, and talked about the state of AI in the poker industry. Slides can be found [here](assets/Lecture%207%20Slides.pdf).
 
 
 ## Methodology
@@ -21,17 +21,22 @@ First of all, the competition had some heavy constraints. Agents are given 30 se
 
 Even with these constraints, we wanted to build a general AI that would scale arbitrarly given more compute and data, and also showcase some key aspects of our technology here at GTO Wizard AI.
 
-The first step consists of building 
+The technological breakthroughs of AI in the last decade have shown the incredible expressive power of deep neural networks (DNNs). In poker, DNNs can be used as value networks, where their job is to predict the values of each hand in each player's range, assuming that players play optimally from that point forward. 
+
+By replacing the exact values by the approximation of a DNN, we can create small depth-limited subgames and solve them much faster than solving the entire game:
 
 ![alt text](assets/depth-limited-solving-nn.png)
 
+However, due to the heavy constraints on thinking time and limited time for implementing the AI, using a learned value network was out of the scope of this project. As a cheap alternative, we replace this network by an heuristic, where we assume that both players get the values corresponding to their equities.
 
 ![alt text](assets/depth-limited-solving-no-nn.png)
+
+This is the same values that a player would get at an all-in node, so we call them `All-in values`. This is not considered to be a good heuristic and could never achieve superhuman performance, but given more time and more resources, the architecture would remain the same, except that this heuristic would be replaced by the values coming from a DNN, which shows the generality of this approach.
 
 
 ### Poker hand evaluator (`poker_hand.h`)
 
-`scripts/generate_rank_bases.cpp` and `scripts/generate_evaluator_tables.cpp` are used to generate a poker hand evaluator that calculates information about hand strength, flush draw or not, and number of straight draw outs.
+`csrc/scripts/generate_rank_bases.cpp` and `csrc/scripts/generate_evaluator_tables.cpp` are used to generate a poker hand evaluator that calculates information about hand strength, flush draw or not, and number of straight draw outs.
 The logic is based on the [OMPEval] library, but supports 5 to 8 card hands (specialized for Auction Hold'em!).
 It is extremely efficient, and it can evaluate 400 million random hands per second with a single thread (on M3 Max MacBook Pro).
 
