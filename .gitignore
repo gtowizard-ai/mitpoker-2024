@@ -8,6 +8,7 @@ simple_bots/build/
 !csrc/data/equity_third_card.bin
 
 *.txt
+!LICENSE.txt
 !CMakeLists.txt
 arena_results.json
 
