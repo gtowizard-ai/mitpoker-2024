@@ -4,32 +4,28 @@ MIT organizes a computerized poker tournament every year @ https://pokerbots.org
 This year's variant was Auction Hold'em:
 
 ### Auction Hold'em
+
 Auction Hold'em is a fun twist on No-Limit Texas Hold'em, where a bidding round (auction) is added right after the flop cards have been dealt. In this bidding round, players bid for getting a third hole card. This is a second-price auction, so the winner of the bid only pays the second highest price. If both players bid the exact same price, then they both get a third card! Finally, the bid goes directly to the pot and the hand continues.
 
 
 ### GTO Wizard AI
 
+As one of the main sponsor of the event, and the team behind [GTO Wizard AI](https://blog.gtowizard.com/introducing-gto-wizard-ai/), we thought it would be fun to submit our own entry into the tournament. As such, we spent around 5 days working on this implementation, which we are now open-sourcing :)
 
-
-## Running the code
-
-### Dependencies
- - python>=3.12
- - cython (pip install cython)
- - eval7 (pip install eval7)
- - C++17 
- - boost (`sudo apt install libboost-all-dev`)
-
-### Pre-Commit Hooks
-
-We format our code with `clang-format` for the C++ code. To avoid having to commit code multiple times
-to pass linting tests, we use pre-commit hooks. To set these up, you should have `pre-commit` installed (this should already be in the python development dependencies), and then you can run
-
-```bash
-pre-commit install
-```
 
 ## Methodology
+
+First of all, the competition had some heavy constraints. Agents are given 30 seconds to play 1000 hands, which leaves only a few milliseconds to think per action! Also, an agent can't use more than 1GB of RAM and can't take more than 100MB of space when compressed.
+
+Even with these constraints, we wanted to build a general AI that would scale arbitrarly given more compute and data, and also showcase some key aspects of our technology here at GTO Wizard AI.
+
+The first step consists of building 
+
+![alt text](assets/depth-limited-solving-nn.png)
+
+
+![alt text](assets/depth-limited-solving-no-nn.png)
+
 
 ### Poker hand evaluator (`poker_hand.h`)
 
@@ -83,6 +79,24 @@ At the onset of the game, an instance of the `TimeManager` class is instantiated
 
 Notably, the `TimeManager` class calculates the time budget based on the expected number of remaining actions, and the remaining time until the conclusion of the game. This allocation is based on predefined ratios for each game round.
 
+
+## Running the code
+
+### Dependencies
+ - python>=3.12
+ - cython (pip install cython)
+ - eval7 (pip install eval7)
+ - C++17 
+ - boost (`sudo apt install libboost-all-dev`)
+
+### Pre-Commit Hooks
+
+We format our code with `clang-format` for the C++ code. To avoid having to commit code multiple times
+to pass linting tests, we use pre-commit hooks. To set these up, you should have `pre-commit` installed (this should already be in the python development dependencies), and then you can run
+
+```bash
+pre-commit install
+```
 
 ### Arena Benchmarks
 
