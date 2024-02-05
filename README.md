@@ -1,5 +1,5 @@
 # MIT Pokerbots 2024
-MIT organizes a computerized poker tournament every year @ https://pokerbots.org/, where the goal is for students to delve into applied topics of computer science, mathematics, statistics, and game theory, by competing against each other in a computerized poker tournament. Every year, the organizers come up with a creative poker variant to make the tournament unique.
+MIT organizes a computerized poker tournament every year @ https://pokerbots.org/, where the objective is for students to delve into applied topics of computer science, mathematics, statistics, and game theory, by competing against each other in a computerized poker tournament. Every year, the organizers come up with a creative poker variant to make the tournament unique.
 
 This year's variant was Auction Hold'em:
 
@@ -11,6 +11,8 @@ Auction Hold'em is a fun twist on No-Limit Texas Hold'em, where a bidding round 
 ### GTO Wizard AI
 
 As one of the main sponsor of the event, and the team behind [GTO Wizard AI](https://blog.gtowizard.com/introducing-gto-wizard-ai/), we thought it would be fun to submit our own entry into the tournament. As such, we spent around 5 days working on this implementation, which we are now open-sourcing :)
+
+We've also given the final lecture of the class, where we gave an history of poker AI in the last 10 years, and talked about the state of AI in the poker industry. Slides can be found [Here](assets/Lecture%207%20Slides.pdf)
 
 
 ## Methodology
@@ -35,7 +37,7 @@ It is extremely efficient, and it can evaluate 400 million random hands per seco
 
 [OMPEval]: https://github.com/zekyll/OMPEval
 
-### Counterfactual value calculator for terminal nodes (`equity.h`, `equity.cpp`)
+### Terminal values calculator (`equity.h`, `equity.cpp`)
 
 The `compute_cfvs_showdown` function calculates counterfactual values for "terminal nodes".
 Before calculating the counterfactual values, we need to evaluate all possible hands and sort them by strength, which takes O(n log n) time (n = 22,100 = (52 choose 3)).
