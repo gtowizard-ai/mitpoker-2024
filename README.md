@@ -1,7 +1,7 @@
 # MIT Pokerbots 2024
 MIT organizes a computerized poker tournament every year @ https://pokerbots.org/, where the objective is for students to delve into applied topics of computer science, mathematics, statistics, and game theory, by competing against each other in a computerized poker tournament. Every year, the organizers come up with a creative poker variant to make the tournament unique.
 
-This year's variant was Auction Hold'em:
+2024's variant was Auction Hold'em:
 
 ### Auction Hold'em
 
@@ -10,7 +10,7 @@ Auction Hold'em is a fun twist on No-Limit Texas Hold'em, where a bidding round 
 
 ### GTO Wizard AI
 
-As one of the main sponsor of the event, and the team behind [GTO Wizard AI](https://blog.gtowizard.com/introducing-gto-wizard-ai/), we thought it would be fun to submit our own entry into the tournament. As such, we spent around 5 days working on this implementation, which we are now open-sourcing :)
+As one of the main sponsor of the event, and the team behind [GTO Wizard AI](https://blog.gtowizard.com/introducing-gto-wizard-ai/), we thought it would be fun to submit our own entry to the tournament. As such, we spent around 5 days working on this implementation, which we are now open-sourcing :)
 
 We've also given the final lecture of the class, where we gave an history of poker AI in the last 10 years, and talked about the state of AI in the poker industry. Slides can be found [here](assets/Lecture%207%20Slides.pdf).
 
@@ -50,8 +50,7 @@ Once sorted, `compute_cfvs_showdown` runs in O(n) time, performing 6,000 calcula
 When either of the two players has folded, we use `compute_cfvs_fixed_payoff` instead to calculate counterfactual values more efficiently.
 
 Here, "terminal nodes" may not refer to the actual end of the game.
-On the flop and turn, "terminal values" are calculated as if the game ends on the current street, i.e., there are
-no more betting rounds.
+On the flop and turn, "terminal values" are calculated as if the game ends on the current street, i.e., there are no more betting rounds.
 This abstraction makes draw hands undervalued, so we added a special treatment to "boost" the values of flush draws and straight draws.
 However, this treatment is only a heuristic and does not necessarily give well-defined values, and also it turns out that it does not seem to improve performance significantly.
 
