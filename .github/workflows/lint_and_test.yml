@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         compiler: [gcc-11, clang-17]
-    runs-on: ubuntu-22.04-4-cores
+    runs-on: ubuntu-22.04
     environment: LOCAL
     env:
       GIT_LFS_SKIP_SMUDGE: 1

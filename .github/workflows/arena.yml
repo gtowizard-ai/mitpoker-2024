@@ -10,7 +10,7 @@ on:
 
 jobs:
   arena:
-    runs-on: ubuntu-22.04-4-cores
+    runs-on: ubuntu-22.04
     environment: LOCAL
     env:
       GIT_LFS_SKIP_SMUDGE: 1
