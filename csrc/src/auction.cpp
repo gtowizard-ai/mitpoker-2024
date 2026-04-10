@@ -35,7 +35,10 @@ int Auctioneer::get_bid(const std::vector<card_t>& board, const Hand& hand, cons
   //x + x^2 + x^3..., which accounts for us getting the equity
   //back from our bid itself
   int stack = STARTING_STACK - (pot / 2);
-  float equity_with_bid = ((1 / (1 - equity_difference)) - 1) * pot;
+  if (equity_difference >= 1.0f) {
+    return STARTING_STACK - (pot / 2);
+  }
+  float equity_with_bid = ((1.0f / (1.0f - equity_difference)) - 1.0f) * pot;
   int default_bid;
   if ((stack - pot) < 0) {
     default_bid = std::ceil(equity_with_bid) + 1;
@@ -56,7 +59,8 @@ int Auctioneer::get_bid(const std::vector<card_t>& board, const Hand& hand, cons
     std::vector<int> bids = {default_bid, v_abs_bid_min_max[0]};
     return *std::max_element(bids.begin(), bids.end());
   }
-  if (std::abs(abs_bid_diff) < POT_PERCENTAGE_BIDDING_EPSILON) {
+  float pot_pct_diff = v_pot_percentage_min_max[1] - v_pot_percentage_min_max[0];
+  if (std::abs(pot_pct_diff) < POT_PERCENTAGE_BIDDING_EPSILON) {
     //We floor here because we are trying to undercut villain
     std::vector<int> bids = {default_bid,
                              static_cast<int>(std::floor(v_pot_percentage_min_max[0] * pot))};

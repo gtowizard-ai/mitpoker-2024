@@ -88,7 +88,7 @@ StatePtr RoundState::proceed(const Action& action) const {
     }
     case Action::Type::BID: {
       auto new_bids = bids;
-      new_bids[active] = -1;
+      new_bids[active] = action.amount;
       if (new_bids[1 - active].has_value()) {
         // both players have submitted bids
         auto state = std::make_shared<RoundState>(1, false, new_bids, bets, stacks, hands,

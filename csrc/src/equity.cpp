@@ -76,7 +76,7 @@ const std::vector<uint32_t>& BoardDataCache::get_sorted_hands_2_cards(
     if (!hand.collides_with(board)) {
       hand += board;
       const auto strength = hand.evaluate();
-      sorted_hands_2_cards_->push_back(strength << 16 | i);
+      sorted_hands_2_cards_->push_back((static_cast<uint32_t>(strength) << 16) | i);
     }
   }
 
@@ -109,7 +109,7 @@ const std::vector<uint32_t>& BoardDataCache::get_sorted_hands_3_cards(
     if (!hand.collides_with(board)) {
       hand += board;
       const auto strength = hand.evaluate();
-      sorted_hands_3_cards_->push_back(strength << 16 | i);
+      sorted_hands_3_cards_->push_back((static_cast<uint32_t>(strength) << 16) | i);
     }
   }
 
